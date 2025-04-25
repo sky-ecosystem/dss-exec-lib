@@ -72,37 +72,36 @@ interface D3MLike {
 contract ActionTest is Test {
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
-    VatAbstract                  immutable vat = VatAbstract(LOG.getAddress("MCD_VAT"));
-    EndAbstract                  immutable end = EndAbstract(LOG.getAddress("MCD_END"));
-    VowAbstract                  immutable vow = VowAbstract(LOG.getAddress("MCD_VOW"));
-    PotAbstract                  immutable pot = PotAbstract(LOG.getAddress("MCD_POT"));
-    JugAbstract                  immutable jug = JugAbstract(LOG.getAddress("MCD_JUG"));
-    DogAbstract                  immutable dog = DogAbstract(LOG.getAddress("MCD_DOG"));
-    CatAbstract                  immutable cat = CatAbstract(LOG.getAddress("MCD_CAT"));
-    DaiAbstract                  immutable daiToken = DaiAbstract(LOG.getAddress("MCD_DAI"));
-    DaiJoinAbstract              immutable daiJoin = DaiJoinAbstract(LOG.getAddress("MCD_JOIN_DAI"));
-    SpotAbstract                 immutable spot = SpotAbstract(LOG.getAddress("MCD_SPOT"));
-    FlapAbstract                 immutable flap = FlapAbstract(LOG.getAddress("MCD_FLAP"));
-    FlopAbstract                 immutable flop = FlopAbstract(LOG.getAddress("MCD_FLOP"));
-    DSTokenAbstract              immutable gov = DSTokenAbstract(LOG.getAddress("MCD_GOV"));
-    IlkRegistryAbstract          immutable reg = IlkRegistryAbstract(LOG.getAddress("ILK_REGISTRY"));
-    OsmMomAbstract               immutable osmMom = OsmMomAbstract(LOG.getAddress("OSM_MOM"));
-    ClipperMomAbstract           immutable clipperMom = ClipperMomAbstract(LOG.getAddress("CLIPPER_MOM"));
-    MkrAuthorityAbstract         immutable govGuard = MkrAuthorityAbstract(LOG.getAddress("GOV_GUARD"));
-    DssAutoLineAbstract          immutable autoLine = DssAutoLineAbstract(LOG.getAddress("MCD_IAM_AUTO_LINE"));
-    LerpFactoryAbstract          immutable lerpFab = LerpFactoryAbstract(LOG.getAddress("LERP_FAB"));
-    RwaLiquidationOracleLike     immutable rwaOracle = RwaLiquidationOracleLike(LOG.getAddress("MIP21_LIQUIDATION_ORACLE"));
+    VatAbstract vat;
+    EndAbstract end;
+    VowAbstract vow;
+    PotAbstract pot;
+    JugAbstract jug;
+    DogAbstract dog;
+    DaiAbstract daiToken;
+    DaiJoinAbstract daiJoin;
+    SpotAbstract spot;
+    FlapAbstract flap;
+    FlopAbstract flop;
+    DSTokenAbstract gov;
+    IlkRegistryAbstract reg;
+    OsmMomAbstract osmMom;
+    ClipperMomAbstract clipperMom;
+    MkrAuthorityAbstract govGuard;
+    DssAutoLineAbstract autoLine;
+    LerpFactoryAbstract lerpFab;
+    RwaLiquidationOracleLike rwaOracle;
 
-    MedianAbstract immutable median = MedianAbstract(address(new MockMedian()));
+    MedianAbstract median;
 
     DssTestAction action;
 
     struct Ilk {
         DSValueAbstract pip;
-        OsmAbstract     osm;
+        OsmAbstract osm;
         DSTokenAbstract gem;
         GemJoinAbstract join;
-        ClipAbstract    clip;
+        ClipAbstract clip;
     }
 
     mapping (bytes32 => Ilk) ilks;
@@ -117,6 +116,92 @@ contract ActionTest is Test {
     string constant doc = "QmcniBv7UQ4gGPQQW2BwbD4ZZHzN3o3tPuNLZCbBchd1zh";
 
     address constant UNIV2ORACLE_FAB = 0xc968B955BCA6c2a3c828d699cCaCbFDC02402D89;
+
+    function setUp() public {
+        vm.createSelectFork("mainnet");
+
+        vat        = VatAbstract(             LOG.getAddress("MCD_VAT"));
+        end        = EndAbstract(             LOG.getAddress("MCD_END"));
+        vow        = VowAbstract(             LOG.getAddress("MCD_VOW"));
+        pot        = PotAbstract(             LOG.getAddress("MCD_POT"));
+        jug        = JugAbstract(             LOG.getAddress("MCD_JUG"));
+        dog        = DogAbstract(             LOG.getAddress("MCD_DOG"));
+        daiToken   = DaiAbstract(             LOG.getAddress("MCD_DAI"));
+        daiJoin    = DaiJoinAbstract(         LOG.getAddress("MCD_JOIN_DAI"));
+        spot       = SpotAbstract(            LOG.getAddress("MCD_SPOT"));
+        flap       = FlapAbstract(            LOG.getAddress("MCD_FLAP"));
+        flop       = FlopAbstract(            LOG.getAddress("MCD_FLOP"));
+        gov        = DSTokenAbstract(         LOG.getAddress("MCD_GOV"));
+        reg        = IlkRegistryAbstract(     LOG.getAddress("ILK_REGISTRY"));
+        osmMom     = OsmMomAbstract(          LOG.getAddress("OSM_MOM"));
+        clipperMom = ClipperMomAbstract(      LOG.getAddress("CLIPPER_MOM"));
+        govGuard   = MkrAuthorityAbstract(    LOG.getAddress("GOV_GUARD"));
+        autoLine   = DssAutoLineAbstract(     LOG.getAddress("MCD_IAM_AUTO_LINE"));
+        lerpFab    = LerpFactoryAbstract(     LOG.getAddress("LERP_FAB"));
+        rwaOracle  = RwaLiquidationOracleLike(LOG.getAddress("MIP21_LIQUIDATION_ORACLE"));
+        median     = MedianAbstract(address(new MockMedian()));
+
+        vm.label(address(vat),        "VAT");
+        vm.label(address(end),        "END");
+        vm.label(address(vow),        "VOW");
+        vm.label(address(pot),        "POT");
+        vm.label(address(jug),        "JUG");
+        vm.label(address(dog),        "DOG");
+        vm.label(address(daiToken),   "DAI");
+        vm.label(address(daiJoin),    "DAI_JOIN");
+        vm.label(address(spot),       "SPOT");
+        vm.label(address(flap),       "FLAP");
+        vm.label(address(flop),       "FLOP");
+        vm.label(address(gov),        "GOV");
+        vm.label(address(reg),        "REG");
+        vm.label(address(osmMom),     "OSM_MOM");
+        vm.label(address(clipperMom), "CLIPPER_MOM");
+        vm.label(address(govGuard),   "GOV_GUARD");
+        vm.label(address(autoLine),   "AUTO_LINE");
+        vm.label(address(lerpFab),    "LERP_FAB");
+        vm.label(address(rwaOracle),  "RWA_LIQUITATION_ORACLE");
+
+        vm.warp(START_TIME);
+
+        action = new DssTestAction();
+
+        giveAuth(address(vat),       address(this));
+        giveAuth(address(vat),       address(action));
+        giveAuth(address(spot),      address(this));
+        giveAuth(address(spot),      address(action));
+        giveAuth(address(dog),       address(this));
+        giveAuth(address(dog),       address(action));
+        giveAuth(address(vow),       address(action));
+        giveAuth(address(end),       address(action));
+        giveAuth(address(pot),       address(action));
+        giveAuth(address(jug),       address(this));
+        giveAuth(address(jug),       address(action));
+        giveAuth(address(flap),      address(action));
+        giveAuth(address(flop),      address(action));
+        giveAuth(address(daiJoin),   address(action));
+        giveAuth(address(LOG),       address(action));
+        giveAuth(address(reg),       address(this));
+        giveAuth(address(reg),       address(action));
+        giveAuth(address(autoLine),  address(action));
+        giveAuth(address(lerpFab),   address(action));
+        giveAuth(address(rwaOracle), address(this));
+        giveAuth(address(rwaOracle), address(action));
+        median.rely(address(action));
+
+        initCollateral("gold", address(action));
+        initRwaCollateral({
+            ilk:  "6s",
+            line: 20_000_000 * RAD,
+            tau:  365 days,
+            duty: 1000000000937303470807876289, // 3% APY
+            mat:  105 * RAY / 100
+        });
+
+        vm.store(address(clipperMom), 0, bytes32(uint256(uint160(address(action)))));
+        vm.store(address(osmMom), 0, bytes32(uint256(uint160(address(action)))));
+
+        vm.store(address(govGuard), 0, bytes32(uint256(uint160(address(action)))));
+    }
 
     function ray(uint256 wad) internal pure returns (uint256) {
         return wad * 10 ** 9;
@@ -237,7 +322,7 @@ contract ActionTest is Test {
         assertTrue(false);
     }
 
-    function init_collateral(bytes32 name, address _action) internal returns (Ilk memory) {
+    function initCollateral(bytes32 name, address _action) internal returns (Ilk memory) {
         DSTokenAbstract gem = DSTokenAbstract(address(new MockToken("")));
         gem.mint(address(this), 20 ether);
 
@@ -284,7 +369,7 @@ contract ActionTest is Test {
         return ilks[name];
     }
 
-    function init_rwa(
+    function initRwaCollateral(
         bytes32 ilk,
         uint256 line,
         uint48 tau,
@@ -309,54 +394,12 @@ contract ActionTest is Test {
         spot.poke(ilk);
     }
 
-    function setUp() public {
-        vm.warp(START_TIME);
-
-        action = new DssTestAction();
-
-        giveAuth(address(vat), address(this));
-        giveAuth(address(vat), address(action));
-        giveAuth(address(spot), address(this));
-        giveAuth(address(spot), address(action));
-        giveAuth(address(dog), address(this));
-        giveAuth(address(dog), address(action));
-        giveAuth(address(vow), address(action));
-        giveAuth(address(end), address(action));
-        giveAuth(address(pot), address(action));
-        giveAuth(address(jug), address(this));
-        giveAuth(address(jug), address(action));
-        giveAuth(address(flap), address(action));
-        giveAuth(address(flop), address(action));
-        giveAuth(address(daiJoin), address(action));
-        giveAuth(address(LOG), address(action));
-        giveAuth(address(reg), address(this));
-        giveAuth(address(reg), address(action));
-        giveAuth(address(autoLine), address(action));
-        giveAuth(address(lerpFab), address(action));
-        giveAuth(address(rwaOracle), address(this));
-        giveAuth(address(rwaOracle), address(action));
-        median.rely(address(action));
-
-        init_collateral("gold", address(action));
-        init_rwa({
-            ilk:      "6s",
-            line:     20_000_000 * RAD,
-            tau:      365 days,
-            duty:     1000000000937303470807876289, // 3% APY
-            mat:      105 * RAY / 100
-        });
-
-        vm.store(address(clipperMom), 0, bytes32(uint256(uint160(address(action)))));
-        vm.store(address(osmMom), 0, bytes32(uint256(uint160(address(action)))));
-
-        vm.store(address(govGuard), 0, bytes32(uint256(uint160(address(action)))));
-    }
 
     // /******************************/
     // /*** OfficeHours Management ***/
     // /******************************/
 
-    function test_canCast() public {
+    function test_canCast() public view {
         assertTrue(action.canCast_test(1616169600, true));  // Friday   2021/03/19, 4:00:00 PM GMT
 
         assertTrue(action.canCast_test(1616169600, false)); // Friday   2021/03/19, 4:00:00 PM GMT
@@ -365,7 +408,7 @@ contract ActionTest is Test {
         assertTrue(!action.canCast_test(1616256000, true)); // Saturday 2021/03/20, 4:00:00 PM GMT
     }
 
-    function test_nextCastTime() public {
+    function test_nextCastTime() public view {
         assertEq(action.nextCastTime_test(1616169600, 1616169600, true), 1616169600);
         assertEq(action.nextCastTime_test(1616169600, 1616169600, false), 1616169600);
 

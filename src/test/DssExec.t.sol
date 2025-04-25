@@ -145,29 +145,24 @@ contract DssLibExecTest is Test {
     ChainlogAbstract constant public LOG = ChainlogAbstract(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
     // MAINNET ADDRESSES
-    PauseAbstract        pause = PauseAbstract(      LOG.getAddress("MCD_PAUSE"));
-    address         pauseProxy =                     LOG.getAddress("MCD_PAUSE_PROXY");
-    DSChiefAbstract      chief = DSChiefAbstract(    LOG.getAddress("MCD_ADM"));
-    VatAbstract            vat = VatAbstract(        LOG.getAddress("MCD_VAT"));
-    VowAbstract            vow = VowAbstract(        LOG.getAddress("MCD_VOW"));
-    CatAbstract            cat = CatAbstract(        LOG.getAddress("MCD_CAT"));
-    DogAbstract            dog = DogAbstract(        LOG.getAddress("MCD_DOG"));
-    PotAbstract            pot = PotAbstract(        LOG.getAddress("MCD_POT"));
-    JugAbstract            jug = JugAbstract(        LOG.getAddress("MCD_JUG"));
-    SpotAbstract          spot = SpotAbstract(       LOG.getAddress("MCD_SPOT"));
-
-    DSTokenAbstract        gov = DSTokenAbstract(    LOG.getAddress("MCD_GOV"));
-    EndAbstract            end = EndAbstract(        LOG.getAddress("MCD_END"));
-    IlkRegistryAbstract    reg = IlkRegistryAbstract(LOG.getAddress("ILK_REGISTRY"));
-
-    OsmMomAbstract      osmMom = OsmMomAbstract(     LOG.getAddress("OSM_MOM"));
-    ClipperMomAbstract clipMom = ClipperMomAbstract( LOG.getAddress("CLIPPER_MOM"));
-
-    // XMPL-A specific
-    GemAbstract           xmpl = GemAbstract(        0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
-    GemJoinAbstract  joinXMPLA;
-    OsmAbstract        pipXMPL = OsmAbstract(        LOG.getAddress("PIP_USDT"));
-    ClipAbstract     clipXMPLA;
+    address pauseProxy;
+    PauseAbstract pause;
+    DSChiefAbstract chief;
+    VatAbstract vat;
+    VowAbstract vow;
+    DogAbstract dog;
+    PotAbstract pot;
+    JugAbstract jug;
+    SpotAbstract spot;
+    DSTokenAbstract gov;
+    EndAbstract end;
+    IlkRegistryAbstract reg;
+    OsmMomAbstract osmMom;
+    ClipperMomAbstract clipMom;
+    GemAbstract xmpl;
+    GemJoinAbstract joinXMPLA;
+    OsmAbstract pipXMPL;
+    ClipAbstract clipXMPLA;
 
     SystemValues afterSpell;
 
@@ -182,6 +177,88 @@ contract DssLibExecTest is Test {
     uint256 constant WAD      = 10 ** 18;
     uint256 constant RAY      = 10 ** 27;
     uint256 constant RAD      = 10 ** 45;
+
+    function setUp() public {
+        vm.createSelectFork("mainnet");
+
+        pauseProxy =                  LOG.getAddress("MCD_PAUSE_PROXY");
+        pause   = PauseAbstract(      LOG.getAddress("MCD_PAUSE"));
+        chief   = DSChiefAbstract(    LOG.getAddress("MCD_ADM"));
+        vat     = VatAbstract(        LOG.getAddress("MCD_VAT"));
+        vow     = VowAbstract(        LOG.getAddress("MCD_VOW"));
+        dog     = DogAbstract(        LOG.getAddress("MCD_DOG"));
+        pot     = PotAbstract(        LOG.getAddress("MCD_POT"));
+        jug     = JugAbstract(        LOG.getAddress("MCD_JUG"));
+        spot    = SpotAbstract(       LOG.getAddress("MCD_SPOT"));
+        gov     = DSTokenAbstract(    LOG.getAddress("MCD_GOV"));
+        end     = EndAbstract(        LOG.getAddress("MCD_END"));
+        reg     = IlkRegistryAbstract(LOG.getAddress("ILK_REGISTRY"));
+        osmMom  = OsmMomAbstract(     LOG.getAddress("OSM_MOM"));
+        clipMom = ClipperMomAbstract( LOG.getAddress("CLIPPER_MOM"));
+        xmpl    = GemAbstract(        0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
+        pipXMPL = OsmAbstract(        LOG.getAddress("PIP_USDT"));
+
+        rates = new Rates();
+
+        spell = new DssExec(
+            block.timestamp + 30 days, // Expiration
+            address(new DssLibSpellAction())
+        );
+
+        // Test for all system configuration changes
+
+        afterSpell.dsr_rate     =  0;               // In basis points
+        afterSpell.vat_Line     =  10000 * MILLION; // In whole Dai units
+        afterSpell.pause_delay  =  pause.delay();   // In seconds
+        afterSpell.vow_wait     =  vow.wait();      // In seconds
+        afterSpell.vow_dump     =  vow.dump()/WAD;  // In whole Dai units
+        afterSpell.vow_sump     =  vow.sump()/RAD;  // In whole Dai units
+        afterSpell.vow_bump     =  vow.bump()/RAD;  // In whole Dai units
+        afterSpell.vow_hump     =  vow.hump()/RAD;  // In whole Dai units
+        afterSpell.dog_Hole     =  dog.Hole()/RAD;  // In whole Dai units
+        afterSpell.ilk_count    =  reg.count() + 1; // Num expected in system
+
+        // Test for all collateral based changes here
+        (uint256 _duty,)  = jug.ilks("LINK-A");
+        (address _clip,,,) = dog.ilks("LINK-A");
+        ClipAbstract clip = ClipAbstract(_clip);
+        afterSpell.collaterals["LINK-A"] = CollateralValues({
+            line:          10 * MILLION,            // In whole Dai units
+            dust:          800,                     // In whole Dai units
+            pct:           _duty,                   // In basis points
+            buf:           clip.buf()*10000/RAY,    // In basis points
+            cusp:          clip.cusp()*10000/RAY,   // In basis points
+            chop:          1400,                    // In basis points
+            tip:           clip.tip()/RAD,          // In whole Dai units
+            chip:          2,                       // In basis points
+            hole:          100000,                  // In whole Dai units
+            mat:           16000,                   // In basis points
+            beg:           400,                     // In basis points
+            tail:          2 hours,                 // In seconds
+            ttl:           3 hours,                 // In seconds
+            tau:           3 hours,                 // In seconds
+            liquidations:  1                        // 1 if enabled
+        });
+
+        // New collateral
+        afterSpell.collaterals["XMPL-A"] = CollateralValues({
+            line:          3 * MILLION,             // In whole Dai units
+            dust:          2000,                    // In whole Dai units
+            pct:           225,                     // In basis points
+            buf:           13000,                   // In basis points
+            cusp:          4000,                    // In basis points
+            chop:          1300,                    // In basis points
+            tip:           5,                       // In whole Dai units
+            chip:          5,                       // In basis points
+            hole:          50 * THOUSAND,           // In whole Dai units
+            mat:           15000,                   // In basis points
+            beg:           300,                     // In basis points
+            tail:          10 hours,                // In seconds
+            ttl:           6 hours,                 // In seconds
+            tau:           6 hours,                 // In seconds
+            liquidations:  1                        // 1 if enabled
+        });
+    }
 
     // not provided in DSMath
     function _rpow(uint256 x, uint256 n, uint256 b) internal pure returns (uint256 z) {
@@ -207,6 +284,7 @@ contract DssLibExecTest is Test {
         }
       }
     }
+
     // 10^-5 (tenth of a basis point) as a RAY
     uint256 TOLERANCE = 10 ** 22;
 
@@ -227,71 +305,6 @@ contract DssLibExecTest is Test {
     }
     function rad(uint256 wad) internal pure returns (uint256) {
         return wad * RAY;
-    }
-
-    function setUp() public {
-        rates = new Rates();
-
-        spell = new DssExec(
-            block.timestamp + 30 days,                  // Expiration
-            address(new DssLibSpellAction())
-        );
-
-        //
-        // Test for all system configuration changes
-        //
-        afterSpell.dsr_rate     =  0;               // In basis points
-        afterSpell.vat_Line     =  10000 * MILLION; // In whole Dai units
-        afterSpell.pause_delay  =  pause.delay();   // In seconds
-        afterSpell.vow_wait     =  vow.wait();      // In seconds
-        afterSpell.vow_dump     =  vow.dump()/WAD;  // In whole Dai units
-        afterSpell.vow_sump     =  vow.sump()/RAD;  // In whole Dai units
-        afterSpell.vow_bump     =  vow.bump()/RAD;  // In whole Dai units
-        afterSpell.vow_hump     =  vow.hump()/RAD;  // In whole Dai units
-        afterSpell.dog_Hole     =  dog.Hole()/RAD;  // In whole Dai units
-        afterSpell.ilk_count    =  reg.count() + 1; // Num expected in system
-
-        //
-        // Test for all collateral based changes here
-        //
-        (uint256 _duty,)  = jug.ilks("LINK-A");
-        (address _clip,,,) = dog.ilks("LINK-A");
-        ClipAbstract clip = ClipAbstract(_clip);
-        afterSpell.collaterals["LINK-A"] = CollateralValues({
-            line:          10 * MILLION,         // In whole Dai units
-            dust:          800,                  // In whole Dai units
-            pct:           _duty,                // In basis points
-            buf:           clip.buf()*10000/RAY, // In basis points
-            cusp:          clip.cusp()*10000/RAY,// In basis points
-            chop:          1400,                 // In basis points
-            tip:           clip.tip()/RAD,       // In whole Dai units
-            chip:          2,                    // In basis points
-            hole:          100000,               // In whole Dai units
-            mat:           16000,                // In basis points
-            beg:           400,                  // In basis points
-            tail:          2 hours,              // In seconds
-            ttl:           3 hours,              // In seconds
-            tau:           3 hours,              // In seconds
-            liquidations:  1                     // 1 if enabled
-        });
-        // New collateral
-        afterSpell.collaterals["XMPL-A"] = CollateralValues({
-            line:          3 * MILLION,          // In whole Dai units
-            dust:          2000,                 // In whole Dai units
-            pct:           225,                  // In basis points
-            buf:           13000,                // In basis points
-            cusp:          4000,                 // In basis points
-            chop:          1300,                 // In basis points
-            tip:           5,                    // In whole Dai units
-            chip:          5,                    // In basis points
-            hole:          50 * THOUSAND,        // In whole Dai units
-            mat:           15000,                // In basis points
-            beg:           300,                  // In basis points
-            tail:          10 hours,             // In seconds
-            ttl:           6 hours,              // In seconds
-            tau:           6 hours,              // In seconds
-            liquidations:  1                     // 1 if enabled
-        });
     }
 
     function vote() private {
