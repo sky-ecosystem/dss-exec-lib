@@ -1,0 +1,37 @@
+# EditorConfig for Sky Protocol Projects
+
+# top-most EditorConfig file
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# Source Code
+[*.{sol,sh,js,py}]
+indent_size = 4
+
+# Certora
+[*.spec]
+indent_size = 4
+
+[*.conf]
+indent_size = 2
+
+# Config Files
+[*.{json,json5,yml,yaml}]
+indent_size = 2
+
+[*.toml]
+indent_size = 4
+
+[Makefile]
+intent_style = tab
+indent_size = 4
+
+# Special Cases
+[*.{diff,md}]
+trim_trailing_whitespace = false
