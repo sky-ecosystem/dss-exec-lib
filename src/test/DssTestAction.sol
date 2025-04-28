@@ -77,8 +77,13 @@ contract DssTestAction is DssAction {
     /**************************/
     /*** Accumulating Rates ***/
     /**************************/
+
     function accumulateDSR_test() public {
         DssExecLib.accumulateDSR();
+    }
+
+    function accumulateSSR_test() public {
+        DssExecLib.accumulateSSR();
     }
 
     function accumulateCollateralStabilityFees_test(bytes32 ilk) public {
@@ -140,6 +145,10 @@ contract DssTestAction is DssAction {
 
     function setDSR_test(uint256 rate) public {
         DssExecLib.setDSR(rate, true);
+    }
+
+    function setSSR_test(uint256 rate) public {
+        DssExecLib.setSSR(rate, true);
     }
 
     function setSurplusAuctionAmount_test(uint256 amount) public {

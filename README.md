@@ -111,6 +111,7 @@ Below is an outline of all functions used in the library.
 
 ### Accumulating Rates
 - `accumulateDSR()`: Update rate accumulation for the Dai Savings Rate (DSR).
+- `accumulateSSR()`: Update rate accumulation for the Sky Savings Rate (SSR).
 - `accumulateCollateralStabilityFees(bytes32 _ilk)`: Update rate accumulation for the stability fees of a given collateral type.
 
 ### Price Updates

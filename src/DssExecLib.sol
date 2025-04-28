@@ -196,6 +196,10 @@ library DssExecLib {
         return getChangelogAddress("MCD_DAI");
     }
 
+    function usds() public view returns (address) {
+        return getChangelogAddress("USDS");
+    }
+
     function mkr() public view returns (address) {
         return getChangelogAddress("MCD_GOV");
     }
@@ -218,6 +222,10 @@ library DssExecLib {
 
     function pot() public view returns (address) {
         return getChangelogAddress("MCD_POT");
+    }
+
+    function susds() public view returns (address) {
+        return getChangelogAddress("SUSDS");
     }
 
     function vow() public view returns (address) {
@@ -274,6 +282,10 @@ library DssExecLib {
 
     function daiJoin() public view returns (address) {
         return getChangelogAddress("MCD_JOIN_DAI");
+    }
+
+    function usdsJoin() public view returns (address) {
+        return getChangelogAddress("USDS_JOIN");
     }
 
     function lerpFab() public view returns (address) {
@@ -422,6 +434,11 @@ library DssExecLib {
         Drippable(pot()).drip();
     }
 
+    /// @dev Update rate accumulation for the Sky Savings Rate (SSR).
+    function accumulateSSR() public {
+        Drippable(susds()).drip();
+    }
+
     /// @dev Update rate accumulation for the stability fees of a given collateral type.
     /// @param _ilk   Collateral type
     function accumulateCollateralStabilityFees(bytes32 _ilk) public {
@@ -510,6 +527,15 @@ library DssExecLib {
         require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/dsr-out-of-bounds"
         if (_doDrip) Drippable(pot()).drip();
         setValue(pot(), "dsr", _rate);
+    }
+
+    /// @dev Set the SKY Savings Rate. See: docs/rates.txt
+    /// @param _rate   The accumulated rate (ex. 4% => 1000000001243680656318820312)
+    /// @param _doDrip `true` to accumulate interest owed
+    function setSSR(uint256 _rate, bool _doDrip) public {
+        require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/dsr-out-of-bounds"
+        if (_doDrip) Drippable(susds()).drip();
+        setValue(susds(), "ssr", _rate);
     }
 
     /// @dev Set the DAI amount for system surplus auctions. Amount will be converted to the correct internal precision.

@@ -78,22 +78,13 @@ interface UsdsJoinLike is DaiJoinAbstract {
 }
 
 interface UsdsLike {
-    function allowance(address, address) external view returns (uint256);
-    function approve(address spender, uint256 value) external returns (bool);
     function balanceOf(address) external view returns (uint256);
-    function burn(address from, uint256 value) external;
-    function decimals() external view returns (uint8);
-    function mint(address to, uint256 value) external;
-    function name() external view returns (string memory);
-    function nonces(address) external view returns (uint256);
-    function permit(address owner, address spender, uint256 value, uint256 deadline, bytes memory signature) external;
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        external;
-    function symbol() external view returns (string memory);
-    function totalSupply() external view returns (uint256);
-    function transfer(address to, uint256 value) external returns (bool);
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
-    function version() external view returns (string memory);
+}
+
+interface SUsdsLike {
+    function chi() external view returns (uint192);
+    function drip() external returns (uint256 nChi);
+    function ssr() external view returns (uint256);
 }
 
 contract ActionTest is Test {
@@ -103,6 +94,7 @@ contract ActionTest is Test {
     EndAbstract end;
     VowAbstract vow;
     PotAbstract pot;
+    SUsdsLike susds;
     JugAbstract jug;
     DogAbstract dog;
     DaiAbstract daiToken;
@@ -155,6 +147,7 @@ contract ActionTest is Test {
         end        = EndAbstract(             LOG.getAddress("MCD_END"));
         vow        = VowAbstract(             LOG.getAddress("MCD_VOW"));
         pot        = PotAbstract(             LOG.getAddress("MCD_POT"));
+        susds      = SUsdsLike(               LOG.getAddress("SUSDS"));
         jug        = JugAbstract(             LOG.getAddress("MCD_JUG"));
         dog        = DogAbstract(             LOG.getAddress("MCD_DOG"));
         daiToken   = DaiAbstract(             LOG.getAddress("MCD_DAI"));
@@ -178,10 +171,13 @@ contract ActionTest is Test {
         vm.label(address(end),        "END");
         vm.label(address(vow),        "VOW");
         vm.label(address(pot),        "POT");
+        vm.label(address(susds),      "SUSDS");
         vm.label(address(jug),        "JUG");
         vm.label(address(dog),        "DOG");
         vm.label(address(daiToken),   "DAI");
+        vm.label(address(usdsToken),  "USDS");
         vm.label(address(daiJoin),    "DAI_JOIN");
+        vm.label(address(usdsJoin),   "USDS_JOIN");
         vm.label(address(spot),       "SPOT");
         vm.label(address(flap),       "FLAP");
         vm.label(address(flop),       "FLOP");
@@ -202,6 +198,7 @@ contract ActionTest is Test {
         giveAuth(address(vat),       address(action));
         giveAuth(address(spot),      address(this));
         giveAuth(address(spot),      address(action));
+        giveAuth(address(susds),     address(action));
         giveAuth(address(dog),       address(this));
         giveAuth(address(dog),       address(action));
         giveAuth(address(vow),       address(action));
@@ -537,6 +534,17 @@ contract ActionTest is Test {
         assertEq(pot.dsr(), 1000000001243680656318820312);
         vm.warp(START_TIME + 1 days);
         action.accumulateDSR_test();
+        uint256 afterChi = pot.chi();
+
+        assertGt(afterChi, beforeChi);
+    }
+
+    function test_accumulateSSR() public {
+        uint256 beforeChi = susds.chi();
+        action.setSSR_test(1000000001243680656318820312); // 4%
+        assertEq(susds.ssr(), 1000000001243680656318820312);
+        vm.warp(START_TIME + 1 days);
+        action.accumulateSSR_test();
         uint256 afterChi = pot.chi();
 
         assertGt(afterChi, beforeChi);
