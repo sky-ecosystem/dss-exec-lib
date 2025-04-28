@@ -64,7 +64,7 @@ interface Univ2OracleFactoryLike {
     function build(address, address, bytes32, address, address) external returns (address oracle);
 }
 
-interface D3MLike {
+interface DDMLike {
     function bar() external view returns (uint256);
     function rely(address) external;
 }
@@ -979,18 +979,18 @@ contract ActionTest is Test {
     /*** Direct Deposit Module ***/
     /*****************************/
 
-    function test_setD3MTargetInterestRate() public {
-        D3MLike d3m = D3MLike(LOG.getAddress("MCD_JOIN_DIRECT_AAVEV2_DAI"));
-        giveAuth(address(d3m), address(action));
+    function test_setDDMTargetInterestRate() public {
+        DDMLike ddm = DDMLike(LOG.getAddress("DIRECT_AAVEV2_DAI_PLAN"));
+        giveAuth(address(ddm), address(action));
 
-        action.setD3MTargetInterestRate_test(address(d3m), 500); // set to 5%
-        assertEq(d3m.bar(), 5 * RAY / 100);
+        action.setDDMTargetInterestRate_test(address(ddm), 500); // set to 5%
+        assertEq(ddm.bar(), 5 * RAY / 100);
 
-        action.setD3MTargetInterestRate_test(address(d3m), 0);   // set to 0%
-        assertEq(d3m.bar(), 0);
+        action.setDDMTargetInterestRate_test(address(ddm), 0);   // set to 0%
+        assertEq(ddm.bar(), 0);
 
-        action.setD3MTargetInterestRate_test(address(d3m), 1000); // set to 10%
-        assertEq(d3m.bar(), 10 * RAY / 100);
+        action.setDDMTargetInterestRate_test(address(ddm), 1000); // set to 10%
+        assertEq(ddm.bar(), 10 * RAY / 100);
     }
 
     /*****************************/

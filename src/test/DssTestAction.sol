@@ -329,8 +329,8 @@ contract DssTestAction is DssAction {
     /*** Direct Deposit Module ***/
     /*****************************/
 
-    function setD3MTargetInterestRate_test(address d3m, uint256 pct_bps) public {
-        DssExecLib.setD3MTargetInterestRate(d3m, pct_bps);
+    function setDDMTargetInterestRate_test(address ddm, uint256 pct_bps) public {
+        DssExecLib.setDDMTargetInterestRate(ddm, pct_bps);
     }
 
     /*****************************/

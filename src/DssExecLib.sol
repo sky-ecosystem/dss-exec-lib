@@ -916,14 +916,14 @@ library DssExecLib {
     /*****************************/
 
     /**
-        @dev Sets the target rate threshold for a dai direct deposit module (d3m)
+        @dev Sets the target rate threshold for a dai direct deposit module (ddm)
         @dev Aave: Targets the variable borrow rate
-        @param _d3m     The address of the D3M contract
+        @param _ddm     The address of the DDM contract
         @param _pct_bps Target rate in basis points. (ex. 4% == 400)
     */
-    function setD3MTargetInterestRate(address _d3m, uint256 _pct_bps) public {
+    function setDDMTargetInterestRate(address _ddm, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // DssExecLib/bar-too-high
-        setValue(_d3m, "bar", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
+        setValue(_ddm, "bar", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
     /*****************************/
