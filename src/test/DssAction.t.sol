@@ -584,7 +584,7 @@ contract ActionTest is Test {
         assertEq(pot.dsr(), rate);
     }
 
-    function test_setSuruplusAuctionAmount() public {
+    function test_setSurplusAuctionAmount() public {
         action.setSurplusAuctionAmount_test(100 * THOUSAND);
         assertEq(vow.bump(), 100 * THOUSAND * RAD);
     }
