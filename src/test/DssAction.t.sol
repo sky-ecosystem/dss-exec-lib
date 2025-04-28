@@ -69,6 +69,10 @@ interface DDMLike {
     function rely(address) external;
 }
 
+interface FlapUniV2Like {
+    function want() external view returns (uint256);
+}
+
 contract ActionTest is Test {
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
@@ -81,7 +85,7 @@ contract ActionTest is Test {
     DaiAbstract daiToken;
     DaiJoinAbstract daiJoin;
     SpotAbstract spot;
-    FlapAbstract flap;
+    FlapUniV2Like flap;
     FlopAbstract flop;
     DSTokenAbstract gov;
     IlkRegistryAbstract reg;
@@ -112,13 +116,15 @@ contract ActionTest is Test {
     uint256 constant public RAY      = 10 ** 27;
     uint256 constant public RAD      = 10 ** 45;
 
-    uint256 immutable START_TIME = block.timestamp;
+    uint256 START_TIME;
     string constant doc = "QmcniBv7UQ4gGPQQW2BwbD4ZZHzN3o3tPuNLZCbBchd1zh";
 
     address constant UNIV2ORACLE_FAB = 0xc968B955BCA6c2a3c828d699cCaCbFDC02402D89;
 
     function setUp() public {
         vm.createSelectFork("mainnet");
+
+        START_TIME = block.timestamp;
 
         vat        = VatAbstract(             LOG.getAddress("MCD_VAT"));
         end        = EndAbstract(             LOG.getAddress("MCD_END"));
@@ -129,7 +135,7 @@ contract ActionTest is Test {
         daiToken   = DaiAbstract(             LOG.getAddress("MCD_DAI"));
         daiJoin    = DaiJoinAbstract(         LOG.getAddress("MCD_JOIN_DAI"));
         spot       = SpotAbstract(            LOG.getAddress("MCD_SPOT"));
-        flap       = FlapAbstract(            LOG.getAddress("MCD_FLAP"));
+        flap       = FlapUniV2Like(           LOG.getAddress("MCD_FLAP"));
         flop       = FlopAbstract(            LOG.getAddress("MCD_FLOP"));
         gov        = DSTokenAbstract(         LOG.getAddress("MCD_GOV"));
         reg        = IlkRegistryAbstract(     LOG.getAddress("ILK_REGISTRY"));
@@ -594,19 +600,9 @@ contract ActionTest is Test {
         assertEq(vow.hump(), 1 * MILLION * RAD);
     }
 
-    function test_setMinSurplusAuctionBidIncrease() public {
-        action.setMinSurplusAuctionBidIncrease_test(525); // 5.25%
-        assertEq(flap.beg(), 1 ether + 5.25 ether / 100); // (1 + pct) * WAD
-    }
-
-    function test_setSurplusAuctionBidDuration() public {
-        action.setSurplusAuctionBidDuration_test(12 hours);
-        assertEq(uint256(flap.ttl()), 12 hours);
-    }
-
-    function test_setSurplusAuctionDuration() public {
-        action.setSurplusAuctionDuration_test(12 hours);
-        assertEq(uint256(flap.tau()), 12 hours);
+    function test_setSurplusAuctionMinPriceThreshold() public {
+        action.setSurplusAuctionMinPriceThreshold_test(75_00);
+        assertEq(flap.want(), 75 * WAD / 100);
     }
 
     function test_setDebtAuctionDelay() public {

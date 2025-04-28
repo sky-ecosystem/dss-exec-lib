@@ -125,11 +125,8 @@ Below is an outline of all functions used in the library.
 - `increaseGlobalDebtCeiling(uint256 _amount)`: Increase the global debt ceiling.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
-- `setSurplusAuctionAmount(uint256 _amount)`: Set the DAI amount for system surplus auctions.
+- `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, ``9_80 bps` allows a 2% drop in the reference price.
 - `setSurplusBuffer(uint256 _amount)`: Set the DAI amount for system surplus buffer, must be exceeded before surplus auctions start.
-- `setMinSurplusAuctionBidIncrease(uint256 _pct_bps)`: Set minimum bid increase for surplus auctions.
-- `setSurplusAuctionBidDuration(uint256 _length)`: Set bid duration for surplus auctions.
-- `setSurplusAuctionDuration(uint256 _length)`: Set total auction duration for surplus auctions.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
 - `setDebtAuctionDAIAmount(uint256 _amount)`: Set the DAI amount for system debt to be covered by each debt auction.
 - `setDebtAuctionMKRAmount(uint256 _amount)`: Set the starting MKR amount to be auctioned off to cover system debt in debt auctions.

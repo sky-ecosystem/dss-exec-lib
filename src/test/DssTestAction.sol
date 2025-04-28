@@ -150,16 +150,8 @@ contract DssTestAction is DssAction {
         DssExecLib.setSurplusBuffer(amount);
     }
 
-    function setMinSurplusAuctionBidIncrease_test(uint256 pct_bps) public {
-        DssExecLib.setMinSurplusAuctionBidIncrease(pct_bps);
-    }
-
-    function setSurplusAuctionBidDuration_test(uint256 duration) public {
-        DssExecLib.setSurplusAuctionBidDuration(duration);
-    }
-
-    function setSurplusAuctionDuration_test(uint256 duration) public {
-        DssExecLib.setSurplusAuctionDuration(duration);
+    function setSurplusAuctionMinPriceThreshold_test(uint256 _pct_bps) public {
+        DssExecLib.setSurplusAuctionMinPriceThreshold(_pct_bps);
     }
 
     function setDebtAuctionDelay_test(uint256 duration) public {
