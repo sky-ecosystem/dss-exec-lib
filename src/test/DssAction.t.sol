@@ -73,6 +73,29 @@ interface FlapUniV2Like {
     function want() external view returns (uint256);
 }
 
+interface UsdsJoinLike is DaiJoinAbstract {
+    function usds() external view returns (address);
+}
+
+interface UsdsLike {
+    function allowance(address, address) external view returns (uint256);
+    function approve(address spender, uint256 value) external returns (bool);
+    function balanceOf(address) external view returns (uint256);
+    function burn(address from, uint256 value) external;
+    function decimals() external view returns (uint8);
+    function mint(address to, uint256 value) external;
+    function name() external view returns (string memory);
+    function nonces(address) external view returns (uint256);
+    function permit(address owner, address spender, uint256 value, uint256 deadline, bytes memory signature) external;
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external;
+    function symbol() external view returns (string memory);
+    function totalSupply() external view returns (uint256);
+    function transfer(address to, uint256 value) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function version() external view returns (string memory);
+}
+
 contract ActionTest is Test {
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
@@ -84,6 +107,8 @@ contract ActionTest is Test {
     DogAbstract dog;
     DaiAbstract daiToken;
     DaiJoinAbstract daiJoin;
+    UsdsLike usdsToken;
+    UsdsJoinLike usdsJoin;
     SpotAbstract spot;
     FlapUniV2Like flap;
     FlopAbstract flop;
@@ -134,6 +159,8 @@ contract ActionTest is Test {
         dog        = DogAbstract(             LOG.getAddress("MCD_DOG"));
         daiToken   = DaiAbstract(             LOG.getAddress("MCD_DAI"));
         daiJoin    = DaiJoinAbstract(         LOG.getAddress("MCD_JOIN_DAI"));
+        usdsJoin   = UsdsJoinLike(            LOG.getAddress("USDS_JOIN"));
+        usdsToken  = UsdsLike(                LOG.getAddress("USDS"));
         spot       = SpotAbstract(            LOG.getAddress("MCD_SPOT"));
         flap       = FlapUniV2Like(           LOG.getAddress("MCD_FLAP"));
         flop       = FlopAbstract(            LOG.getAddress("MCD_FLOP"));
@@ -1143,22 +1170,22 @@ contract ActionTest is Test {
     }
 
     function test_addNewCollateralCase1() public {
-        collateralOnboardingTest(true, true, true);      // Liquidations: ON,  PIP == OSM, osmSrc == median
+        collateralOnboardingTest(true, true, true);    // Liquidations: ON,  PIP == OSM, osmSrc == median
     }
     function test_addNewCollateralCase2() public {
-        collateralOnboardingTest(true, true, false);     // Liquidations: ON,  PIP == OSM, osmSrc != median
+        collateralOnboardingTest(true, true, false);   // Liquidations: ON,  PIP == OSM, osmSrc != median
     }
     function test_addNewCollateralCase3() public {
-        collateralOnboardingTest(true, false, false);    // Liquidations: ON,  PIP != OSM, osmSrc != median
+        collateralOnboardingTest(true, false, false);  // Liquidations: ON,  PIP != OSM, osmSrc != median
     }
     function test_addNewCollateralCase4() public {
-        collateralOnboardingTest(false, true, true);     // Liquidations: OFF, PIP == OSM, osmSrc == median
+        collateralOnboardingTest(false, true, true);   // Liquidations: OFF, PIP == OSM, osmSrc == median
     }
     function test_addNewCollateralCase5() public {
-        collateralOnboardingTest(false, true, false);    // Liquidations: OFF, PIP == OSM, osmSrc != median
+        collateralOnboardingTest(false, true, false);  // Liquidations: OFF, PIP == OSM, osmSrc != median
     }
     function test_addNewCollateralCase6() public {
-        collateralOnboardingTest(false, false, false);   // Liquidations: OFF, PIP != OSM, osmSrc != median
+        collateralOnboardingTest(false, false, false); // Liquidations: OFF, PIP != OSM, osmSrc != median
     }
     function test_officeHoursCanOverrideInAction() public {
         DssTestNoOfficeHoursAction actionNoOfficeHours = new DssTestNoOfficeHoursAction();
@@ -1170,7 +1197,7 @@ contract ActionTest is Test {
     /*** Payment ***/
     /***************/
 
-    function test_sendPaymentFromSurplusBuffer() public {
+    function test_sendPaymentFromSurplusBuffer_DAI() public {
         address target = address(this);
 
         action.delegateVat_test(address(daiJoin));
@@ -1180,10 +1207,28 @@ contract ActionTest is Test {
         assertEq(daiToken.balanceOf(target), 0);
         uint256 vowDaiPrev = vat.dai(address(vow));
         uint256 vowSinPrev = vat.sin(address(vow));
-        action.sendPaymentFromSurplusBuffer_test(target, 100);
+        action.sendPaymentFromSurplusBuffer_test(address(daiJoin), target, 100);
         assertEq(vat.dai(target), 0);
         assertEq(vat.sin(target), 0);
         assertEq(daiToken.balanceOf(target), 100 * WAD);
+        assertEq(vat.dai(address(vow)), vowDaiPrev);
+        assertEq(vat.sin(address(vow)), vowSinPrev + 100 * RAD);
+    }
+
+    function test_sendPaymentFromSurplusBuffer_USDS() public {
+        address target = address(this);
+
+        action.delegateVat_test(address(usdsJoin));
+
+        assertEq(vat.dai(target), 0);
+        assertEq(vat.sin(target), 0);
+        assertEq(usdsToken.balanceOf(target), 0);
+        uint256 vowDaiPrev = vat.dai(address(vow));
+        uint256 vowSinPrev = vat.sin(address(vow));
+        action.sendPaymentFromSurplusBuffer_test(address(usdsJoin), target, 100);
+        assertEq(vat.dai(target), 0);
+        assertEq(vat.sin(target), 0);
+        assertEq(usdsToken.balanceOf(target), 100 * WAD);
         assertEq(vat.dai(address(vow)), vowDaiPrev);
         assertEq(vat.sin(address(vow)), vowSinPrev + 100 * RAD);
     }

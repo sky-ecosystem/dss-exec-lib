@@ -256,7 +256,7 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 - `liquidationRatio`:     Percent liquidation ratio for new collateral   [ex. 150% == 15000]
 
 ### Payments
-- `sendPaymentFromSurplusBuffer(address _target, uint256 _amount)`: Send a payment in ERC20 DAI from the surplus buffer.
+- `sendPaymentFromSurplusBuffer(address _join, address _target, uint256 _amount)`: Send a payment in either ERC20 USDS or DAI from the surplus buffer.
 
 ### Misc
 

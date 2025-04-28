@@ -1056,13 +1056,14 @@ library DssExecLib {
     /*** Payment ***/
     /***************/
 
-    /// @dev Send a payment in ERC20 DAI from the surplus buffer.
+    /// @dev Send a payment in either ERC20 USDS or DAI from the surplus buffer.
+    /// @param _join The join adapter to exit the payment from.
     /// @param _target The target address to send the DAI to.
     /// @param _amount The amount to send in DAI (ex. 10m DAI amount == 10000000)
-    function sendPaymentFromSurplusBuffer(address _target, uint256 _amount) public {
+    function sendPaymentFromSurplusBuffer(address _join,address _target, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
         DssVat(vat()).suck(vow(), address(this), _amount * RAD);
-        JoinLike(daiJoin()).exit(_target, _amount * WAD);
+        JoinLike(_join).exit(_target, _amount * WAD);
     }
 
     /************/

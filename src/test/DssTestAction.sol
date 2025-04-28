@@ -345,8 +345,8 @@ contract DssTestAction is DssAction {
     /*** Payment ***/
     /***************/
 
-    function sendPaymentFromSurplusBuffer_test(address target, uint256 amount) public {
-        DssExecLib.sendPaymentFromSurplusBuffer(target, amount);
+    function sendPaymentFromSurplusBuffer_test(address join, address target, uint256 amount) public {
+        DssExecLib.sendPaymentFromSurplusBuffer(join, target, amount);
     }
 
     /************/
