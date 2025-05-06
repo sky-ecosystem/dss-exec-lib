@@ -90,6 +90,7 @@ interface SUsdsLike {
 contract ActionTest is Test {
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
+    DSPauseAbstract pause;
     VatAbstract vat;
     EndAbstract end;
     VowAbstract vow;
@@ -143,6 +144,7 @@ contract ActionTest is Test {
 
         START_TIME = block.timestamp;
 
+        pause      = DSPauseAbstract(         LOG.getAddress("MCD_PAUSE"));
         vat        = VatAbstract(             LOG.getAddress("MCD_VAT"));
         end        = EndAbstract(             LOG.getAddress("MCD_END"));
         vow        = VowAbstract(             LOG.getAddress("MCD_VOW"));
@@ -167,6 +169,7 @@ contract ActionTest is Test {
         rwaOracle  = RwaLiquidationOracleLike(LOG.getAddress("MIP21_LIQUIDATION_ORACLE"));
         median     = MedianAbstract(address(new MockMedian()));
 
+        vm.label(address(pause),      "PAUSE");
         vm.label(address(vat),        "VAT");
         vm.label(address(end),        "END");
         vm.label(address(vow),        "VOW");
@@ -981,6 +984,25 @@ contract ActionTest is Test {
         OsmAbstract osm = ilks["gold"].osm;
         action.allowOSMFreeze_test(address(osm), "gold");
         assertEq(osmMom.osms("gold"), address(osm));
+    }
+
+    /**********************************/
+    /*** Governance Security Module ***/
+    /**********************************/
+
+    function test_setGSMDelay() public {
+        // Because of the `wait` modifier in MCD_PAUSE, we need to prank delegatecalls as well,
+        // since this will be the opcode used by `setGSMDelay_test` when calling `DssExecLib`
+        vm.startPrank(LOG.getAddress("MCD_PAUSE_PROXY"), /* delegatecall = */ true);
+        // Sets an initial value
+        action.setGSMDelay_test(12 hours);
+
+        // Checks if the new value is being properly set.
+        action.setGSMDelay_test(16 hours);
+        assertEq(pause.delay(), 16 hours);
+
+        vm.expectRevert();
+        action.setGSMDelay_test(8 hours); // delay-too-low. Min: 12 hours
     }
 
     /*****************************/

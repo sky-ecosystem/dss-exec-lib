@@ -314,6 +314,14 @@ contract DssTestAction is DssAction {
         DssExecLib.allowOSMFreeze(osm, ilk);
     }
 
+    /**********************************/
+    /*** Governance Security Module ***/
+    /**********************************/
+
+    function setGSMDelay_test(uint256 _delay) public {
+        DssExecLib.setGSMDelay(_delay);
+    }
+
     /*****************************/
     /*** Direct Deposit Module ***/
     /*****************************/

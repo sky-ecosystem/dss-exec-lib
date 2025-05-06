@@ -170,6 +170,9 @@ Below is an outline of all functions used in the library.
 - `removeFromWhitelist(address _oracle, address _reader)`: Removes an address from a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
 - `allowOSMFreeze(address _osm, bytes32 _ilk)`: Add OSM address to OSM mom, allowing it to be frozen by governance.
 
+### Governance Security Module
+- `setGSMDelay`: Sets the GSM delay for governance actions.
+
 ### Direct Deposit Module
 - `setDDMTargetInterestRate(address _ddm, uint256 _pct_bps)`: Set the target rate (`bar`) for a DDM module.
 

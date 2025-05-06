@@ -64,6 +64,10 @@ interface DssVat {
     function suck(address, address, uint256) external;
 }
 
+interface PauseLike {
+    function setDelay(uint256) external;
+}
+
 interface ClipLike {
     function vat() external returns (address);
     function dog() external returns (address);
@@ -294,6 +298,10 @@ library DssExecLib {
 
     function lerpFab() public view returns (address) {
         return getChangelogAddress("LERP_FAB");
+    }
+
+    function pause() public view returns (address) {
+        return getChangelogAddress("MCD_PAUSE");
     }
 
     function clip(bytes32 _ilk) public view returns (address _clip) {
@@ -920,6 +928,18 @@ library DssExecLib {
     /// @param _ilk        Collateral type using OSM
     function allowOSMFreeze(address _osm, bytes32 _ilk) public {
         OsmMomLike(osmMom()).setOsm(_ilk, _osm);
+    }
+
+    /**********************************/
+    /*** Governance Security Module ***/
+    /**********************************/
+
+    /// @dev Sets the time delay between governance votes and execution in MCD_PAUSE.
+    /// @dev Enforces an arbitrary minimum delay of 12 hours.
+    /// @param _delay The time delay in seconds.
+    function setGSMDelay(uint256 _delay) public {
+        require(_delay >= 12 hours); // DssExecLib/delay-too-low
+        PauseLike(pause()).setDelay(_delay);
     }
 
     /*****************************/
