@@ -31,6 +31,11 @@ interface Authorizable {
     function setAuthority(address) external;
 }
 
+interface Kissable {
+    function kiss(address) external;
+    function diss(address) external;
+}
+
 interface Fileable {
     function file(bytes32, address) external;
     function file(bytes32, uint256) external;
@@ -81,15 +86,11 @@ interface JoinLike {
 }
 
 // Includes Median and OSM functions
-interface OracleLike {
+interface OracleLike is Kissable {
     function src() external view returns (address);
-    function lift(address[] calldata) external;
-    function drop(address[] calldata) external;
-    function setBar(uint256) external;
-    function kiss(address) external;
-    function diss(address) external;
-    function kiss(address[] calldata) external;
-    function diss(address[] calldata) external;
+}
+
+interface LPOracleLike is Kissable {
     function orb0() external view returns (address);
     function orb1() external view returns (address);
 }
@@ -892,47 +893,26 @@ library DssExecLib {
         if (ok) {
             // Token is an LP oracle
             address median0 = abi.decode(data, (address));
-            addReaderToWhitelistCall(median0, _oracle);
-            addReaderToWhitelistCall(OracleLike(_oracle).orb1(), _oracle);
+            median0.call(abi.encodeWithSignature("kiss(address)", _oracle));
+            LPOracleLike(_oracle).orb1().call(abi.encodeWithSignature("kiss(address)", _oracle));
         } else {
             // Standard OSM
-            addReaderToWhitelistCall(OracleLike(_oracle).src(), _oracle);
+            OracleLike(_oracle).src().call(abi.encodeWithSignature("kiss(address)", _oracle));
         }
     }
 
     /// @dev Adds an address to the OSM or Median's reader whitelist, allowing the address to read prices.
     /// @param _oracle        Oracle Security Module (OSM) or Median core contract address
     /// @param _reader     Address to add to whitelist
-    function addReaderToWhitelist(address _oracle, address _reader) public {
-        OracleLike(_oracle).kiss(_reader);
+    function addToWhitelist(address _oracle, address _reader) public {
+        Kissable(_oracle).kiss(_reader);
     }
 
     /// @dev Removes an address to the OSM or Median's reader whitelist, disallowing the address to read prices.
     /// @param _oracle     Oracle Security Module (OSM) or Median core contract address
     /// @param _reader     Address to remove from whitelist
-    function removeReaderFromWhitelist(address _oracle, address _reader) public {
-        OracleLike(_oracle).diss(_reader);
-    }
-
-    /// @dev Adds an address to the OSM or Median's reader whitelist, allowing the address to read prices.
-    /// @param _oracle  OSM or Median core contract address
-    /// @param _reader  Address to add to whitelist
-    function addReaderToWhitelistCall(address _oracle, address _reader) public {
-        _oracle.call(abi.encodeWithSignature("kiss(address)", _reader));
-    }
-
-    /// @dev Removes an address to the OSM or Median's reader whitelist, disallowing the address to read prices.
-    /// @param _oracle  Oracle Security Module (OSM) or Median core contract address
-    /// @param _reader  Address to remove from whitelist
-    function removeReaderFromWhitelistCall(address _oracle, address _reader) public {
-        _oracle.call(abi.encodeWithSignature("diss(address)", _reader));
-    }
-
-    /// @dev Sets the minimum number of valid messages from whitelisted oracle feeds needed to update median price.
-    /// @param _median     Median core contract address
-    /// @param _minQuorum  Minimum number of valid messages from whitelisted oracle feeds needed to update median price (NOTE: MUST BE ODD NUMBER)
-    function setMedianWritersQuorum(address _median, uint256 _minQuorum) public {
-        OracleLike(_median).setBar(_minQuorum);
+    function removeFromWhitelist(address _oracle, address _reader) public {
+        Kissable(_oracle).diss(_reader);
     }
 
     /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance.
@@ -1044,13 +1024,13 @@ library DssExecLib {
                 whitelistOracleMedians(co.pip);
             }
             // Whitelist Spotter to read the OSM data (only necessary if it is the first time the token is being added to an ilk)
-            addReaderToWhitelist(co.pip, spotter());
+            addToWhitelist(co.pip, spotter());
             // Whitelist Clipper on pip
-            addReaderToWhitelist(co.pip, co.clip);
+            addToWhitelist(co.pip, co.clip);
             // Allow the clippermom to access the feed
-            addReaderToWhitelist(co.pip, clipperMom_);
+            addToWhitelist(co.pip, clipperMom_);
             // Whitelist End to read the OSM data (only necessary if it is the first time the token is being added to an ilk)
-            addReaderToWhitelist(co.pip, end());
+            addToWhitelist(co.pip, end());
             // Set TOKEN OSM in the OsmMom for new ilk
             allowOSMFreeze(co.pip, co.ilk);
         }

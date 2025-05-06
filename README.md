@@ -167,11 +167,8 @@ Below is an outline of all functions used in the library.
 
 ### Oracle Management
 - `whitelistOracleMedians(address _oracle)`: Pass an OSM or UNIV2LP oracle to enable it to read the underlying medianizer.
-- `addReaderToWhitelist(address _oracle, address _reader)`: Adds an address to the OSM or Median's reader whitelist, allowing the address to read prices.
-- `removeReaderFromWhitelist(address _oracle, address _reader)`: Removes an address to the OSM or Median's reader whitelist, disallowing the address to read prices.
-- `addReaderToWhitelistCall(address _oracle, address _reader)`: Adds an address to the OSM or Median's reader whitelist, allowing the address to read prices.
-- `removeReaderFromWhitelistCall(address _oracle, address _reader)`: Removes an address to the OSM or Median's reader whitelist, disallowing the address to read prices.
-- `setMedianWritersQuorum(address _median, uint256 _minQuorum)`: Sets the minimum number of valid messages from whitelisted oracle feeds needed to update median price.
+- `addToWhitelist(address _oracle, address _reader)`: Adds an address to a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
+- `removeFromWhitelist(address _oracle, address _reader)`: Removes an address from a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
 - `allowOSMFreeze(address _osm, bytes32 _ilk)`: Add OSM address to OSM mom, allowing it to be frozen by governance.
 
 ### Direct Deposit Module

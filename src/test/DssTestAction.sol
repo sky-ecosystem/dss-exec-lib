@@ -302,24 +302,12 @@ contract DssTestAction is DssAction {
         DssExecLib.whitelistOracleMedians(oracle);
     }
 
-    function addReaderToWhitelistCall_test(address medianizer, address reader) public {
-        DssExecLib.addReaderToWhitelistCall(medianizer, reader);
+    function addToWhitelist_test(address osm, address reader) public {
+        DssExecLib.addToWhitelist(osm, reader);
     }
 
-    function removeReaderFromWhitelistCall_test(address medianizer, address reader) public {
-        DssExecLib.removeReaderFromWhitelistCall(medianizer, reader);
-    }
-
-    function setMedianWritersQuorum_test(address medianizer, uint256 minQuorum) public {
-        DssExecLib.setMedianWritersQuorum(medianizer, minQuorum);
-    }
-
-    function addReaderToWhitelist_test(address osm, address reader) public {
-        DssExecLib.addReaderToWhitelist(osm, reader);
-    }
-
-    function removeReaderFromWhitelist_test(address osm, address reader) public {
-        DssExecLib.removeReaderFromWhitelist(osm, reader);
+    function removeFromWhitelist_test(address osm, address reader) public {
+        DssExecLib.removeFromWhitelist(osm, reader);
     }
 
     function allowOSMFreeze_test(address osm, bytes32 ilk) public {

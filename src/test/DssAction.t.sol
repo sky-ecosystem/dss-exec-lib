@@ -957,35 +957,12 @@ contract ActionTest is Test {
         action.whitelistOracleMedians_test(address(lorc));
     }
 
-    function test_addReaderToWhitelistCall() public {
-        address reader = address(1);
-
-        assertEq(median.bud(address(1)), 0);
-        action.addReaderToWhitelistCall_test(address(median), reader);
-        assertEq(median.bud(address(1)), 1);
-    }
-
-    function test_removeReaderFromWhitelistCall() public {
-        address reader = address(1);
-
-        assertEq(median.bud(address(1)), 0);
-        action.addReaderToWhitelistCall_test(address(median), reader);
-        assertEq(median.bud(address(1)), 1);
-        action.removeReaderFromWhitelistCall_test(address(median), reader);
-        assertEq(median.bud(address(1)), 0);
-    }
-
-    function test_setMedianWritersQuorum() public {
-        action.setMedianWritersQuorum_test(address(median), 11);
-        assertEq(median.bar(), 11);
-    }
-
-    function test_addReaderToWhitelist() public {
+    function test_addReaderToOSMWhitelist() public {
         OsmAbstract osm = ilks["gold"].osm;
         address reader = address(1);
 
         assertEq(osm.bud(address(1)), 0);
-        action.addReaderToWhitelist_test(address(osm), reader);
+        action.addToWhitelist_test(address(osm), reader);
         assertEq(osm.bud(address(1)), 1);
     }
 
@@ -994,9 +971,9 @@ contract ActionTest is Test {
         address reader = address(1);
 
         assertEq(osm.bud(address(1)), 0);
-        action.addReaderToWhitelist_test(address(osm), reader);
+        action.addToWhitelist_test(address(osm), reader);
         assertEq(osm.bud(address(1)), 1);
-        action.removeReaderFromWhitelist_test(address(osm), reader);
+        action.removeFromWhitelist_test(address(osm), reader);
         assertEq(osm.bud(address(1)), 0);
     }
 
