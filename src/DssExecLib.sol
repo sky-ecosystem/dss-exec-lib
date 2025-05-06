@@ -1,8 +1,5 @@
+// SPDX-FileCopyrightText: 2025 Dai Foundation <www.daifoundation.org>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-//
-// DssExecLib.sol -- MakerDAO Executive Spellcrafting Library
-//
-// Copyright (C) 2025 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -159,8 +156,9 @@ interface RwaOracleLike {
     function bump(bytes32 ilk, uint256 val) external;
 }
 
-library DssExecLib {
 
+// @title DssExecLib.sol -- Sky Protocol's Executive Spellcrafting Library
+library DssExecLib {
     /*****************/
     /*** Constants ***/
     /*****************/
