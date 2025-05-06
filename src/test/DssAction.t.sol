@@ -516,15 +516,6 @@ contract ActionTest is Test {
         assertEq(vat.can(address(action), address(1)), 0);
     }
 
-    /**
-     *
-     */
-    /**
-     * Changelog Management **
-     */
-    /**
-     *
-     */
     function test_setAddress() public {
         bytes32 ilk = "silver";
         action.setChangelogAddress_test(ilk, address(this));
@@ -549,15 +540,6 @@ contract ActionTest is Test {
         assertEq(LOG.sha256sum(), SHA256);
     }
 
-    /**
-     *
-     */
-    /**
-     * Accumulating Rates **
-     */
-    /**
-     *
-     */
     function test_accumulateDSR() public {
         uint256 beforeChi = pot.chi();
         action.setDSR_test(1000000001243680656318820312); // 4%
@@ -593,15 +575,6 @@ contract ActionTest is Test {
         assertGt(afterRate, beforeRate);
     }
 
-    /**
-     *
-     */
-    /**
-     * Price Updates **
-     */
-    /**
-     *
-     */
     function test_updateCollateralPrice() public {
         uint256 _spot;
 
@@ -615,29 +588,11 @@ contract ActionTest is Test {
         assertEq(_spot, ray(5 ether)); // $5 at 200%
     }
 
-    /**
-     *
-     */
-    /**
-     * System Configuration **
-     */
-    /**
-     *
-     */
     function test_setContract() public {
         action.setContract_test(address(jug), "vow", address(1));
         assertEq(jug.vow(), address(1));
     }
 
-    /**
-     *
-     */
-    /**
-     * System Risk Parameters **
-     */
-    /**
-     *
-     */
     function test_setGlobalDebtCeiling() public {
         action.setGlobalDebtCeiling_test(100 * MILLION); // 100,000,000 Dai
         assertEq(vat.Line(), 100 * MILLION * RAD); // Fixes precision
@@ -761,15 +716,6 @@ contract ActionTest is Test {
         assertEq(spot.par(), ray(1.005 ether));
     }
 
-    /**
-     *
-     */
-    /**
-     * Collateral Management **
-     */
-    /**
-     *
-     */
     function test_setIlkDebtCeiling() public {
         action.setIlkDebtCeiling_test("gold", 100 * MILLION);
         (,,, uint256 line,) = vat.ilks("gold");
@@ -935,15 +881,6 @@ contract ActionTest is Test {
         assertEq(rho, START_TIME + 1 days);
     }
 
-    /**
-     *
-     */
-    /**
-     * Pricing Management **
-     */
-    /**
-     *
-     */
     function test_setLinearDecrease() public {
         LinearDecreaseAbstract calc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
@@ -970,15 +907,6 @@ contract ActionTest is Test {
         assertEq(calc.cut(), 999900000000000000000000000);
     }
 
-    /**
-     *
-     */
-    /**
-     * Oracle Management **
-     */
-    /**
-     *
-     */
     function test_whitelistOracleOSM() public {
         address tokenPip = address(new MockOsm(address(median)));
 
@@ -1053,15 +981,6 @@ contract ActionTest is Test {
         assertEq(osmMom.osms("gold"), address(osm));
     }
 
-    /**
-     *
-     */
-    /**
-     * Governance Security Module **
-     */
-    /**
-     *
-     */
     function test_setGSMDelay() public {
         // Because of the `wait` modifier in MCD_PAUSE, the call needs to be made from MCD_PAUSE_PROXY.
         // It's not possible to do that using `prank`/`startPrank`. See:
@@ -1082,15 +1001,6 @@ contract ActionTest is Test {
         pauseProxy.exec(address(action), abi.encodeCall(action.setGSMDelay_test, 8 hours));
     }
 
-    /**
-     *
-     */
-    /**
-     * Direct Deposit Module **
-     */
-    /**
-     *
-     */
     function test_setDDMTargetInterestRate() public {
         DDMLike ddm = DDMLike(LOG.getAddress("DIRECT_AAVEV2_DAI_PLAN"));
         giveAuth(address(ddm), address(action));
@@ -1105,15 +1015,6 @@ contract ActionTest is Test {
         assertEq(ddm.bar(), 10 * RAY / 100);
     }
 
-    /**
-     *
-     */
-    /**
-     * Collateral Onboarding **
-     */
-    /**
-     *
-     */
     function test_collateralOnboardingBase() public {
         string memory silk = "silver";
         bytes32 ilk = stringToBytes32(silk);
@@ -1306,15 +1207,6 @@ contract ActionTest is Test {
         assertTrue(!actionNoOfficeHours.officeHours());
     }
 
-    /**
-     *
-     */
-    /**
-     * Payment **
-     */
-    /**
-     *
-     */
     function test_sendPaymentFromSurplusBuffer_DAI() public {
         address target = address(this);
 
@@ -1351,15 +1243,6 @@ contract ActionTest is Test {
         assertEq(vat.sin(address(vow)), vowSinPrev + 100 * RAD);
     }
 
-    /**
-     *
-     */
-    /**
-     * Misc **
-     */
-    /**
-     *
-     */
     function test_lerpLine() public {
         LerpAbstract lerp = LerpAbstract(
             action.linearInterpolation_test(

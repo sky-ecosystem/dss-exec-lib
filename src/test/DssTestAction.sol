@@ -50,15 +50,6 @@ contract DssTestAction is DssAction {
         return DssExecLib.nextCastTime(eta, ts, officeHours);
     }
 
-    /**
-     *
-     */
-    /**
-     * Authorizations **
-     */
-    /**
-     *
-     */
     function authorize_test(address base, address ward) public {
         DssExecLib.authorize(base, ward);
     }
@@ -79,15 +70,6 @@ contract DssTestAction is DssAction {
         DssExecLib.undelegateVat(usr);
     }
 
-    /**
-     *
-     */
-    /**
-     * Accumulating Rates **
-     */
-    /**
-     *
-     */
     function accumulateDSR_test() public {
         DssExecLib.accumulateDSR();
     }
@@ -100,15 +82,6 @@ contract DssTestAction is DssAction {
         DssExecLib.accumulateCollateralStabilityFees(ilk);
     }
 
-    /**
-     *
-     */
-    /**
-     * Changelog Management **
-     */
-    /**
-     *
-     */
     function setChangelogAddress_test(bytes32 key, address val) public {
         DssExecLib.setChangelogAddress(key, val);
     }
@@ -125,28 +98,10 @@ contract DssTestAction is DssAction {
         DssExecLib.setChangelogSHA256(SHA256);
     }
 
-    /**
-     *
-     */
-    /**
-     * Price Updates **
-     */
-    /**
-     *
-     */
     function updateCollateralPrice_test(bytes32 ilk) public {
         DssExecLib.updateCollateralPrice(ilk);
     }
 
-    /**
-     *
-     */
-    /**
-     * System Configuration **
-     */
-    /**
-     *
-     */
     function setContract_test(address base, bytes32 what, address addr) public {
         DssExecLib.setContract(base, what, addr);
     }
@@ -155,15 +110,6 @@ contract DssTestAction is DssAction {
         DssExecLib.setContract(base, ilk, what, addr);
     }
 
-    /**
-     *
-     */
-    /**
-     * System Risk Parameters **
-     */
-    /**
-     *
-     */
     function setGlobalDebtCeiling_test(uint256 amount) public {
         DssExecLib.setGlobalDebtCeiling(amount);
     }
@@ -240,15 +186,6 @@ contract DssTestAction is DssAction {
         DssExecLib.setDAIReferenceValue(value);
     }
 
-    /**
-     *
-     */
-    /**
-     * Collateral Management **
-     */
-    /**
-     *
-     */
     function setIlkDebtCeiling_test(bytes32 ilk, uint256 amount) public {
         DssExecLib.setIlkDebtCeiling(ilk, amount);
     }
@@ -333,15 +270,6 @@ contract DssTestAction is DssAction {
         DssExecLib.setExponentialDecrease(calc, pct_bps);
     }
 
-    /**
-     *
-     */
-    /**
-     * Oracle Management **
-     */
-    /**
-     *
-     */
     function whitelistOracleMedians_test(address oracle) public {
         DssExecLib.whitelistOracleMedians(oracle);
     }
@@ -358,41 +286,14 @@ contract DssTestAction is DssAction {
         DssExecLib.allowOSMFreeze(osm, ilk);
     }
 
-    /**
-     *
-     */
-    /**
-     * Governance Security Module **
-     */
-    /**
-     *
-     */
     function setGSMDelay_test(uint256 _delay) public {
         DssExecLib.setGSMDelay(_delay);
     }
 
-    /**
-     *
-     */
-    /**
-     * Direct Deposit Module **
-     */
-    /**
-     *
-     */
     function setDDMTargetInterestRate_test(address ddm, uint256 pct_bps) public {
         DssExecLib.setDDMTargetInterestRate(ddm, pct_bps);
     }
 
-    /**
-     *
-     */
-    /**
-     * Collateral Onboarding **
-     */
-    /**
-     *
-     */
     function addCollateralBase_test(bytes32 ilk, address gem, address join, address clip, address calc, address pip)
         public
     {
@@ -403,28 +304,10 @@ contract DssTestAction is DssAction {
         DssExecLib.addNewCollateral(co);
     }
 
-    /**
-     *
-     */
-    /**
-     * Payment **
-     */
-    /**
-     *
-     */
     function sendPaymentFromSurplusBuffer_test(address join, address target, uint256 amount) public {
         DssExecLib.sendPaymentFromSurplusBuffer(join, target, amount);
     }
 
-    /**
-     *
-     */
-    /**
-     * Misc **
-     */
-    /**
-     *
-     */
     function linearInterpolation_test(
         bytes32 _name,
         address _target,
