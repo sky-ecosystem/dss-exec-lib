@@ -14,3 +14,4 @@ fs_permissions = [
 
 [rpc_endpoints]
 mainnet = "${ETH_RPC_URL}"
+apr_15_0 = "https://virtual.mainnet.rpc.tenderly.co/b0298788-ff98-44df-ad8a-c10b7d8e3199"

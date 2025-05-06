@@ -106,10 +106,10 @@ contract ActionTest is Test {
     FlapUniV2Like flap;
     FlopAbstract flop;
     DSTokenAbstract gov;
+    DSTokenAbstract mkr;
     IlkRegistryAbstract reg;
     OsmMomAbstract osmMom;
     ClipperMomAbstract clipperMom;
-    MkrAuthorityAbstract govGuard;
     DssAutoLineAbstract autoLine;
     LerpFactoryAbstract lerpFab;
     RwaLiquidationOracleLike rwaOracle;
@@ -140,7 +140,7 @@ contract ActionTest is Test {
     address constant UNIV2ORACLE_FAB = 0xc968B955BCA6c2a3c828d699cCaCbFDC02402D89;
 
     function setUp() public {
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("apr_15_0");
 
         START_TIME = block.timestamp;
 
@@ -160,10 +160,10 @@ contract ActionTest is Test {
         flap       = FlapUniV2Like(           LOG.getAddress("MCD_FLAP"));
         flop       = FlopAbstract(            LOG.getAddress("MCD_FLOP"));
         gov        = DSTokenAbstract(         LOG.getAddress("MCD_GOV"));
+        mkr        = DSTokenAbstract(         LOG.getAddress("MKR"));
         reg        = IlkRegistryAbstract(     LOG.getAddress("ILK_REGISTRY"));
         osmMom     = OsmMomAbstract(          LOG.getAddress("OSM_MOM"));
         clipperMom = ClipperMomAbstract(      LOG.getAddress("CLIPPER_MOM"));
-        govGuard   = MkrAuthorityAbstract(    LOG.getAddress("GOV_GUARD"));
         autoLine   = DssAutoLineAbstract(     LOG.getAddress("MCD_IAM_AUTO_LINE"));
         lerpFab    = LerpFactoryAbstract(     LOG.getAddress("LERP_FAB"));
         rwaOracle  = RwaLiquidationOracleLike(LOG.getAddress("MIP21_LIQUIDATION_ORACLE"));
@@ -185,10 +185,10 @@ contract ActionTest is Test {
         vm.label(address(flap),       "FLAP");
         vm.label(address(flop),       "FLOP");
         vm.label(address(gov),        "GOV");
+        vm.label(address(mkr),        "MKR");
         vm.label(address(reg),        "REG");
         vm.label(address(osmMom),     "OSM_MOM");
         vm.label(address(clipperMom), "CLIPPER_MOM");
-        vm.label(address(govGuard),   "GOV_GUARD");
         vm.label(address(autoLine),   "AUTO_LINE");
         vm.label(address(lerpFab),    "LERP_FAB");
         vm.label(address(rwaOracle),  "RWA_LIQUITATION_ORACLE");
@@ -232,8 +232,6 @@ contract ActionTest is Test {
 
         vm.store(address(clipperMom), 0, bytes32(uint256(uint160(address(action)))));
         vm.store(address(osmMom), 0, bytes32(uint256(uint160(address(action)))));
-
-        vm.store(address(govGuard), 0, bytes32(uint256(uint160(address(action)))));
     }
 
     function ray(uint256 wad) internal pure returns (uint256) {
