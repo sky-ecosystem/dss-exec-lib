@@ -156,27 +156,37 @@ interface RwaOracleLike {
     function bump(bytes32 ilk, uint256 val) external;
 }
 
-
 // @title DssExecLib.sol -- Sky Protocol's Executive Spellcrafting Library
 library DssExecLib {
-    /*****************/
-    /*** Constants ***/
-    /*****************/
-
+    /**
+     *
+     */
+    /**
+     * Constants **
+     */
+    /**
+     *
+     */
     address public constant LOG = 0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F;
 
     uint256 internal constant THOUSAND = 10 ** 3;
-    uint256 internal constant MILLION  = 10 ** 6;
-    uint256 internal constant WAD      = 10 ** 18;
-    uint256 internal constant RAY      = 10 ** 27;
-    uint256 internal constant RAD      = 10 ** 45;
+    uint256 internal constant MILLION = 10 ** 6;
+    uint256 internal constant WAD = 10 ** 18;
+    uint256 internal constant RAY = 10 ** 27;
+    uint256 internal constant RAD = 10 ** 45;
 
-    uint256 internal constant BPS_ONE_HUNDRED_PCT   = 100_00;
+    uint256 internal constant BPS_ONE_HUNDRED_PCT = 100_00;
     uint256 internal constant RATES_ONE_HUNDRED_PCT = 1000000021979553151239153027;
 
-    /**********************/
-    /*** Math Functions ***/
-    /**********************/
+    /**
+     *
+     */
+    /**
+     * Math Functions **
+     */
+    /**
+     *
+     */
 
     /// @dev WAD division. The final result is rounded to the nearest integer.
     /// Examples:
@@ -194,10 +204,15 @@ library DssExecLib {
         z = (x * RAY + y / 2) / y;
     }
 
-    /****************************/
-    /*** Core Address Helpers ***/
-    /****************************/
-
+    /**
+     *
+     */
+    /**
+     * Core Address Helpers **
+     */
+    /**
+     *
+     */
     function dai() public view returns (address) {
         return getChangelogAddress("MCD_DAI");
     }
@@ -322,9 +337,15 @@ library DssExecLib {
         return ChainlogLike(LOG).getAddress(_key);
     }
 
-    /****************************/
-    /*** Changelog Management ***/
-    /****************************/
+    /**
+     *
+     */
+    /**
+     * Changelog Management **
+     */
+    /**
+     *
+     */
 
     /// @dev Set an address in the MCD on-chain changelog.
     /// @param _key Access key for the address (e.g. "MCD_VAT")
@@ -351,9 +372,15 @@ library DssExecLib {
         ChainlogLike(LOG).setSha256sum(_SHA256Sum);
     }
 
-    /**********************/
-    /*** Authorizations ***/
-    /**********************/
+    /**
+     *
+     */
+    /**
+     * Authorizations **
+     */
+    /**
+     *
+     */
 
     /// @dev Give an address authorization to perform auth actions on the contract.
     /// @param _base   The address of the contract where the authorization will be set
@@ -388,9 +415,15 @@ library DssExecLib {
         DssVat(vat()).nope(_usr);
     }
 
-    /******************************/
-    /*** OfficeHours Management ***/
-    /******************************/
+    /**
+     *
+     */
+    /**
+     * OfficeHours Management **
+     */
+    /**
+     *
+     */
 
     /// @dev Returns true if a time is within office hours range
     /// @param _ts           The timestamp to check, usually block.timestamp
@@ -417,31 +450,37 @@ library DssExecLib {
         castTime = _ts > _eta ? _ts : _eta; // Any day at XX:YY
 
         if (_officeHours) {
-            uint256 day    = (castTime / 1 days + 3) % 7;
-            uint256 hour   = castTime / 1 hours % 24;
+            uint256 day = (castTime / 1 days + 3) % 7;
+            uint256 hour = castTime / 1 hours % 24;
             uint256 minute = castTime / 1 minutes % 60;
             uint256 second = castTime % 60;
 
             if (day >= 5) {
-                castTime += (6 - day) * 1 days;          // Go to Sunday XX:YY
-                castTime += (24 - hour + 14) * 1 hours;  // Go to 14:YY UTC Monday
+                castTime += (6 - day) * 1 days; // Go to Sunday XX:YY
+                castTime += (24 - hour + 14) * 1 hours; // Go to 14:YY UTC Monday
                 castTime -= minute * 1 minutes + second; // Go to 14:00 UTC
             } else {
                 if (hour >= 21) {
-                    if (day == 4) castTime += 2 days;        // If Friday, fast forward to Sunday XX:YY
-                    castTime += (24 - hour + 14) * 1 hours;  // Go to 14:YY UTC next day
+                    if (day == 4) castTime += 2 days; // If Friday, fast forward to Sunday XX:YY
+                    castTime += (24 - hour + 14) * 1 hours; // Go to 14:YY UTC next day
                     castTime -= minute * 1 minutes + second; // Go to 14:00 UTC
                 } else if (hour < 14) {
-                    castTime += (14 - hour) * 1 hours;       // Go to 14:YY UTC same day
+                    castTime += (14 - hour) * 1 hours; // Go to 14:YY UTC same day
                     castTime -= minute * 1 minutes + second; // Go to 14:00 UTC
                 }
             }
         }
     }
 
-    /**************************/
-    /*** Accumulating Rates ***/
-    /**************************/
+    /**
+     *
+     */
+    /**
+     * Accumulating Rates **
+     */
+    /**
+     *
+     */
 
     /// @dev Update rate accumulation for the Dai Savings Rate (DSR).
     function accumulateDSR() public {
@@ -459,9 +498,15 @@ library DssExecLib {
         Drippable(jug()).drip(_ilk);
     }
 
-    /*********************/
-    /*** Price Updates ***/
-    /*********************/
+    /**
+     *
+     */
+    /**
+     * Price Updates **
+     */
+    /**
+     *
+     */
 
     /// @dev Update price of a given collateral type.
     /// @param _ilk   Collateral type
@@ -469,9 +514,15 @@ library DssExecLib {
         Pokeable(spotter()).poke(_ilk);
     }
 
-    /****************************/
-    /*** System Configuration ***/
-    /****************************/
+    /**
+     *
+     */
+    /**
+     * System Configuration **
+     */
+    /**
+     *
+     */
 
     /// @dev Set a contract in another contract, defining the relationship (ex. set a new Calc contract in Clip)
     /// @param _base   The address of the contract where the new contract address will be filed
@@ -507,9 +558,15 @@ library DssExecLib {
         Fileable(_base).file(_ilk, _what, _amt);
     }
 
-    /******************************/
-    /*** System Risk Parameters ***/
-    /******************************/
+    /**
+     *
+     */
+    /**
+     * System Risk Parameters **
+     */
+    /**
+     *
+     */
 
     /// @dev Set the global debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
@@ -668,9 +725,15 @@ library DssExecLib {
         setValue(spotter(), "par", rdiv(_value, 1000));
     }
 
-    /*****************************/
-    /*** Collateral Management ***/
-    /*****************************/
+    /**
+     *
+     */
+    /**
+     * Collateral Management **
+     */
+    /**
+     *
+     */
     /// @dev Set a collateral debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
@@ -855,9 +918,15 @@ library DssExecLib {
         setValue(_jug, _ilk, "duty", _rate);
     }
 
-    /*************************/
-    /*** Abacus Management ***/
-    /*************************/
+    /**
+     *
+     */
+    /**
+     * Abacus Management **
+     */
+    /**
+     *
+     */
 
     /// @dev Set the number of seconds from the start when the auction reaches zero price.
     /// @dev Abacus:LinearDecrease only.
@@ -888,9 +957,15 @@ library DssExecLib {
         setValue(_calc, "cut", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /*************************/
-    /*** Oracle Management ***/
-    /*************************/
+    /**
+     *
+     */
+    /**
+     * Oracle Management **
+     */
+    /**
+     *
+     */
 
     /// @dev Allows an oracle to read prices from its source feeds
     /// @param _oracle  An OSM or LP oracle contract
@@ -928,9 +1003,15 @@ library DssExecLib {
         OsmMomLike(osmMom()).setOsm(_ilk, _osm);
     }
 
-    /**********************************/
-    /*** Governance Security Module ***/
-    /**********************************/
+    /**
+     *
+     */
+    /**
+     * Governance Security Module **
+     */
+    /**
+     *
+     */
 
     /// @dev Sets the time delay between governance votes and execution in MCD_PAUSE.
     /// @dev Enforces an arbitrary minimum delay of 12 hours.
@@ -940,9 +1021,15 @@ library DssExecLib {
         PauseLike(pause()).setDelay(_delay);
     }
 
-    /*****************************/
-    /*** Direct Deposit Module ***/
-    /*****************************/
+    /**
+     *
+     */
+    /**
+     * Direct Deposit Module **
+     */
+    /**
+     *
+     */
 
     /// @dev Sets the target rate threshold for a dai direct deposit module (ddm)
     /// @dev Aave: Targets the variable borrow rate
@@ -953,9 +1040,15 @@ library DssExecLib {
         setValue(_ddm, "bar", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /*****************************/
-    /*** Collateral Onboarding ***/
-    /*****************************/
+    /**
+     *
+     */
+    /**
+     * Collateral Onboarding **
+     */
+    /**
+     *
+     */
 
     /// @dev Performs basic functions and sanity checks to add a new collateral type to the MCD system
     /// @param _ilk      Collateral type key code [Ex. "ETH-A"]
@@ -964,29 +1057,22 @@ library DssExecLib {
     /// @param _clip     Address of liquidation agent
     /// @param _calc     Address of the pricing function
     /// @param _pip      Address of price feed
-    function addCollateralBase(
-        bytes32 _ilk,
-        address _gem,
-        address _join,
-        address _clip,
-        address _calc,
-        address _pip
-    )
+    function addCollateralBase(bytes32 _ilk, address _gem, address _join, address _clip, address _calc, address _pip)
         public
     {
         // Sanity checks
-        address _vat     = vat();
-        address _dog     = dog();
+        address _vat = vat();
+        address _dog = dog();
         address _spotter = spotter();
-        uint256 _dec     = ERC20(_gem).decimals();
+        uint256 _dec = ERC20(_gem).decimals();
 
-        require(JoinLike(_join).vat()     == _vat); // "join-vat-not-match"
-        require(JoinLike(_join).ilk()     == _ilk); // "join-ilk-not-match"
-        require(JoinLike(_join).gem()     == _gem); // "join-gem-not-match"
-        require(JoinLike(_join).dec()     == _dec); // "join-dec-not-match"
-        require(ClipLike(_clip).vat()     == _vat); // "clip-vat-not-match"
-        require(ClipLike(_clip).dog()     == _dog); // "clip-dog-not-match"
-        require(ClipLike(_clip).ilk()     == _ilk); // "clip-ilk-not-match"
+        require(JoinLike(_join).vat() == _vat); // "join-vat-not-match"
+        require(JoinLike(_join).ilk() == _ilk); // "join-ilk-not-match"
+        require(JoinLike(_join).gem() == _gem); // "join-gem-not-match"
+        require(JoinLike(_join).dec() == _dec); // "join-dec-not-match"
+        require(ClipLike(_clip).vat() == _vat); // "clip-vat-not-match"
+        require(ClipLike(_clip).dog() == _dog); // "clip-dog-not-match"
+        require(ClipLike(_clip).ilk() == _ilk); // "clip-ilk-not-match"
         require(ClipLike(_clip).spotter() == _spotter); // "clip-ilk-not-match"
 
         // Set the token PIP in the Spotter
@@ -1034,10 +1120,12 @@ library DssExecLib {
             authorize(co.clip, clipperMom_);
         }
 
-        if (co.isOSM) { // If pip == OSM
+        if (co.isOSM) {
+            // If pip == OSM
             // Allow OsmMom to access to the TOKEN OSM
             authorize(co.pip, osmMom());
-            if (co.whitelistOSM) { // If median is src in OSM
+            if (co.whitelistOSM) {
+                // If median is src in OSM
                 // Whitelist OSM to read the Median data (only necessary if it is the first time the token is being added to an ilk)
                 whitelistOracleMedians(co.pip);
             }
@@ -1083,23 +1171,35 @@ library DssExecLib {
         updateCollateralPrice(co.ilk);
     }
 
-    /***************/
-    /*** Payment ***/
-    /***************/
+    /**
+     *
+     */
+    /**
+     * Payment **
+     */
+    /**
+     *
+     */
 
     /// @dev Send a payment in either ERC20 USDS or DAI from the surplus buffer.
     /// @param _join The join adapter to exit the payment from.
     /// @param _target The target address to send the DAI to.
     /// @param _amount The amount to send in DAI (ex. 10m DAI amount == 10000000)
-    function sendPaymentFromSurplusBuffer(address _join,address _target, uint256 _amount) public {
+    function sendPaymentFromSurplusBuffer(address _join, address _target, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
         DssVat(vat()).suck(vow(), address(this), _amount * RAD);
         JoinLike(_join).exit(_target, _amount * WAD);
     }
 
-    /************/
-    /*** Misc ***/
-    /************/
+    /**
+     *
+     */
+    /**
+     * Misc **
+     */
+    /**
+     *
+     */
 
     /// @dev Initiate linear interpolation on an administrative value over time.
     /// @param _name        The label for this lerp instance
@@ -1118,15 +1218,7 @@ library DssExecLib {
         uint256 _end,
         uint256 _duration
     ) public returns (address) {
-        address lerp = LerpFactoryLike(lerpFab()).newLerp(
-            _name,
-            _target,
-            _what,
-            _startTime,
-            _start,
-            _end,
-            _duration
-        );
+        address lerp = LerpFactoryLike(lerpFab()).newLerp(_name, _target, _what, _startTime, _start, _end, _duration);
         Authorizable(_target).rely(lerp);
         LerpLike(lerp).tick();
         return lerp;
@@ -1151,16 +1243,8 @@ library DssExecLib {
         uint256 _end,
         uint256 _duration
     ) public returns (address) {
-        address lerp = LerpFactoryLike(lerpFab()).newIlkLerp(
-            _name,
-            _target,
-            _ilk,
-            _what,
-            _startTime,
-            _start,
-            _end,
-            _duration
-        );
+        address lerp =
+            LerpFactoryLike(lerpFab()).newIlkLerp(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
         Authorizable(_target).rely(lerp);
         LerpLike(lerp).tick();
         return lerp;

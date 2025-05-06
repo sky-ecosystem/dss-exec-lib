@@ -22,22 +22,21 @@ pragma solidity ^0.8.16;
 import "../DssAction.sol";
 
 contract DssTestNoOfficeHoursAction is DssAction {
-    function description() public override pure returns (string memory) {
+    function description() public pure override returns (string memory) {
         return "No Office Hours Action";
     }
 
-    function actions() public override pure {
+    function actions() public pure override {
         require(!officeHours());
     }
 
-    function officeHours() public override pure returns (bool) {
+    function officeHours() public pure override returns (bool) {
         return false;
     }
 }
 
 contract DssTestAction is DssAction {
-
-    function description() external override pure returns (string memory) {
+    function description() external pure override returns (string memory) {
         return "DssTestAction";
     }
 
@@ -51,9 +50,15 @@ contract DssTestAction is DssAction {
         return DssExecLib.nextCastTime(eta, ts, officeHours);
     }
 
-    /**********************/
-    /*** Authorizations ***/
-    /**********************/
+    /**
+     *
+     */
+    /**
+     * Authorizations **
+     */
+    /**
+     *
+     */
     function authorize_test(address base, address ward) public {
         DssExecLib.authorize(base, ward);
     }
@@ -74,10 +79,15 @@ contract DssTestAction is DssAction {
         DssExecLib.undelegateVat(usr);
     }
 
-    /**************************/
-    /*** Accumulating Rates ***/
-    /**************************/
-
+    /**
+     *
+     */
+    /**
+     * Accumulating Rates **
+     */
+    /**
+     *
+     */
     function accumulateDSR_test() public {
         DssExecLib.accumulateDSR();
     }
@@ -90,10 +100,15 @@ contract DssTestAction is DssAction {
         DssExecLib.accumulateCollateralStabilityFees(ilk);
     }
 
-    /****************************/
-    /*** Changelog Management ***/
-    /****************************/
-
+    /**
+     *
+     */
+    /**
+     * Changelog Management **
+     */
+    /**
+     *
+     */
     function setChangelogAddress_test(bytes32 key, address val) public {
         DssExecLib.setChangelogAddress(key, val);
     }
@@ -110,16 +125,28 @@ contract DssTestAction is DssAction {
         DssExecLib.setChangelogSHA256(SHA256);
     }
 
-    /*********************/
-    /*** Price Updates ***/
-    /*********************/
+    /**
+     *
+     */
+    /**
+     * Price Updates **
+     */
+    /**
+     *
+     */
     function updateCollateralPrice_test(bytes32 ilk) public {
         DssExecLib.updateCollateralPrice(ilk);
     }
 
-    /****************************/
-    /*** System Configuration ***/
-    /****************************/
+    /**
+     *
+     */
+    /**
+     * System Configuration **
+     */
+    /**
+     *
+     */
     function setContract_test(address base, bytes32 what, address addr) public {
         DssExecLib.setContract(base, what, addr);
     }
@@ -128,9 +155,15 @@ contract DssTestAction is DssAction {
         DssExecLib.setContract(base, ilk, what, addr);
     }
 
-    /******************************/
-    /*** System Risk Parameters ***/
-    /******************************/
+    /**
+     *
+     */
+    /**
+     * System Risk Parameters **
+     */
+    /**
+     *
+     */
     function setGlobalDebtCeiling_test(uint256 amount) public {
         DssExecLib.setGlobalDebtCeiling(amount);
     }
@@ -207,9 +240,15 @@ contract DssTestAction is DssAction {
         DssExecLib.setDAIReferenceValue(value);
     }
 
-    /*****************************/
-    /*** Collateral Management ***/
-    /*****************************/
+    /**
+     *
+     */
+    /**
+     * Collateral Management **
+     */
+    /**
+     *
+     */
     function setIlkDebtCeiling_test(bytes32 ilk, uint256 amount) public {
         DssExecLib.setIlkDebtCeiling(ilk, amount);
     }
@@ -294,10 +333,15 @@ contract DssTestAction is DssAction {
         DssExecLib.setExponentialDecrease(calc, pct_bps);
     }
 
-    /*************************/
-    /*** Oracle Management ***/
-    /*************************/
-
+    /**
+     *
+     */
+    /**
+     * Oracle Management **
+     */
+    /**
+     *
+     */
     function whitelistOracleMedians_test(address oracle) public {
         DssExecLib.whitelistOracleMedians(oracle);
     }
@@ -314,54 +358,95 @@ contract DssTestAction is DssAction {
         DssExecLib.allowOSMFreeze(osm, ilk);
     }
 
-    /**********************************/
-    /*** Governance Security Module ***/
-    /**********************************/
-
+    /**
+     *
+     */
+    /**
+     * Governance Security Module **
+     */
+    /**
+     *
+     */
     function setGSMDelay_test(uint256 _delay) public {
         DssExecLib.setGSMDelay(_delay);
     }
 
-    /*****************************/
-    /*** Direct Deposit Module ***/
-    /*****************************/
-
+    /**
+     *
+     */
+    /**
+     * Direct Deposit Module **
+     */
+    /**
+     *
+     */
     function setDDMTargetInterestRate_test(address ddm, uint256 pct_bps) public {
         DssExecLib.setDDMTargetInterestRate(ddm, pct_bps);
     }
 
-    /*****************************/
-    /*** Collateral Onboarding ***/
-    /*****************************/
-
-    function addCollateralBase_test(
-        bytes32 ilk, address gem, address join, address clip, address calc, address pip
-    ) public {
+    /**
+     *
+     */
+    /**
+     * Collateral Onboarding **
+     */
+    /**
+     *
+     */
+    function addCollateralBase_test(bytes32 ilk, address gem, address join, address clip, address calc, address pip)
+        public
+    {
         DssExecLib.addCollateralBase(ilk, gem, join, clip, calc, pip);
     }
 
-    function addNewCollateral_test(
-        CollateralOpts memory co
-    ) public {
+    function addNewCollateral_test(CollateralOpts memory co) public {
         DssExecLib.addNewCollateral(co);
     }
 
-    /***************/
-    /*** Payment ***/
-    /***************/
-
+    /**
+     *
+     */
+    /**
+     * Payment **
+     */
+    /**
+     *
+     */
     function sendPaymentFromSurplusBuffer_test(address join, address target, uint256 amount) public {
         DssExecLib.sendPaymentFromSurplusBuffer(join, target, amount);
     }
 
-    /************/
-    /*** Misc ***/
-    /************/
-    function linearInterpolation_test(bytes32 _name, address _target, bytes32 _what, uint256 _startTime, uint256 _start, uint256 _end, uint256 _duration) public returns (address) {
+    /**
+     *
+     */
+    /**
+     * Misc **
+     */
+    /**
+     *
+     */
+    function linearInterpolation_test(
+        bytes32 _name,
+        address _target,
+        bytes32 _what,
+        uint256 _startTime,
+        uint256 _start,
+        uint256 _end,
+        uint256 _duration
+    ) public returns (address) {
         return DssExecLib.linearInterpolation(_name, _target, _what, _startTime, _start, _end, _duration);
     }
-    function linearInterpolation_test(bytes32 _name, address _target, bytes32 _ilk, bytes32 _what, uint256 _startTime, uint256 _start, uint256 _end, uint256 _duration) public returns (address) {
+
+    function linearInterpolation_test(
+        bytes32 _name,
+        address _target,
+        bytes32 _ilk,
+        bytes32 _what,
+        uint256 _startTime,
+        uint256 _start,
+        uint256 _end,
+        uint256 _duration
+    ) public returns (address) {
         return DssExecLib.linearInterpolation(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
     }
-
 }

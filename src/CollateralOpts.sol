@@ -26,9 +26,9 @@ struct CollateralOpts {
     address clip;
     address calc;
     address pip;
-    bool    isLiquidatable;
-    bool    isOSM;
-    bool    whitelistOSM;
+    bool isLiquidatable;
+    bool isOSM;
+    bool whitelistOSM;
     uint256 ilkDebtCeiling;
     uint256 minVaultAmount;
     uint256 maxLiquidationAmount;

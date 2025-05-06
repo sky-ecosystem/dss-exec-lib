@@ -20,8 +20,7 @@
 pragma solidity ^0.8.16;
 
 contract Rates {
-
-    mapping (uint256 => uint256) public rates;
+    mapping(uint256 => uint256) public rates;
 
     constructor() {
         rates[0] = 1000000000000000000000000000;
@@ -426,5 +425,4 @@ contract Rates {
         rates[9975] = 1000000021939891116449723415;
         rates[10000] = 1000000021979553151239153027;
     }
-
 }

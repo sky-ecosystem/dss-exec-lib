@@ -36,15 +36,14 @@ interface SpellAction {
 }
 
 contract DssExec {
-
-    Changelog      constant public log   = Changelog(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
-    uint256                 public eta;
-    bytes                   public sig;
-    bool                    public done;
-    bytes32       immutable public tag;
-    address       immutable public action;
-    uint256       immutable public expiration;
-    PauseAbstract immutable public pause;
+    Changelog public constant log = Changelog(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
+    uint256 public eta;
+    bytes public sig;
+    bool public done;
+    bytes32 public immutable tag;
+    address public immutable action;
+    uint256 public immutable expiration;
+    PauseAbstract public immutable pause;
 
     // Provides a descriptive tag for bot consumption
     // This should be modified weekly to provide a summary of the actions
@@ -65,14 +64,16 @@ contract DssExec {
     // @param _expiration   The timestamp this spell will expire. (Ex. block.timestamp + 30 days)
     // @param _spellAction  The address of the spell action
     constructor(uint256 _expiration, address _spellAction) {
-        pause       = PauseAbstract(log.getAddress("MCD_PAUSE"));
-        expiration  = _expiration;
-        action      = _spellAction;
+        pause = PauseAbstract(log.getAddress("MCD_PAUSE"));
+        expiration = _expiration;
+        action = _spellAction;
 
         sig = abi.encodeWithSignature("execute()");
-        bytes32 _tag;                    // Required for assembly access
-        address _action = _spellAction;  // Required for assembly access
-        assembly { _tag := extcodehash(_action) }
+        bytes32 _tag; // Required for assembly access
+        address _action = _spellAction; // Required for assembly access
+        assembly {
+            _tag := extcodehash(_action)
+        }
         tag = _tag;
     }
 
