@@ -89,7 +89,13 @@ interface SUsdsLike {
     function ssr() external view returns (uint256);
 }
 
+interface ProxyLike {
+    function exec(address, bytes calldata) external returns (bytes memory);
+}
+
 contract ActionTest is Test {
+    using stdStorage for StdStorage;
+
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
     DSPauseAbstract pause;
@@ -1057,18 +1063,23 @@ contract ActionTest is Test {
      *
      */
     function test_setGSMDelay() public {
-        // Because of the `wait` modifier in MCD_PAUSE, we need to prank delegatecalls as well,
-        // since this will be the opcode used by `setGSMDelay_test` when calling `DssExecLib`
-        vm.startPrank(LOG.getAddress("MCD_PAUSE_PROXY"), /* delegatecall = */ true);
+        // Because of the `wait` modifier in MCD_PAUSE, the call needs to be made from MCD_PAUSE_PROXY.
+        // It's not possible to do that using `prank`/`startPrank`. See:
+        // https://github.com/foundry-rs/foundry/issues/4266
+        // For that reason, we need overwrite the `owner` in MCD_PAUSE_PROXY, so we can call `exec` from there.
+        ProxyLike pauseProxy = ProxyLike(LOG.getAddress("MCD_PAUSE_PROXY"));
+        stdstore.target(address(pauseProxy)).sig("owner()").checked_write(address(this));
+
         // Sets an initial value
-        action.setGSMDelay_test(12 hours);
+        pauseProxy.exec(address(action), abi.encodeCall(action.setGSMDelay_test, 12 hours));
 
         // Checks if the new value is being properly set.
-        action.setGSMDelay_test(16 hours);
+        pauseProxy.exec(address(action), abi.encodeCall(action.setGSMDelay_test, 16 hours));
         assertEq(pause.delay(), 16 hours);
 
+        // Reverts if the value is lower than 12 hours
         vm.expectRevert();
-        action.setGSMDelay_test(8 hours); // delay-too-low. Min: 12 hours
+        pauseProxy.exec(address(action), abi.encodeCall(action.setGSMDelay_test, 8 hours));
     }
 
     /**
