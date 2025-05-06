@@ -1,5 +1,4 @@
 # DSS Exec Library
-![Build Status](https://github.com/makerdao/dss-exec-lib/actions/workflows/.github/workflows/tests.yaml/badge.svg?branch=master)
 
 A library for crafting spells in DSS more efficiently, predictably, and easily.
 
@@ -11,15 +10,15 @@ A library for crafting spells in DSS more efficiently, predictably, and easily.
 
 ## Requirements
 
-* [Dapptools](https://github.com/dapphub/dapptools)
+* [Foundry](https://getfoundry.sh/)
 
 ## About
 
-Provides a list of functions to call to perform commonly used actions in spells in DSS.
+Provides a list of functions to call to perform commonly used actions in spells in the Sky Protocol.
 
 Here is an example of a `SpellAction.sol` file that uses the deployed library (from `spells-mainnet` repo):
 
-```js
+```solidity
 import {DssAction} from "lib/dss-exec-lib/src/DssAction.sol";
 
 contract SpellAction is DssAction {

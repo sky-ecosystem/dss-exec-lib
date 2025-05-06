@@ -2,7 +2,7 @@
 //
 // DssExecLib.sol -- MakerDAO Executive Spellcrafting Library
 //
-// Copyright (C) 2020-2022 Dai Foundation
+// Copyright (C) 2025 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
