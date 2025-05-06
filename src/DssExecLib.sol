@@ -43,7 +43,7 @@ interface Drippable {
     function drip(bytes32) external returns (uint256);
 }
 
-interface Pricing {
+interface Pokeable {
     function poke(bytes32) external;
 }
 
@@ -94,8 +94,11 @@ interface OracleLike {
     function orb1() external view returns (address);
 }
 
-interface MomLike {
+interface OsmMomLike {
     function setOsm(bytes32, address) external;
+}
+
+interface ClipperMomLike {
     function setPriceTolerance(address, uint256) external;
 }
 
@@ -304,6 +307,10 @@ library DssExecLib {
         _calc = ClipLike(clip(_ilk)).calc();
     }
 
+    /// @dev Get an address from the chainlog.
+    /// @dev Reverts if the key does not exist
+    /// @param _key Access key for the address (e.g. "MCD_VAT")
+    /// @return The address associated with the key
     function getChangelogAddress(bytes32 _key) public view returns (address) {
         return ChainlogLike(LOG).getAddress(_key);
     }
@@ -452,7 +459,7 @@ library DssExecLib {
     /// @dev Update price of a given collateral type.
     /// @param _ilk   Collateral type
     function updateCollateralPrice(bytes32 _ilk) public {
-        Pricing(spotter()).poke(_ilk);
+        Pokeable(spotter()).poke(_ilk);
     }
 
     /****************************/
@@ -817,7 +824,7 @@ library DssExecLib {
     /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
     function setLiquidationBreakerPriceTolerance(address _clip, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-clippermom-price-tolerance"
-        MomLike(clipperMom()).setPriceTolerance(_clip, rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
+        ClipperMomLike(clipperMom()).setPriceTolerance(_clip, rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
     /// @dev Set the stability fee for a given ilk.
@@ -932,7 +939,7 @@ library DssExecLib {
     /// @param _osm        Oracle Security Module (OSM) core contract address
     /// @param _ilk        Collateral type using OSM
     function allowOSMFreeze(address _osm, bytes32 _ilk) public {
-        MomLike(osmMom()).setOsm(_ilk, _osm);
+        OsmMomLike(osmMom()).setOsm(_ilk, _osm);
     }
 
     /*****************************/
