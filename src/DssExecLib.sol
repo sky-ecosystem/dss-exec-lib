@@ -156,7 +156,9 @@ interface RwaOracleLike {
     function bump(bytes32 ilk, uint256 val) external;
 }
 
-// @title DssExecLib.sol -- Sky Protocol's Executive Spellcrafting Library
+/// @title DssExecLib - Sky Protocol's Executive Spellcrafting Library
+/// @notice This library provides a suite of functions for managing the Sky Protocol.
+/// @dev Includes functions for collateral management, system configuration, governance, and more.
 library DssExecLib {
     /* ----- Constants ----- */
 
@@ -317,26 +319,26 @@ library DssExecLib {
 
     /* ----- Changelog Management ----- */
 
-    /// @dev Set an address in the MCD on-chain changelog.
+    /// @dev Set an address in the Sky Protocol on-chain changelog.
     /// @param _key Access key for the address (e.g. "MCD_VAT")
     /// @param _val The address associated with the _key
     function setChangelogAddress(bytes32 _key, address _val) public {
         ChainlogLike(LOG).setAddress(_key, _val);
     }
 
-    /// @dev Set version in the MCD on-chain changelog.
+    /// @dev Set version in the Sky Protocol on-chain changelog.
     /// @param _version Changelog version (e.g. "1.1.2")
     function setChangelogVersion(string memory _version) public {
         ChainlogLike(LOG).setVersion(_version);
     }
 
-    /// @dev Set IPFS hash of IPFS changelog in MCD on-chain changelog.
+    /// @dev Set IPFS hash of IPFS changelog in Sky Protocol on-chain changelog.
     /// @param _ipfsHash IPFS hash (e.g. "QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW")
     function setChangelogIPFS(string memory _ipfsHash) public {
         ChainlogLike(LOG).setIPFS(_ipfsHash);
     }
 
-    /// @dev Set SHA256 hash in MCD on-chain changelog.
+    /// @dev Set SHA256 hash in Sky Protocol on-chain changelog.
     /// @param _SHA256Sum SHA256 hash (e.g. "e42dc9d043a57705f3f097099e6b2de4230bca9a020c797508da079f9079e35b")
     function setChangelogSHA256(string memory _SHA256Sum) public {
         ChainlogLike(LOG).setSha256sum(_SHA256Sum);
@@ -382,7 +384,7 @@ library DssExecLib {
     /// @dev Returns true if a time is within office hours range
     /// @param _ts The timestamp to check, usually block.timestamp
     /// @param _officeHours true if office hours is enabled.
-    /// @return              true if time is in castable range
+    /// @return true if time is in castable range
     function canCast(uint40 _ts, bool _officeHours) public pure returns (bool) {
         if (_officeHours) {
             uint256 day = (_ts / 1 days + 3) % 7;
@@ -395,9 +397,9 @@ library DssExecLib {
 
     /// @dev Calculate the next available cast time in epoch seconds
     /// @param _eta The scheduled time of the spell plus the pause delay
-    /// @param _ts           The current timestamp, usually block.timestamp
+    /// @param _ts The current timestamp, usually block.timestamp
     /// @param _officeHours true if office hours is enabled.
-    /// @return castTime     The next available cast timestamp
+    /// @return castTime The next available cast timestamp
     function nextCastTime(uint40 _eta, uint40 _ts, bool _officeHours) public pure returns (uint256 castTime) {
         require(_eta != 0); // "DssExecLib/invalid eta"
         require(_ts != 0); // "DssExecLib/invalid ts"
@@ -895,7 +897,7 @@ library DssExecLib {
         Kissable(_target).diss(_usr);
     }
 
-    /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance.
+    /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance
     /// @param _osm Oracle Security Module (OSM) core contract address
     /// @param _ilk Collateral type using OSM
     function allowOSMFreeze(address _osm, bytes32 _ilk) public {
@@ -925,7 +927,7 @@ library DssExecLib {
 
     /* ----- Collateral Onboarding ----- */
 
-    /// @dev Performs basic functions and sanity checks to add a new collateral type to the MCD system
+    /// @dev Performs basic functions and sanity checks to add a new collateral type to the Sky Protocol
     /// @param _ilk      Collateral type key code [Ex. "ETH-A"]
     /// @param _gem      Address of token contract
     /// @param _join     Address of join adapter

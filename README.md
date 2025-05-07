@@ -1,6 +1,6 @@
 # DSS Exec Library
 
-A library for crafting spells in DSS more efficiently, predictably, and easily.
+A library for crafting spells in Sky Protocol (formerly MakerDAO) more efficiently, predictably, and easily.
 
 ## Public Library Addresses
 
@@ -266,7 +266,7 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 
 ## Testing
 
-```
-$ dapp update
-$ make test
+```bash
+$ forge update
+$ ETH_RPC_URL=<node_url> forge test
 ```
