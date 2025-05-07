@@ -906,18 +906,18 @@ library DssExecLib {
         }
     }
 
-    /// @dev Adds an address to the OSM or Median's reader whitelist, allowing the address to read prices.
-    /// @param _oracle        Oracle Security Module (OSM) or Median core contract address
-    /// @param _reader     Address to add to whitelist
-    function addToWhitelist(address _oracle, address _reader) public {
-        Kissable(_oracle).kiss(_reader);
+    /// @dev Adds an address to a contract's whitelist
+    /// @param _target Address of a contract that implements the kiss() function
+    /// @param _usr Address to add to whitelist
+    function addToWhitelist(address _target, address _usr) public {
+        Kissable(_target).kiss(_usr);
     }
 
-    /// @dev Removes an address to the OSM or Median's reader whitelist, disallowing the address to read prices.
-    /// @param _oracle     Oracle Security Module (OSM) or Median core contract address
-    /// @param _reader     Address to remove from whitelist
-    function removeFromWhitelist(address _oracle, address _reader) public {
-        Kissable(_oracle).diss(_reader);
+    /// @dev Removes an address from a contract's whitelist
+    /// @param _target Address of a contract that implements the diss() function
+    /// @param _usr Address to remove from whitelist
+    function removeFromWhitelist(address _target, address _usr) public {
+        Kissable(_target).diss(_usr);
     }
 
     /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance.
