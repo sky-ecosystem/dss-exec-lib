@@ -158,9 +158,8 @@ interface RwaOracleLike {
 
 // @title DssExecLib.sol -- Sky Protocol's Executive Spellcrafting Library
 library DssExecLib {
-    /*************
-     * Constants *
-     *************/
+    /* ----- Constants ----- */
+
     address public constant LOG = 0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F;
 
     uint256 internal constant THOUSAND = 10 ** 3;
@@ -172,9 +171,7 @@ library DssExecLib {
     uint256 internal constant BPS_ONE_HUNDRED_PCT = 100_00;
     uint256 internal constant RATES_ONE_HUNDRED_PCT = 1000000021979553151239153027;
 
-    /******************
-     * Math Functions *
-     ******************/
+    /* ----- Math Functions ----- */
 
     /// @dev WAD division. The final result is rounded to the nearest integer.
     /// Examples:
@@ -192,9 +189,7 @@ library DssExecLib {
         z = (x * RAY + y / 2) / y;
     }
 
-    /************************
-     * Core Address Helpers *
-     ************************/
+    /* ----- Core Address Helpers ----- */
 
     function dai() public view returns (address) {
         return getChangelogAddress("MCD_DAI");
@@ -320,9 +315,7 @@ library DssExecLib {
         return ChainlogLike(LOG).getAddress(_key);
     }
 
-    /************************
-     * Changelog Management *
-     ************************/
+    /* ----- Changelog Management ----- */
 
     /// @dev Set an address in the MCD on-chain changelog.
     /// @param _key Access key for the address (e.g. "MCD_VAT")
@@ -349,27 +342,25 @@ library DssExecLib {
         ChainlogLike(LOG).setSha256sum(_SHA256Sum);
     }
 
-    /******************
-     * Authorizations *
-     ******************/
+    /* ----- Authorizations ----- */
 
     /// @dev Give an address authorization to perform auth actions on the contract.
-    /// @param _base   The address of the contract where the authorization will be set
-    /// @param _ward   Address to be authorized
+    /// @param _base The address of the contract where the authorization will be set
+    /// @param _ward Address to be authorized
     function authorize(address _base, address _ward) public {
         Authorizable(_base).rely(_ward);
     }
 
     /// @dev Revoke contract authorization from an address.
-    /// @param _base   The address of the contract where the authorization will be revoked
-    /// @param _ward   Address to be deauthorized
+    /// @param _base The address of the contract where the authorization will be revoked
+    /// @param _ward Address to be deauthorized
     function deauthorize(address _base, address _ward) public {
         Authorizable(_base).deny(_ward);
     }
 
     /// @dev Give an address authorization to perform auth actions on the contract.
-    /// @param _base   The address of the contract with a `setAuthority` pattern
-    /// @param _authority   Address to be authorized
+    /// @param _base The address of the contract with a `setAuthority` pattern
+    /// @param _authority Address to be authorized
     function setAuthority(address _base, address _authority) public {
         Authorizable(_base).setAuthority(_authority);
     }
@@ -386,13 +377,11 @@ library DssExecLib {
         DssVat(vat()).nope(_usr);
     }
 
-    /**************************
-     * OfficeHours Management *
-     **************************/
+    /* ----- OfficeHours Management ----- */
 
     /// @dev Returns true if a time is within office hours range
-    /// @param _ts           The timestamp to check, usually block.timestamp
-    /// @param _officeHours  true if office hours is enabled.
+    /// @param _ts The timestamp to check, usually block.timestamp
+    /// @param _officeHours true if office hours is enabled.
     /// @return              true if time is in castable range
     function canCast(uint40 _ts, bool _officeHours) public pure returns (bool) {
         if (_officeHours) {
@@ -405,9 +394,9 @@ library DssExecLib {
     }
 
     /// @dev Calculate the next available cast time in epoch seconds
-    /// @param _eta          The scheduled time of the spell plus the pause delay
+    /// @param _eta The scheduled time of the spell plus the pause delay
     /// @param _ts           The current timestamp, usually block.timestamp
-    /// @param _officeHours  true if office hours is enabled.
+    /// @param _officeHours true if office hours is enabled.
     /// @return castTime     The next available cast timestamp
     function nextCastTime(uint40 _eta, uint40 _ts, bool _officeHours) public pure returns (uint256 castTime) {
         require(_eta != 0); // "DssExecLib/invalid eta"
@@ -437,9 +426,7 @@ library DssExecLib {
         }
     }
 
-    /**********************
-     * Accumulating Rates *
-     **********************/
+    /* ----- Accumulating Rates ----- */
 
     /// @dev Update rate accumulation for the Dai Savings Rate (DSR).
     function accumulateDSR() public {
@@ -452,62 +439,56 @@ library DssExecLib {
     }
 
     /// @dev Update rate accumulation for the stability fees of a given collateral type.
-    /// @param _ilk   Collateral type
+    /// @param _ilk Collateral type
     function accumulateCollateralStabilityFees(bytes32 _ilk) public {
         Drippable(jug()).drip(_ilk);
     }
 
-    /*****************
-     * Price Updates *
-     *****************/
+    /* ----- Price Updates ----- */
 
     /// @dev Update price of a given collateral type.
-    /// @param _ilk   Collateral type
+    /// @param _ilk Collateral type
     function updateCollateralPrice(bytes32 _ilk) public {
         Pokeable(spotter()).poke(_ilk);
     }
 
-    /************************
-     * System Configuration *
-     ************************/
+    /* ----- System Configuration ----- */
 
     /// @dev Set a contract in another contract, defining the relationship (ex. set a new Calc contract in Clip)
-    /// @param _base   The address of the contract where the new contract address will be filed
-    /// @param _what   Name of contract to file
-    /// @param _addr   Address of contract to file
+    /// @param _base The address of the contract where the new contract address will be filed
+    /// @param _what Name of contract to file
+    /// @param _addr Address of contract to file
     function setContract(address _base, bytes32 _what, address _addr) public {
         Fileable(_base).file(_what, _addr);
     }
 
     /// @dev Set a contract in another contract, defining the relationship (ex. set a new Calc contract in a Clip)
-    /// @param _base   The address of the contract where the new contract address will be filed
-    /// @param _ilk    Collateral type
-    /// @param _what   Name of contract to file
-    /// @param _addr   Address of contract to file
+    /// @param _base The address of the contract where the new contract address will be filed
+    /// @param _ilk Collateral type
+    /// @param _what Name of contract to file
+    /// @param _addr Address of contract to file
     function setContract(address _base, bytes32 _ilk, bytes32 _what, address _addr) public {
         Fileable(_base).file(_ilk, _what, _addr);
     }
 
     /// @dev Set a value in a contract, via a governance authorized File pattern.
-    /// @param _base   The address of the contract where the new contract address will be filed
-    /// @param _what   Name of tag for the value (e.x. "Line")
-    /// @param _amt    The value to set or update
+    /// @param _base The address of the contract where the new contract address will be filed
+    /// @param _what Name of tag for the value (e.x. "Line")
+    /// @param _amt The value to set or update
     function setValue(address _base, bytes32 _what, uint256 _amt) public {
         Fileable(_base).file(_what, _amt);
     }
 
     /// @dev Set an ilk-specific value in a contract, via a governance authorized File pattern.
-    /// @param _base   The address of the contract where the new value will be filed
-    /// @param _ilk    Collateral type
-    /// @param _what   Name of tag for the value (e.x. "Line")
-    /// @param _amt    The value to set or update
+    /// @param _base The address of the contract where the new value will be filed
+    /// @param _ilk Collateral type
+    /// @param _what Name of tag for the value (e.x. "Line")
+    /// @param _amt The value to set or update
     function setValue(address _base, bytes32 _ilk, bytes32 _what, uint256 _amt) public {
         Fileable(_base).file(_ilk, _what, _amt);
     }
 
-    /**************************
-     * System Risk Parameters *
-     **************************/
+    /* ----- System Risk Parameters ----- */
 
     /// @dev Set the global debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
@@ -533,7 +514,7 @@ library DssExecLib {
     }
 
     /// @dev Set the Dai Savings Rate. See: docs/rates.txt
-    /// @param _rate   The accumulated rate (ex. 4% => 1000000001243680656318820312)
+    /// @param _rate The accumulated rate (ex. 4% => 1000000001243680656318820312)
     /// @param _doDrip `true` to accumulate interest owed
     function setDSR(uint256 _rate, bool _doDrip) public {
         require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/dsr-out-of-bounds"
@@ -542,7 +523,7 @@ library DssExecLib {
     }
 
     /// @dev Set the SKY Savings Rate. See: docs/rates.txt
-    /// @param _rate   The accumulated rate (ex. 4% => 1000000001243680656318820312)
+    /// @param _rate The accumulated rate (ex. 4% => 1000000001243680656318820312)
     /// @param _doDrip `true` to accumulate interest owed
     function setSSR(uint256 _rate, bool _doDrip) public {
         require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/dsr-out-of-bounds"
@@ -594,7 +575,7 @@ library DssExecLib {
 
     /// @dev Set minimum bid increase for debt auctions. Amount will be converted to the correct internal precision.
     /// @dev Equation used for conversion is (1 + pct / 10,000) * WAD
-    /// @param _pct_bps    The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
+    /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
     function setMinDebtAuctionBidIncrease(uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-flop-beg-precision"
         setValue(flop(), "beg", WAD + wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
@@ -617,7 +598,7 @@ library DssExecLib {
     /// @dev Set the rate of increasing amount of MKR out for auction during debt auctions. Amount will be converted to the correct internal precision.
     /// @dev MKR amount is increased by this rate every "tick" (if auction duration has passed and no one has bid on the MKR)
     /// @dev Equation used for conversion is (1 + pct / 10,000) * WAD
-    /// @param _pct_bps    The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
+    /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
     function setDebtAuctionMKRIncreaseRate(uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-flop-pad-precision"
         setValue(flop(), "pad", WAD + wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
@@ -652,7 +633,7 @@ library DssExecLib {
     ///
     ///        A table of rates can also be found at:
     ///        https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW
-    /// @param _rate   The accumulated rate (ex. 4% => 1000000001243680656318820312)
+    /// @param _rate The accumulated rate (ex. 4% => 1000000001243680656318820312)
     function setGlobalStabilityFee(uint256 _rate) public {
         require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/global-stability-fee-out-of-bounds"
         setValue(jug(), "base", _rate);
@@ -666,12 +647,10 @@ library DssExecLib {
         setValue(spotter(), "par", rdiv(_value, 1000));
     }
 
-    /*************************
-     * Collateral Management *
-     *************************/
+    /* ----- Collateral Management ----- */
 
     /// @dev Set a collateral debt ceiling. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
     function setIlkDebtCeiling(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
@@ -679,7 +658,7 @@ library DssExecLib {
     }
 
     /// @dev Increase a collateral debt ceiling. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to increase in DAI (ex. 10m DAI amount == 10000000)
     /// @param _global If true, increases the global debt ceiling by _amount
     function increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global) public {
@@ -691,7 +670,7 @@ library DssExecLib {
     }
 
     /// @dev Decrease a collateral debt ceiling. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to decrease in DAI (ex. 10m DAI amount == 10000000)
     /// @param _global If true, decreases the global debt ceiling by _amount
     function decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global) public {
@@ -703,9 +682,9 @@ library DssExecLib {
     }
 
     /// @dev Set a RWA collateral debt ceiling by specifying its new oracle price.
-    /// @param _ilk      The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _ceiling  The new debt ceiling in natural units (e.g. set 10m DAI as 10_000_000)
-    /// @param _price    The new oracle price in natural units
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ceiling The new debt ceiling in natural units (e.g. set 10m DAI as 10_000_000)
+    /// @param _price The new oracle price in natural units
     /// @dev note: _price should enable DAI to be drawn over the loan period while taking into
     ///                 account the configured ink amount, interest rate and liquidation ratio
     /// @dev note: _price * WAD should be greater than or equal to the current oracle price
@@ -717,10 +696,10 @@ library DssExecLib {
     }
 
     /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m DAI amount == 100000000)
-    /// @param _gap    The amount of Dai per step (ex. 5m Dai == 5000000)
-    /// @param _ttl    The amount of time (in seconds)
+    /// @param _gap The amount of Dai per step (ex. 5m Dai == 5000000)
+    /// @param _ttl The amount of time (in seconds)
     function setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl) public {
         require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
         require(_gap < WAD); // "LibDssExec/incorrect-auto-line-gap-precision"
@@ -728,7 +707,7 @@ library DssExecLib {
     }
 
     /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line without updating the time values
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m DAI amount == 100000000)
     function setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount) public {
         address _autoLine = autoLine();
@@ -738,13 +717,13 @@ library DssExecLib {
     }
 
     /// @dev Remove an ilk in the "MCD_IAM_AUTO_LINE" auto-line
-    /// @param _ilk    The ilk to remove (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to remove (ex. bytes32("ETH-A"))
     function removeIlkFromAutoLine(bytes32 _ilk) public {
         IAMLike(autoLine()).remIlk(_ilk);
     }
 
     /// @dev Set a collateral minimum vault amount. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
     function setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-dust-precision"
@@ -756,8 +735,8 @@ library DssExecLib {
 
     /// @dev Set a collateral liquidation penalty. Amount will be converted to the correct internal precision.
     /// @dev Equation used for conversion is (1 + pct / 10,000) * WAD
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _pct_bps    The pct, in basis points, to set in integer form (x100). (ex. 10.25% = 10.25 * 100 = 1025)
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 10.25% = 10.25 * 100 = 1025)
     function setIlkLiquidationPenalty(bytes32 _ilk, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-ilk-chop-precision"
         setValue(dog(), _ilk, "chop", WAD + wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
@@ -765,7 +744,7 @@ library DssExecLib {
     }
 
     /// @dev Set max DAI amount for liquidation per vault for collateral. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-hole-precision"
@@ -774,8 +753,8 @@ library DssExecLib {
 
     /// @dev Set a collateral liquidation ratio. Amount will be converted to the correct internal precision.
     /// @dev Equation used for conversion is pct * RAY / 10,000
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _pct_bps    The pct, in basis points, to set in integer form (x100). (ex. 150% = 150 * 100 = 15000)
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 150% = 150 * 100 = 15000)
     function setIlkLiquidationRatio(bytes32 _ilk, uint256 _pct_bps) public {
         require(_pct_bps < 10 * BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-ilk-mat-precision" // Fails if pct >= 1000%
         require(_pct_bps >= BPS_ONE_HUNDRED_PCT); // the liquidation ratio has to be bigger or equal to 100%
@@ -784,8 +763,8 @@ library DssExecLib {
 
     /// @dev Set an auction starting multiplier. Amount will be converted to the correct internal precision.
     /// @dev Equation used for conversion is pct * RAY / 10,000
-    /// @param _ilk      The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _pct_bps  The pct, in basis points, to set in integer form (x100). (ex. 1.3x starting multiplier = 130% = 13000)
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 1.3x starting multiplier = 130% = 13000)
     function setStartingPriceMultiplicativeFactor(bytes32 _ilk, uint256 _pct_bps) public {
         require(_pct_bps < 10 * BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-ilk-mat-precision" // Fails if gt 10x
         require(_pct_bps >= BPS_ONE_HUNDRED_PCT); // fail if start price is less than OSM price
@@ -793,14 +772,14 @@ library DssExecLib {
     }
 
     /// @dev Set the amout of time before an auction resets.
-    /// @param _ilk      The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _duration Amount of time before auction resets (in seconds).
     function setAuctionTimeBeforeReset(bytes32 _ilk, uint256 _duration) public {
         setValue(clip(_ilk), "tail", _duration);
     }
 
     /// @dev Percentage drop permitted before auction reset
-    /// @param _ilk     The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _pct_bps The pct, in basis points, of drop to permit (x100).
     function setAuctionPermittedDrop(bytes32 _ilk, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-clip-cusp-value"
@@ -808,7 +787,7 @@ library DssExecLib {
     }
 
     /// @dev Percentage of tab to suck from vow to incentivize keepers. Amount will be converted to the correct internal precision.
-    /// @param _ilk     The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _pct_bps The pct, in basis points, of the tab to suck. (0.01% == 1)
     function setKeeperIncentivePercent(bytes32 _ilk, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-clip-chip-precision"
@@ -816,7 +795,7 @@ library DssExecLib {
     }
 
     /// @dev Set max DAI amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set in DAI (ex. 1000 DAI amount == 1000)
     function setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-clip-tip-precision"
@@ -826,7 +805,7 @@ library DssExecLib {
     /// @dev Sets the circuit breaker price tolerance in the clipper mom.
     ///          This is somewhat counter-intuitive,
     ///           to accept a 25% price drop, use a value of 75%
-    /// @param _clip    The clipper to set the tolerance for
+    /// @param _clip The clipper to set the tolerance for
     /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 5% = 5 * 100 = 500)
     function setLiquidationBreakerPriceTolerance(address _clip, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-clippermom-price-tolerance"
@@ -843,8 +822,8 @@ library DssExecLib {
     ///          A table of rates can also be found at:
     ///          https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW
     ///
-    /// @param _ilk    The ilk to update (ex. bytes32("ETH-A") )
-    /// @param _rate   The accumulated rate (ex. 4% => 1000000001243680656318820312)
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _rate The accumulated rate (ex. 4% => 1000000001243680656318820312)
     /// @param _doDrip `true` to accumulate stability fees for the collateral
     function setIlkStabilityFee(bytes32 _ilk, uint256 _rate, bool _doDrip) public {
         require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/ilk-stability-fee-out-of-bounds"
@@ -854,13 +833,11 @@ library DssExecLib {
         setValue(_jug, _ilk, "duty", _rate);
     }
 
-    /*********************
-     * Abacus Management *
-     *********************/
+    /* ----- Abacus Management ----- */
 
     /// @dev Set the number of seconds from the start when the auction reaches zero price.
     /// @dev Abacus:LinearDecrease only.
-    /// @param _calc     The address of the LinearDecrease pricing contract
+    /// @param _calc The address of the LinearDecrease pricing contract
     /// @param _duration Amount of time for auctions.
     function setLinearDecrease(address _calc, uint256 _duration) public {
         setValue(_calc, "tau", _duration);
@@ -868,7 +845,7 @@ library DssExecLib {
 
     /// @dev Set the number of seconds for each price step.
     /// @dev Abacus:StairstepExponentialDecrease only.
-    /// @param _calc     The address of the StairstepExponentialDecrease pricing contract
+    /// @param _calc The address of the StairstepExponentialDecrease pricing contract
     /// @param _duration Length of time between price drops [seconds]
     /// @param _pct_bps Per-step multiplicative factor in basis points. (ex. 99% == 9900)
     function setStairstepExponentialDecrease(address _calc, uint256 _duration, uint256 _pct_bps) public {
@@ -880,16 +857,14 @@ library DssExecLib {
     /// @dev Set the number of seconds for each price step. (99% cut = 1% price drop per step)
     ///           Amounts will be converted to the correct internal precision.
     /// @dev Abacus:ExponentialDecrease only
-    /// @param _calc     The address of the ExponentialDecrease pricing contract
+    /// @param _calc The address of the ExponentialDecrease pricing contract
     /// @param _pct_bps Per-step multiplicative factor in basis points. (ex. 99% == 9900)
     function setExponentialDecrease(address _calc, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // DssExecLib/cut-too-high
         setValue(_calc, "cut", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /*********************
-     * Oracle Management *
-     *********************/
+    /* ----- Oracle Management ----- */
 
     /// @dev Allows an oracle to read prices from its source feeds
     /// @param _oracle  An OSM or LP oracle contract
@@ -921,15 +896,13 @@ library DssExecLib {
     }
 
     /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance.
-    /// @param _osm        Oracle Security Module (OSM) core contract address
-    /// @param _ilk        Collateral type using OSM
+    /// @param _osm Oracle Security Module (OSM) core contract address
+    /// @param _ilk Collateral type using OSM
     function allowOSMFreeze(address _osm, bytes32 _ilk) public {
         OsmMomLike(osmMom()).setOsm(_ilk, _osm);
     }
 
-    /******************************
-     * Governance Security Module *
-     ******************************/
+    /* ----- Governance Security Module ----- */
 
     /// @dev Sets the time delay between governance votes and execution in MCD_PAUSE.
     /// @dev Enforces an arbitrary minimum delay of 12 hours.
@@ -939,22 +912,18 @@ library DssExecLib {
         PauseLike(pause()).setDelay(_delay);
     }
 
-    /*************************
-     * Direct Deposit Module *
-     *************************/
+    /* ----- Direct Deposit Module ----- */
 
     /// @dev Sets the target rate threshold for a dai direct deposit module (ddm)
     /// @dev Aave: Targets the variable borrow rate
-    /// @param _ddm     The address of the DDM contract
+    /// @param _ddm The address of the DDM contract
     /// @param _pct_bps Target rate in basis points. (ex. 4% == 400)
     function setDDMTargetInterestRate(address _ddm, uint256 _pct_bps) public {
         require(_pct_bps < BPS_ONE_HUNDRED_PCT); // DssExecLib/bar-too-high
         setValue(_ddm, "bar", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /*************************
-     * Collateral Onboarding *
-     *************************/
+    /* ----- Collateral Onboarding ----- */
 
     /// @dev Performs basic functions and sanity checks to add a new collateral type to the MCD system
     /// @param _ilk      Collateral type key code [Ex. "ETH-A"]
@@ -1077,9 +1046,7 @@ library DssExecLib {
         updateCollateralPrice(co.ilk);
     }
 
-    /***********
-     * Payment *
-     ***********/
+    /* ----- Payment ----- */
 
     /// @dev Send a payment in either ERC20 USDS or DAI from the surplus buffer.
     /// @param _join The join adapter to exit the payment from.
@@ -1091,18 +1058,16 @@ library DssExecLib {
         JoinLike(_join).exit(_target, _amount * WAD);
     }
 
-    /********
-     * Misc *
-     ********/
+    /* ----- Misc ----- */
 
     /// @dev Initiate linear interpolation on an administrative value over time.
-    /// @param _name        The label for this lerp instance
-    /// @param _target      The target contract
-    /// @param _what        The target parameter to adjust
-    /// @param _startTime   The time for this lerp
-    /// @param _start       The start value for the target parameter
-    /// @param _end         The end value for the target parameter
-    /// @param _duration    The duration of the interpolation
+    /// @param _name The label for this lerp instance
+    /// @param _target The target contract
+    /// @param _what The target parameter to adjust
+    /// @param _startTime The time for this lerp
+    /// @param _start The start value for the target parameter
+    /// @param _end The end value for the target parameter
+    /// @param _duration The duration of the interpolation
     function linearInterpolation(
         bytes32 _name,
         address _target,
@@ -1119,14 +1084,14 @@ library DssExecLib {
     }
 
     /// @dev Initiate linear interpolation on an administrative value over time.
-    /// @param _name        The label for this lerp instance
-    /// @param _target      The target contract
-    /// @param _ilk         The ilk to target
-    /// @param _what        The target parameter to adjust
-    /// @param _startTime   The time for this lerp
-    /// @param _start       The start value for the target parameter
-    /// @param _end         The end value for the target parameter
-    /// @param _duration    The duration of the interpolation
+    /// @param _name The label for this lerp instance
+    /// @param _target The target contract
+    /// @param _ilk The ilk to target
+    /// @param _what The target parameter to adjust
+    /// @param _startTime The time for this lerp
+    /// @param _start The start value for the target parameter
+    /// @param _end The end value for the target parameter
+    /// @param _duration The duration of the interpolation
     function linearInterpolation(
         bytes32 _name,
         address _target,
