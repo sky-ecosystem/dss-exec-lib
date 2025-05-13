@@ -528,7 +528,7 @@ library DssExecLib {
     /// @param _rate The accumulated rate (ex. 4% => 1000000001243680656318820312)
     /// @param _doDrip `true` to accumulate interest owed
     function setSSR(uint256 _rate, bool _doDrip) public {
-        require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/dsr-out-of-bounds"
+        require((_rate >= RAY) && (_rate <= RATES_ONE_HUNDRED_PCT)); // "LibDssExec/ssr-out-of-bounds"
         if (_doDrip) Drippable(susds()).drip();
         setValue(susds(), "ssr", _rate);
     }
@@ -768,12 +768,12 @@ library DssExecLib {
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _pct_bps The pct, in basis points, to set in integer form (x100). (ex. 1.3x starting multiplier = 130% = 13000)
     function setStartingPriceMultiplicativeFactor(bytes32 _ilk, uint256 _pct_bps) public {
-        require(_pct_bps < 10 * BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-ilk-mat-precision" // Fails if gt 10x
+        require(_pct_bps < 10 * BPS_ONE_HUNDRED_PCT); // "LibDssExec/incorrect-ilk-buf-precision" // Fails if gt 10x
         require(_pct_bps >= BPS_ONE_HUNDRED_PCT); // fail if start price is less than OSM price
         setValue(clip(_ilk), "buf", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /// @dev Set the amout of time before an auction resets.
+    /// @dev Set the amount of time before an auction resets.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _duration Amount of time before auction resets (in seconds).
     function setAuctionTimeBeforeReset(bytes32 _ilk, uint256 _duration) public {
