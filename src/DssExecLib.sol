@@ -150,6 +150,10 @@ interface RwaOracleLike {
     function bump(bytes32 ilk, uint256 val) external;
 }
 
+interface ProxyLike {
+    function exec(address target, bytes calldata args) external payable returns (bytes memory out);
+}
+
 /// @title DssExecLib - Sky Protocol's Executive Spellcrafting Library
 /// @notice This library provides a suite of functions for managing the Sky Protocol.
 /// @dev Includes functions for collateral management, system configuration, governance, and more.
@@ -1093,5 +1097,30 @@ library DssExecLib {
         Authorizable(_target).rely(lerp);
         LerpLike(lerp).tick();
         return lerp;
+    }
+
+    /* ----- SubDAO/Star Spells ----- */
+
+    /// @dev Execute a start spell through its star proxy.
+    /// @param _starProxy The proxy to execute the spell through.
+    /// @param _starSpell The spell to execute.
+    /// @return The return data from the spell execution.
+    function executeStarSpell(address _starProxy, address _starSpell) public returns (bytes memory) {
+        return ProxyLike(_starProxy).exec(_starSpell, abi.encodeWithSignature("execute()"));
+    }
+
+    /// @dev Tries to execute a spell through its star proxy.
+    ///      Uses low-level call to avoid reverts in case of an error.
+    ///      Callers are expected to deal with failed calls.
+    /// @param _starProxy The proxy to execute the spell through.
+    /// @param _starSpell The spell to execute.
+    /// @return ok Whether the spell was executed successfully.
+    /// @return data The return data from the spell execution or error message.
+    function tryExecuteStarSpell(address _starProxy, address _starSpell) public returns (bool ok, bytes memory data) {
+        // Simple low-level call to handle errors without reverting
+        (bool success, bytes memory result) =
+            _starProxy.call(abi.encodeCall(ProxyLike.exec, (_starSpell, abi.encodeWithSignature("execute()"))));
+
+        return (success, result);
     }
 }
