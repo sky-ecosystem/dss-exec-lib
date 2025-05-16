@@ -20,6 +20,7 @@
 pragma solidity ^0.8.16;
 
 import "../DssAction.sol";
+import "../CollateralOpts.sol";
 
 contract DssTestNoOfficeHoursAction is DssAction {
     function description() public pure override returns (string memory) {
@@ -268,10 +269,6 @@ contract DssTestAction is DssAction {
 
     function setExponentialDecrease_test(address calc, uint256 pct_bps) public {
         DssExecLib.setExponentialDecrease(calc, pct_bps);
-    }
-
-    function whitelistOracleMedians_test(address oracle) public {
-        DssExecLib.whitelistOracleMedians(oracle);
     }
 
     function addToWhitelist_test(address osm, address reader) public {

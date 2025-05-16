@@ -31,6 +31,7 @@ interface Authorizable {
 interface Kissable {
     function kiss(address) external;
     function diss(address) external;
+    function bud(address) external view returns (uint256);
 }
 
 interface Fileable {
@@ -86,14 +87,8 @@ interface JoinLike {
     function exit(address, uint256) external;
 }
 
-// Includes Median and OSM functions
-interface OracleLike is Kissable {
+interface OsmLike is Kissable {
     function src() external view returns (address);
-}
-
-interface LPOracleLike is Kissable {
-    function orb0() external view returns (address);
-    function orb1() external view returns (address);
 }
 
 interface OsmMomLike {
@@ -358,6 +353,20 @@ library DssExecLib {
     /// @param _ward Address to be deauthorized
     function deauthorize(address _base, address _ward) public {
         Authorizable(_base).deny(_ward);
+    }
+
+    /// @dev Adds an address to a contract's whitelist
+    /// @param _target Address of a contract that implements the kiss() function
+    /// @param _usr Address to add to whitelist
+    function addToWhitelist(address _target, address _usr) public {
+        Kissable(_target).kiss(_usr);
+    }
+
+    /// @dev Removes an address from a contract's whitelist
+    /// @param _target Address of a contract that implements the diss() function
+    /// @param _usr Address to remove from whitelist
+    function removeFromWhitelist(address _target, address _usr) public {
+        Kissable(_target).diss(_usr);
     }
 
     /// @dev Give an address authorization to perform auth actions on the contract.
@@ -868,35 +877,6 @@ library DssExecLib {
 
     /* ----- Oracle Management ----- */
 
-    /// @dev Allows an oracle to read prices from its source feeds
-    /// @param _oracle  An OSM or LP oracle contract
-    function whitelistOracleMedians(address _oracle) public {
-        (bool ok, bytes memory data) = _oracle.call(abi.encodeWithSignature("orb0()"));
-        if (ok) {
-            // Token is an LP oracle
-            address median0 = abi.decode(data, (address));
-            median0.call(abi.encodeWithSignature("kiss(address)", _oracle));
-            LPOracleLike(_oracle).orb1().call(abi.encodeWithSignature("kiss(address)", _oracle));
-        } else {
-            // Standard OSM
-            OracleLike(_oracle).src().call(abi.encodeWithSignature("kiss(address)", _oracle));
-        }
-    }
-
-    /// @dev Adds an address to a contract's whitelist
-    /// @param _target Address of a contract that implements the kiss() function
-    /// @param _usr Address to add to whitelist
-    function addToWhitelist(address _target, address _usr) public {
-        Kissable(_target).kiss(_usr);
-    }
-
-    /// @dev Removes an address from a contract's whitelist
-    /// @param _target Address of a contract that implements the diss() function
-    /// @param _usr Address to remove from whitelist
-    function removeFromWhitelist(address _target, address _usr) public {
-        Kissable(_target).diss(_usr);
-    }
-
     /// @dev Add OSM address to OSM mom, allowing it to be frozen by governance
     /// @param _osm Oracle Security Module (OSM) core contract address
     /// @param _ilk Collateral type using OSM
@@ -999,13 +979,12 @@ library DssExecLib {
 
         if (co.isOSM) {
             // If pip == OSM
+            if (co.checkWhitelistedOSM) {
+                // Check whether the OSM was kissed in the underlying oracle
+                require(Kissable(OsmLike(co.pip).src()).bud(co.pip) == 1); // DssExecLib/osm-not-kissed
+            }
             // Allow OsmMom to access to the TOKEN OSM
             authorize(co.pip, osmMom());
-            if (co.whitelistOSM) {
-                // If median is src in OSM
-                // Whitelist OSM to read the Median data (only necessary if it is the first time the token is being added to an ilk)
-                whitelistOracleMedians(co.pip);
-            }
             // Whitelist Spotter to read the OSM data (only necessary if it is the first time the token is being added to an ilk)
             addToWhitelist(co.pip, spotter());
             // Whitelist Clipper on pip

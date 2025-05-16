@@ -98,7 +98,7 @@ contract MockValue {
     }
 }
 
-contract MockMedian {
+contract MockOracle {
     // --- Auth ---
     mapping(address => uint256) public wards;
 

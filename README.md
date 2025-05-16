@@ -125,7 +125,7 @@ Below is an outline of all functions used in the library.
 - `increaseGlobalDebtCeiling(uint256 _amount)`: Increase the global debt ceiling.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
-- `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, ``9_80 bps` allows a 2% drop in the reference price.
+- `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `9_80` bps allows a 2% drop in the reference price.
 - `setSurplusBuffer(uint256 _amount)`: Set the DAI amount for system surplus buffer, must be exceeded before surplus auctions start.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
 - `setDebtAuctionDAIAmount(uint256 _amount)`: Set the DAI amount for system debt to be covered by each debt auction.
@@ -165,7 +165,6 @@ Below is an outline of all functions used in the library.
 - `initExponentialDecrease(address _calc, uint256 _pct_bps)`: Initialize the variables in an ExponentialDecrease calculator.
 
 ### Oracle Management
-- `whitelistOracleMedians(address _oracle)`: Pass an OSM or UNIV2LP oracle to enable it to read the underlying medianizer.
 - `addToWhitelist(address _oracle, address _reader)`: Adds an address to a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
 - `removeFromWhitelist(address _oracle, address _reader)`: Removes an address from a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
 - `allowOSMFreeze(address _osm, bytes32 _ilk)`: Add OSM address to OSM mom, allowing it to be frozen by governance.

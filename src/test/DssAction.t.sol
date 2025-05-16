@@ -35,6 +35,10 @@ interface PipLike {
     function read() external returns (bytes32);
 }
 
+interface KissLike {
+    function kiss(address) external;
+}
+
 interface ClipFabLike {
     function newClip(address owner, address vat, address spotter, address dog, bytes32 ilk)
         external
@@ -122,7 +126,7 @@ contract ActionTest is Test {
     LerpFactoryAbstract lerpFab;
     RwaLiquidationOracleLike rwaOracle;
 
-    MedianAbstract median;
+    MedianAbstract oracle;
 
     DssTestAction action;
 
@@ -175,7 +179,7 @@ contract ActionTest is Test {
         autoLine = DssAutoLineAbstract(LOG.getAddress("MCD_IAM_AUTO_LINE"));
         lerpFab = LerpFactoryAbstract(LOG.getAddress("LERP_FAB"));
         rwaOracle = RwaLiquidationOracleLike(LOG.getAddress("MIP21_LIQUIDATION_ORACLE"));
-        median = MedianAbstract(address(new MockMedian()));
+        oracle = MedianAbstract(address(new MockOracle()));
 
         vm.label(address(pause), "PAUSE");
         vm.label(address(vat), "VAT");
@@ -227,7 +231,7 @@ contract ActionTest is Test {
         giveAuth(address(lerpFab), address(action));
         giveAuth(address(rwaOracle), address(this));
         giveAuth(address(rwaOracle), address(action));
-        median.rely(address(action));
+        oracle.rely(address(action));
 
         initCollateral("gold", address(action));
         initRwaCollateral({
@@ -907,54 +911,6 @@ contract ActionTest is Test {
         assertEq(calc.cut(), 999900000000000000000000000);
     }
 
-    function test_whitelistOracleOSM() public {
-        address tokenPip = address(new MockOsm(address(median)));
-
-        assertEq(median.bud(tokenPip), 0);
-        action.whitelistOracleMedians_test(tokenPip);
-        assertEq(median.bud(tokenPip), 1);
-    }
-
-    function test_whitelistOracleLP() public {
-        // Mock an LP oracle and whitelist it
-        address token0 = address(new MockToken("nil"));
-        address token1 = address(new MockToken("one"));
-        MedianAbstract med0 = MedianAbstract(address(new MockMedian()));
-        MedianAbstract med1 = MedianAbstract(address(new MockMedian()));
-        address lperc = address(new MockUniPair(token0, token1));
-        med0.rely(address(action));
-        med1.rely(address(action));
-        LPOsmAbstract lorc = LPOsmAbstract(
-            Univ2OracleFactoryLike(UNIV2ORACLE_FAB).build(
-                address(this), address(lperc), "NILONE", address(med0), address(med1)
-            )
-        );
-
-        assertEq(med0.bud(address(lorc)), 0);
-        assertEq(med1.bud(address(lorc)), 0);
-        action.whitelistOracleMedians_test(address(lorc));
-        assertEq(med0.bud(address(lorc)), 1);
-        assertEq(med1.bud(address(lorc)), 1);
-    }
-
-    function test_whitelistOracleWithDSValueLP() public {
-        // Should not fail for LP tokens if one or more oracles are DSValue
-        address token0 = address(new MockToken("nil"));
-        address token1 = address(new MockToken("one"));
-        DSValueAbstract med0 = DSValueAbstract(address(new MockValue()));
-        DSValueAbstract med1 = DSValueAbstract(address(new MockValue()));
-        address lperc = address(new MockUniPair(token0, token1));
-        med0.poke(bytes32(uint256(100)));
-        med1.poke(bytes32(uint256(100)));
-        LPOsmAbstract lorc = LPOsmAbstract(
-            Univ2OracleFactoryLike(UNIV2ORACLE_FAB).build(
-                address(this), address(lperc), "NILONE", address(med0), address(med1)
-            )
-        );
-
-        action.whitelistOracleMedians_test(address(lorc));
-    }
-
     function test_addReaderToOSMWhitelist() public {
         OsmAbstract osm = ilks["gold"].osm;
         address reader = address(1);
@@ -1059,7 +1015,7 @@ contract ActionTest is Test {
         assertEq(address(tokenClip.calc()), address(tokenCalc));
     }
 
-    function collateralOnboardingTest(bool liquidatable, bool isOsm, bool medianSrc) internal {
+    function _checkCollateralOnboarding(bool liquidatable, bool isOsm, bool oracleSrc) internal {
         string memory silk = "silver";
         bytes32 ilk = stringToBytes32(silk);
 
@@ -1074,11 +1030,15 @@ contract ActionTest is Test {
         LinearDecreaseAbstract tokenCalc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
         tokenCalc.file("tau", 1);
-        address tokenPip = address(DSValueAbstract(address(new MockValue())));
+        address _pip = address(DSValueAbstract(address(new MockValue())));
 
+        address tokenPip;
         if (isOsm) {
-            tokenPip = medianSrc ? address(new MockOsm(address(median))) : address(new MockOsm(address(tokenPip)));
+            tokenPip = oracleSrc ? address(new MockOsm(address(oracle))) : address(new MockOsm(address(_pip)));
+            if (oracleSrc) KissLike(address(oracle)).kiss(address(tokenPip));
             OsmAbstract(tokenPip).rely(address(action));
+        } else {
+            tokenPip = _pip;
         }
 
         tokenClip.rely(address(action));
@@ -1099,7 +1059,7 @@ contract ActionTest is Test {
                     pip: tokenPip,
                     isLiquidatable: liquidatable,
                     isOSM: isOsm,
-                    whitelistOSM: medianSrc,
+                    checkWhitelistedOSM: oracleSrc,
                     ilkDebtCeiling: 100 * MILLION,
                     minVaultAmount: 100,
                     maxLiquidationAmount: 50 * THOUSAND,
@@ -1141,7 +1101,6 @@ contract ActionTest is Test {
             assertEq(OsmAbstract(tokenPip).bud(address(clipperMom)), 1);
             assertEq(OsmAbstract(tokenPip).bud(address(end)), 1);
 
-            if (medianSrc) assertEq(median.bud(tokenPip), 1);
             assertEq(osmMom.osms(ilk), tokenPip);
         }
 
@@ -1178,27 +1137,27 @@ contract ActionTest is Test {
     }
 
     function test_addNewCollateralCase1() public {
-        collateralOnboardingTest(true, true, true); // Liquidations: ON,  PIP == OSM, osmSrc == median
+        _checkCollateralOnboarding(true, true, true); // Liquidations: ON,  PIP == OSM, osmSrc == oracle
     }
 
     function test_addNewCollateralCase2() public {
-        collateralOnboardingTest(true, true, false); // Liquidations: ON,  PIP == OSM, osmSrc != median
+        _checkCollateralOnboarding(true, true, false); // Liquidations: ON,  PIP == OSM, osmSrc != oracle
     }
 
     function test_addNewCollateralCase3() public {
-        collateralOnboardingTest(true, false, false); // Liquidations: ON,  PIP != OSM, osmSrc != median
+        _checkCollateralOnboarding(true, false, false); // Liquidations: ON,  PIP != OSM, osmSrc != oracle
     }
 
     function test_addNewCollateralCase4() public {
-        collateralOnboardingTest(false, true, true); // Liquidations: OFF, PIP == OSM, osmSrc == median
+        _checkCollateralOnboarding(false, true, true); // Liquidations: OFF, PIP == OSM, osmSrc == oracle
     }
 
     function test_addNewCollateralCase5() public {
-        collateralOnboardingTest(false, true, false); // Liquidations: OFF, PIP == OSM, osmSrc != median
+        _checkCollateralOnboarding(false, true, false); // Liquidations: OFF, PIP == OSM, osmSrc != oracle
     }
 
     function test_addNewCollateralCase6() public {
-        collateralOnboardingTest(false, false, false); // Liquidations: OFF, PIP != OSM, osmSrc != median
+        _checkCollateralOnboarding(false, false, false); // Liquidations: OFF, PIP != OSM, osmSrc != oracle
     }
 
     function test_officeHoursCanOverrideInAction() public {

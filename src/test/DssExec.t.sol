@@ -86,7 +86,7 @@ contract DssLibSpellAction is
             pip: xmpl_pip,
             isLiquidatable: true,
             isOSM: true,
-            whitelistOSM: true,
+            checkWhitelistedOSM: true,
             ilkDebtCeiling: 3 * MILLION,
             minVaultAmount: 2000,
             maxLiquidationAmount: 50000,
