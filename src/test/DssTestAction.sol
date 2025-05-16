@@ -87,6 +87,10 @@ contract DssTestAction is DssAction {
         DssExecLib.setChangelogAddress(key, val);
     }
 
+    function removeChangelogAddress_test(bytes32 key) public {
+        DssExecLib.removeChangelogAddress(key);
+    }
+
     function setChangelogVersion_test(string memory version) public {
         DssExecLib.setChangelogVersion(version);
     }

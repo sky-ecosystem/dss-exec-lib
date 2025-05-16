@@ -118,7 +118,6 @@ interface IAMLike {
     function ilks(bytes32) external view returns (uint256, uint256, uint48, uint48, uint48);
     function setIlk(bytes32, uint256, uint256, uint256) external;
     function remIlk(bytes32) external;
-    function exec(bytes32) external returns (uint256);
 }
 
 interface LerpFactoryLike {
@@ -319,6 +318,12 @@ library DssExecLib {
     /// @param _val The address associated with the _key
     function setChangelogAddress(bytes32 _key, address _val) public {
         ChainlogLike(LOG).setAddress(_key, _val);
+    }
+
+    /// @dev Remove an address from the Sky Protocol on-chain changelog.
+    /// @param _key Access key for the address to remove (e.g. "MCD_VAT")
+    function removeChangelogAddress(bytes32 _key) public {
+        ChainlogLike(LOG).removeAddress(_key);
     }
 
     /// @dev Set version in the Sky Protocol on-chain changelog.

@@ -526,6 +526,20 @@ contract ActionTest is Test {
         assertEq(LOG.getAddress(ilk), address(this));
     }
 
+    function test_removeAddress() public {
+        bytes32 ilk = "silver";
+        // First add an address to the changelog
+        action.setChangelogAddress_test(ilk, address(this));
+        assertEq(LOG.getAddress(ilk), address(this));
+
+        // Then remove it
+        action.removeChangelogAddress_test(ilk);
+
+        // Verify it was removed by checking that it reverts when trying to get the address
+        vm.expectRevert();
+        LOG.getAddress(ilk);
+    }
+
     function test_setVersion() public {
         string memory version = "9001.0.0";
         action.setChangelogVersion_test(version);
