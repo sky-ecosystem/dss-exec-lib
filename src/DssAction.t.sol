@@ -22,9 +22,14 @@ pragma solidity ^0.8.16;
 import "forge-std/Test.sol";
 import "dss-interfaces/Interfaces.sol";
 
-import "../CollateralOpts.sol";
-import {DssTestAction, DssTestNoOfficeHoursAction} from "./DssTestAction.sol";
-import "./Mocks.sol";
+import {CollateralOpts} from "./CollateralOpts.sol";
+import {MockDssSpellAction, MockDssSpellActionNoOfficeHours} from "./mocks/MockDssSpellAction.sol";
+import {MockToken} from "./mocks/MockToken.sol";
+import {MockValue} from "./mocks/MockValue.sol";
+import {MockOracle} from "./mocks/MockOracle.sol";
+import {MockOsm} from "./mocks/MockOsm.sol";
+import {MockStarProxy} from "./mocks/MockStarProxy.sol";
+import {MockStarSpell} from "./mocks/MockStarSpell.sol";
 
 interface ChainlogLike is ChainlogAbstract {
     function sha256sum() external view returns (string calldata);
@@ -128,7 +133,7 @@ contract ActionTest is Test {
 
     MedianAbstract oracle;
 
-    DssTestAction action;
+    MockDssSpellAction action;
 
     struct Ilk {
         DSValueAbstract pip;
@@ -207,7 +212,7 @@ contract ActionTest is Test {
 
         vm.warp(START_TIME);
 
-        action = new DssTestAction();
+        action = new MockDssSpellAction();
 
         giveAuth(address(vat), address(this));
         giveAuth(address(vat), address(action));
@@ -1175,7 +1180,7 @@ contract ActionTest is Test {
     }
 
     function test_officeHoursCanOverrideInAction() public {
-        DssTestNoOfficeHoursAction actionNoOfficeHours = new DssTestNoOfficeHoursAction();
+        MockDssSpellActionNoOfficeHours actionNoOfficeHours = new MockDssSpellActionNoOfficeHours();
         actionNoOfficeHours.execute();
         assertTrue(!actionNoOfficeHours.officeHours());
     }
@@ -1285,5 +1290,71 @@ contract ActionTest is Test {
         assertEq(line, rad(0 ether));
         assertTrue(lerp.done());
         assertEq(vat.wards(address(lerp)), 0);
+    }
+
+    function test_executeStarSpell_success() public {
+        // Setup mock contracts
+        MockStarProxy proxy = new MockStarProxy();
+        MockStarSpell spell = new MockStarSpell();
+
+        // Execute the spell through the proxy
+        action.executeStarSpell_test(address(proxy), address(spell));
+
+        // Verify the spell was executed successfully
+        assertTrue(proxy.executed(), "Spell should have been executed");
+
+        // Verify the proxy recorded the correct target and data
+        assertEq(proxy.lastTarget(), address(spell), "Proxy should have recorded the correct target");
+        assertEq(
+            proxy.lastData(),
+            abi.encodeWithSignature("execute()"),
+            "Proxy should have recorded the correct function signature"
+        );
+    }
+
+    function test_executeStarSpell_failure() public {
+        // Setup mock contracts
+        MockStarProxy proxy = new MockStarProxy();
+        MockStarSpell spell = new MockStarSpell();
+
+        // Configure the spell to fail
+        proxy.setShouldFail(true);
+
+        // This should revert
+        vm.expectRevert("MockStarProxy/delegatecall-error");
+        action.executeStarSpell_test(address(proxy), address(spell));
+    }
+
+    function test_tryExecuteStarSpell_success() public {
+        // Setup mock contracts
+        MockStarProxy proxy = new MockStarProxy();
+        MockStarSpell spell = new MockStarSpell();
+
+        // Try to execute the spell through the proxy
+        (bool success,) = action.tryExecuteStarSpell_test(address(proxy), address(spell));
+
+        // Verify the execution was successful
+        assertTrue(success, "tryExecuteStarSpell should return success=true for successful execution");
+
+        // Verify the spell was executed
+        assertTrue(proxy.executed(), "Spell should have been executed");
+    }
+
+    function test_tryExecuteStarSpell_failure() public {
+        // Setup mock contracts
+        MockStarProxy proxy = new MockStarProxy();
+        MockStarSpell spell = new MockStarSpell();
+
+        // Configure the spell to fail
+        proxy.setShouldFail(true);
+
+        // Try to execute the spell through the proxy
+        (bool success,) = action.tryExecuteStarSpell_test(address(proxy), address(spell));
+
+        // Verify the execution failed but the call itself didn't revert
+        assertFalse(success, "tryExecuteStarSpell should return success=false for failed execution");
+
+        // Verify the spell was not executed
+        assertFalse(proxy.executed(), "Spell should not have been executed when configured to fail");
     }
 }

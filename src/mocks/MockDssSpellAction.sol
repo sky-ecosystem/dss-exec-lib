@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
-// DssTestAction.sol -- Testable Actions
+// MockDssSpellAction.sol -- Mock for testing DssExecLib
 //
-// Copyright (C) 2020-2022 Dai Foundation
+// Copyright (C) 2020-2025 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,11 @@
 
 pragma solidity ^0.8.16;
 
-import "../DssAction.sol";
-import "../CollateralOpts.sol";
+import {DssExecLib} from "../DssExecLib.sol";
+import {DssAction} from "../DssAction.sol";
+import {CollateralOpts} from "../CollateralOpts.sol";
 
-contract DssTestNoOfficeHoursAction is DssAction {
+contract MockDssSpellActionNoOfficeHours is DssAction {
     function description() public pure override returns (string memory) {
         return "No Office Hours Action";
     }
@@ -36,7 +37,7 @@ contract DssTestNoOfficeHoursAction is DssAction {
     }
 }
 
-contract DssTestAction is DssAction {
+contract MockDssSpellAction is DssAction {
     function description() external pure override returns (string memory) {
         return "DssTestAction";
     }
@@ -332,5 +333,13 @@ contract DssTestAction is DssAction {
         uint256 _duration
     ) public returns (address) {
         return DssExecLib.linearInterpolation(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
+    }
+
+    function executeStarSpell_test(address starProxy, address starSpell) public returns (bytes memory) {
+        return DssExecLib.executeStarSpell(starProxy, starSpell);
+    }
+
+    function tryExecuteStarSpell_test(address starProxy, address starSpell) public returns (bool, bytes memory) {
+        return DssExecLib.tryExecuteStarSpell(starProxy, starSpell);
     }
 }

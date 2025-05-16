@@ -19,7 +19,7 @@
 
 pragma solidity ^0.8.16;
 
-contract Rates {
+contract MockRates {
     mapping(uint256 => uint256) public rates;
 
     constructor() {

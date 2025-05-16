@@ -22,10 +22,11 @@ pragma solidity ^0.8.16;
 import "forge-std/Test.sol";
 import "dss-interfaces/Interfaces.sol";
 
-import "../DssExec.sol";
-import "../DssAction.sol";
-import "../CollateralOpts.sol";
-import "./rates.sol";
+import {DssExec} from "./DssExec.sol";
+import {DssExecLib} from "./DssExecLib.sol";
+import {DssAction} from "./DssAction.sol";
+import {CollateralOpts} from "./CollateralOpts.sol";
+import {MockRates} from "./mocks/MockRates.sol";
 
 interface SpellLike {
     function done() external view returns (bool);
@@ -153,7 +154,7 @@ contract DssLibExecTest is Test {
 
     // MAINNET ADDRESSES
     address pauseProxy;
-    PauseAbstract pause;
+    DSPauseAbstract pause;
     DSChiefAbstract chief;
     VatAbstract vat;
     VowAbstract vow;
@@ -173,7 +174,7 @@ contract DssLibExecTest is Test {
 
     SystemValues afterSpell;
 
-    Rates rates;
+    MockRates rates;
 
     DssExec spell;
 
@@ -189,7 +190,7 @@ contract DssLibExecTest is Test {
         vm.createSelectFork("mainnet");
 
         pauseProxy = LOG.getAddress("MCD_PAUSE_PROXY");
-        pause = PauseAbstract(LOG.getAddress("MCD_PAUSE"));
+        pause = DSPauseAbstract(LOG.getAddress("MCD_PAUSE"));
         chief = DSChiefAbstract(LOG.getAddress("MCD_ADM"));
         vat = VatAbstract(LOG.getAddress("MCD_VAT"));
         vow = VowAbstract(LOG.getAddress("MCD_VOW"));
@@ -205,7 +206,7 @@ contract DssLibExecTest is Test {
         xmpl = GemAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
         pipXMPL = OsmAbstract(LOG.getAddress("PIP_USDT"));
 
-        rates = new Rates();
+        rates = new MockRates();
 
         spell = new DssExec(
             block.timestamp + 30 days, // Expiration
