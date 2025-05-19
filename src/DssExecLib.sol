@@ -627,7 +627,6 @@ library DssExecLib {
         setValue(dog(), "Hole", _amount * RAD);
     }
 
-
     /// @dev Set the duration of time that has to pass during emergency shutdown before collateral can start being claimed by DAI holders.
     /// @param _duration Time in seconds to set for ES processing time
     function setEmergencyShutdownProcessingTime(uint256 _duration) public {
