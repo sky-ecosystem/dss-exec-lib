@@ -804,6 +804,24 @@ contract ActionTest is Test {
         assertEq(line, 5 * MILLION * RAD); // Change to match the gap
     }
 
+    function test_setIlkAutoLineParametersKeepTtl() public {
+        // First set up with initial values including ttl
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000);
+
+        // Get the initial ttl value
+        (,, uint48 initialTtl,,) = autoLine.ilks("gold");
+        assertEq(uint256(initialTtl), 10000);
+
+        // Now use the overloaded function that should keep the ttl unchanged
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION);
+
+        // Verify line and gap were updated but ttl remains the same
+        (uint256 line, uint256 gap, uint48 ttl,,) = autoLine.ilks("gold");
+        assertEq(line, 200 * MILLION * RAD);
+        assertEq(gap, 10 * MILLION * RAD);
+        assertEq(uint256(ttl), initialTtl); // ttl should remain unchanged
+    }
+
     function test_setIlkAutoLineDebtCeiling() public {
         action.setIlkAutoLineParameters_test("gold", 1, 5 * MILLION, 10000); // gap and ttl must be configured already
         action.setIlkAutoLineDebtCeiling_test("gold", 150 * MILLION); // Setup

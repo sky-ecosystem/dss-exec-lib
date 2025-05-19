@@ -212,6 +212,10 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setIlkAutoLineParameters(ilk, amount, gap, ttl);
     }
 
+    function setIlkAutoLineParameters_test(bytes32 ilk, uint256 amount, uint256 gap) public {
+        DssExecLib.setIlkAutoLineParameters(ilk, amount, gap);
+    }
+
     function setIlkAutoLineDebtCeiling_test(bytes32 ilk, uint256 amount) public {
         DssExecLib.setIlkAutoLineDebtCeiling(ilk, amount);
     }
