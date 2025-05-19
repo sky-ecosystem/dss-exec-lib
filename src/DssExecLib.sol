@@ -507,14 +507,14 @@ library DssExecLib {
     /* ----- System Risk Parameters ----- */
 
     /// @dev Set the global debt ceiling. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setGlobalDebtCeiling(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-global-Line-precision"
         setValue(vat(), "Line", _amount * RAD);
     }
 
     /// @dev Increase the global debt ceiling by a specific amount. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to add in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to add (ex. 10m amount == 10000000)
     function increaseGlobalDebtCeiling(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-Line-increase-precision"
         address _vat = vat();
@@ -522,7 +522,7 @@ library DssExecLib {
     }
 
     /// @dev Decrease the global debt ceiling by a specific amount. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to reduce in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to reduce (ex. 10m amount == 10000000)
     function decreaseGlobalDebtCeiling(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-Line-decrease-precision"
         address _vat = vat();
@@ -547,15 +547,15 @@ library DssExecLib {
         setValue(susds(), "ssr", _rate);
     }
 
-    /// @dev Set the DAI amount for system surplus auctions. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @dev Set the amount for system surplus auctions. Amount will be converted to the correct internal precision.
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setSurplusAuctionAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-vow-bump-precision"
         setValue(vow(), "bump", _amount * RAD);
     }
 
-    /// @dev Set the DAI amount for system surplus buffer, must be exceeded before surplus auctions start. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @dev Set the amount for system surplus buffer, must be exceeded before surplus auctions start. Amount will be converted to the correct internal precision.
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setSurplusBuffer(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-vow-hump-precision"
         setValue(vow(), "hump", _amount * RAD);
@@ -661,7 +661,7 @@ library DssExecLib {
 
     /// @dev Set a collateral debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkDebtCeiling(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
         setValue(vat(), _ilk, "line", _amount * RAD);
@@ -669,7 +669,7 @@ library DssExecLib {
 
     /// @dev Increase a collateral debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to increase in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to increase (ex. 10m amount == 10000000)
     /// @param _global If true, increases the global debt ceiling by _amount
     function increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
@@ -681,7 +681,7 @@ library DssExecLib {
 
     /// @dev Decrease a collateral debt ceiling. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to decrease in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to decrease (ex. 10m amount == 10000000)
     /// @param _global If true, decreases the global debt ceiling by _amount
     function decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
@@ -693,8 +693,9 @@ library DssExecLib {
 
     /// @dev Set a RWA collateral debt ceiling by specifying its new oracle price.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _ceiling The new debt ceiling in natural units (e.g. set 10m DAI as 10_000_000)
+    /// @param _ceiling The new debt ceiling in natural units (e.g. set 10m as 10_000_000)
     /// @param _price The new oracle price in natural units
+    /// @dev note: currently only DAI is supported in RWA vaults.
     /// @dev note: _price should enable DAI to be drawn over the loan period while taking into
     ///                 account the configured ink amount, interest rate and liquidation ratio
     /// @dev note: _price * WAD should be greater than or equal to the current oracle price
@@ -707,8 +708,8 @@ library DssExecLib {
 
     /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The Maximum value (ex. 100m DAI amount == 100000000)
-    /// @param _gap The amount of Dai per step (ex. 5m Dai == 5000000)
+    /// @param _amount The Maximum value (ex. 100m amount == 100000000)
+    /// @param _gap The amount per step (ex. 5m gap == 5000000)
     /// @param _ttl The amount of time (in seconds)
     function setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl) public {
         require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
@@ -718,7 +719,7 @@ library DssExecLib {
 
     /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line without updating the time values
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The Maximum value (ex. 100m DAI amount == 100000000)
+    /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     function setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount) public {
         address _autoLine = autoLine();
         (, uint256 gap, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
@@ -734,7 +735,7 @@ library DssExecLib {
 
     /// @dev Set a collateral minimum vault amount. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-dust-precision"
         (,, uint256 _hole,) = DogLike(dog()).ilks(_ilk);
@@ -753,9 +754,9 @@ library DssExecLib {
         clip(_ilk).call(abi.encodeWithSignature("upchost()"));
     }
 
-    /// @dev Set max DAI amount for liquidation per vault for collateral. Amount will be converted to the correct internal precision.
+    /// @dev Set max amount for liquidation per vault for collateral. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-hole-precision"
         setValue(dog(), _ilk, "hole", _amount * RAD);
@@ -804,9 +805,9 @@ library DssExecLib {
         setValue(clip(_ilk), "chip", wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /// @dev Set max DAI amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
+    /// @dev Set max amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The amount to set in DAI (ex. 1000 DAI amount == 1000)
+    /// @param _amount The amount to set (ex. 1000 amount == 1000)
     function setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-clip-tip-precision"
         setValue(clip(_ilk), "tip", _amount * RAD);
@@ -895,7 +896,7 @@ library DssExecLib {
 
     /* ----- Direct Deposit Module ----- */
 
-    /// @dev Sets the target rate threshold for a dai direct deposit module (ddm)
+    /// @dev Sets the target rate threshold for a direct deposit module (ddm)
     /// @dev Aave: Targets the variable borrow rate
     /// @param _ddm The address of the DDM contract
     /// @param _pct_bps Target rate in basis points. (ex. 4% == 400)
@@ -1030,8 +1031,8 @@ library DssExecLib {
 
     /// @dev Send a payment in either ERC20 USDS or DAI from the surplus buffer.
     /// @param _join The join adapter to exit the payment from.
-    /// @param _target The target address to send the DAI to.
-    /// @param _amount The amount to send in DAI (ex. 10m DAI amount == 10000000)
+    /// @param _target The target address to send the payment to.
+    /// @param _amount The amount to send (ex. 10m amount == 10000000)
     function sendPaymentFromSurplusBuffer(address _join, address _target, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
         DssVat(vat()).suck(vow(), address(this), _amount * RAD);
