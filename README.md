@@ -54,7 +54,8 @@ new DssExec(
 
 Below is an outline of how all variables are accounted for for precision based on name.
 
-> [!NOTE] > `DSSExecLib.sol` has NatSpec comments above every function definition that provides a comprehensive definition of the function, its parameters, and any precision calculations that are made.
+> [!NOTE]
+> `DSSExecLib.sol` has NatSpec comments above every function definition that provides a comprehensive definition of the function, its parameters, and any precision calculations that are made.
 
 - `amount`: Integer amount, (e.g., 10m DAI amount == 10000000)
 - `rate`: Rate value expressed as value corresponding to percent from this [list](https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW) (e.g., 4% => 1000000001243680656318820312)
