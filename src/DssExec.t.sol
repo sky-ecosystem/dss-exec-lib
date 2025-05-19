@@ -48,6 +48,14 @@ interface CalcFabLike {
     function newLinearDecrease(address owner) external returns (address calc);
 }
 
+interface ChiefLike {
+    function hat() external view returns (address);
+    function live() external view returns (uint256);
+    function lock(uint256 wad) external;
+    function vote(address[] memory yays) external returns (bytes32 slate);
+    function lift(address whom) external;
+}
+
 contract DssLibSpellAction is
     DssAction // This could be changed to a library if the lib is hardcoded and the constructor removed
 {
@@ -115,7 +123,9 @@ contract DssLibSpellAction is
     }
 }
 
-contract DssLibExecTest is Test {
+contract DssExecTest is Test {
+    using stdStorage for StdStorage;
+
     struct CollateralValues {
         uint256 line;
         uint256 dust;
@@ -155,7 +165,7 @@ contract DssLibExecTest is Test {
     // MAINNET ADDRESSES
     address pauseProxy;
     DSPauseAbstract pause;
-    DSChiefAbstract chief;
+    ChiefLike chief;
     VatAbstract vat;
     VowAbstract vow;
     DogAbstract dog;
@@ -191,7 +201,7 @@ contract DssLibExecTest is Test {
 
         pauseProxy = LOG.getAddress("MCD_PAUSE_PROXY");
         pause = DSPauseAbstract(LOG.getAddress("MCD_PAUSE"));
-        chief = DSChiefAbstract(LOG.getAddress("MCD_ADM"));
+        chief = ChiefLike(LOG.getAddress("MCD_ADM"));
         vat = VatAbstract(LOG.getAddress("MCD_VAT"));
         vow = VowAbstract(LOG.getAddress("MCD_VOW"));
         dog = DogAbstract(LOG.getAddress("MCD_DOG"));
@@ -324,9 +334,12 @@ contract DssLibExecTest is Test {
     }
 
     function vote() private {
+        if (chief.live() != 1) {
+            stdstore.target(address(chief)).sig("live()").checked_write(bytes32(uint256(1)));
+        }
         if (chief.hat() != address(spell)) {
-            vm.store(
-                address(gov), keccak256(abi.encode(address(this), uint256(1))), bytes32(uint256(999999999999 ether))
+            stdstore.target(address(gov)).sig("balanceOf(address)").with_key(address(this)).checked_write(
+                bytes32(uint256(999999999999 ether))
             );
             gov.approve(address(chief), type(uint256).max);
             chief.lock(gov.balanceOf(address(this)) - 1 ether);
@@ -438,8 +451,12 @@ contract DssLibExecTest is Test {
         {
             // sump values in RAD
             uint256 normalizedSump = values.vow_sump * RAD;
-            assertEq(vow.sump(), normalizedSump);
-            assertTrue((vow.sump() >= RAD && vow.sump() < 500 * THOUSAND * RAD) || vow.sump() == 0);
+            // TODO: sump has been set to type(uint256).max during the Sky migration.
+            //       Remove this check when the new Flopper contract is available.
+            if (vow.sump() != type(uint256).max) {
+                assertEq(vow.sump(), normalizedSump);
+                assertTrue((vow.sump() >= RAD && vow.sump() < 500 * THOUSAND * RAD) || vow.sump() == 0);
+            }
         }
         {
             // bump values in RAD

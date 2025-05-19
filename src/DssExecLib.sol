@@ -716,6 +716,18 @@ library DssExecLib {
         IAMLike(autoLine()).setIlk(_ilk, _amount * RAD, _gap * RAD, _ttl);
     }
 
+    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line. Keeps the ttl unchanged.
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _amount The Maximum value (ex. 100m amount == 100000000)
+    /// @param _gap The amount per step (ex. 5m gap == 5000000)
+    function setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap) public {
+        address _autoLine = autoLine();
+        (,, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
+        require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
+        require(_gap < WAD); // "LibDssExec/incorrect-auto-line-gap-precision"
+        IAMLike(_autoLine).setIlk(_ilk, _amount * RAD, _gap * RAD, uint256(ttl));
+    }
+
     /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line without updating the time values
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
