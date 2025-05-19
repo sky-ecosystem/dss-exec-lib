@@ -73,8 +73,7 @@ Below is an outline of all functions used in the library.
 - `susds()`: sUSDS ERC4626 Contract
 - `mkr()`: MKR ERC20 Contract
 - `vat()`: Core Accounting
-- `cat()`: Liquidation Agent
-- `dog()`: Liquidation 2.0 Agent
+- `dog()`: Liquidation Agent
 - `jug()`: Rates Module
 - `pot()`: Savings Rates Module
 - `vow()`: System Stabilizer Module

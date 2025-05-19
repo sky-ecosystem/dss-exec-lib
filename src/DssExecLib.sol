@@ -207,10 +207,6 @@ library DssExecLib {
         return getChangelogAddress("MCD_VAT");
     }
 
-    function cat() public view returns (address) {
-        return getChangelogAddress("MCD_CAT");
-    }
-
     function dog() public view returns (address) {
         return getChangelogAddress("MCD_DOG");
     }
@@ -631,12 +627,6 @@ library DssExecLib {
         setValue(dog(), "Hole", _amount * RAD);
     }
 
-    /// @dev (LIQ 1.2) Set the maximum total DAI amount that can be out for liquidation in the system at any point. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 250,000 DAI amount == 250000)
-    function setMaxTotalDAILiquidationAmountLEGACY(uint256 _amount) public {
-        require(_amount < WAD); // "LibDssExec/incorrect-cat-box-amount"
-        setValue(cat(), "box", _amount * RAD);
-    }
 
     /// @dev Set the duration of time that has to pass during emergency shutdown before collateral can start being claimed by DAI holders.
     /// @param _duration Time in seconds to set for ES processing time
