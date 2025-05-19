@@ -102,7 +102,7 @@ interface ProxyLike {
     function exec(address, bytes calldata) external returns (bytes memory);
 }
 
-contract ActionTest is Test {
+contract DssActionTest is Test {
     using stdStorage for StdStorage;
 
     ChainlogLike LOG = ChainlogLike(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
@@ -294,65 +294,9 @@ contract ActionTest is Test {
         }
     }
 
-    function min(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        (x >= y) ? z = y : z = x;
-    }
-
-    function dai(address urn) internal view returns (uint256) {
-        return vat.dai(urn) / RAY;
-    }
-
-    function ink(bytes32 ilk, address urn) internal view returns (uint256) {
-        (uint256 ink_, uint256 art_) = vat.urns(ilk, urn);
-        art_;
-        return ink_;
-    }
-
-    function art(bytes32 ilk, address urn) internal view returns (uint256) {
-        (uint256 ink_, uint256 art_) = vat.urns(ilk, urn);
-        ink_;
-        return art_;
-    }
-
-    function Art(bytes32 ilk) internal view returns (uint256) {
-        (uint256 Art_, uint256 rate_, uint256 spot_, uint256 line_, uint256 dust_) = vat.ilks(ilk);
-        rate_;
-        spot_;
-        line_;
-        dust_;
-        return Art_;
-    }
-
-    function balanceOf(bytes32 ilk, address usr) internal view returns (uint256) {
-        return ilks[ilk].gem.balanceOf(usr);
-    }
-
     function stringToBytes32(string memory source) public pure returns (bytes32 result) {
         assembly {
             result := mload(add(source, 32))
-        }
-    }
-
-    /**
-     * @notice Test that two values are approximately equal within a certain tolerance range
-     * @param _a First value
-     * @param _b Second value
-     * @param _tolerance Maximum tolerated difference, in absolute terms
-     */
-    function assertEqApprox(uint256 _a, uint256 _b, uint256 _tolerance) internal {
-        uint256 a = _a;
-        uint256 b = _b;
-        if (a < b) {
-            // if a < b, switch values so that a is always the biggest amount
-            uint256 tmp = a;
-            a = b;
-            b = tmp;
-        }
-        if (a - b > _tolerance) {
-            emit log_bytes32("Error: Wrong `uint' value");
-            emit log_named_uint("  Expected", _b);
-            emit log_named_uint("    Actual", _a);
-            fail();
         }
     }
 
@@ -775,7 +719,7 @@ contract ActionTest is Test {
     function test_setRWAIlkDebtCeiling() public {
         (, address pip,,) = rwaOracle.ilks("6s");
         uint256 price = uint256(PipLike(pip).read());
-        assertEqApprox(price, 22_278_900 * WAD, WAD); // 20MM * 1.03^2 * 1.05
+        assertApproxEqAbs(price, 22_278_900 * WAD, WAD); // 20MM * 1.03^2 * 1.05
         action.setRWAIlkDebtCeiling_test("6s", 50 * MILLION, 55 * MILLION); // Increase
         (,,, uint256 line,) = vat.ilks("6s");
         assertEq(line, 50 * MILLION * RAD);
