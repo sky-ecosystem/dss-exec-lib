@@ -4,9 +4,7 @@ A library for crafting spells in Sky Protocol (formerly MakerDAO) more efficient
 
 ## Public Library Addresses
 
-- (v0.0.9) Mainnet: [0x8de6ddbcd5053d32292aaa0d2105a32d108484a6](https://etherscan.io/address/0x8de6ddbcd5053d32292aaa0d2105a32d108484a6#code)
-- (v0.0.9) Goerli: [0x122f6c0dcd898b4a07310e92c3eae5d7ce0c8bb6](https://goerli.etherscan.io/address/0x122f6c0dcd898b4a07310e92c3eae5d7ce0c8bb6#code)
-- (v0.0.9) Kovan: [0xb1d60194ec975bc83f0300b7669a0803b6dd2955](https://kovan.etherscan.io/address/0xb1d60194ec975bc83f0300b7669a0803b6dd2955#code)
+- (v0.1.0) Mainnet: [TODO](https://etherscan.io/address/TODO#code)
 
 ## Requirements
 
@@ -38,7 +36,9 @@ The `SpellAction.sol` file must always inherit `DssAction` from `lib/dss-exec-li
 
 The developer must override the `actions()` function and place all spell actions within. This is called by the `execute()` function in the pause, which is subject to an optional limiter for office hours.
 
-_Note:_ All variables within the SpellAction MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a Spell Action due to the underlying delegatecall mechanisms.
+> [!NOTE]
+> All variables within the SpellAction MUST be defined as constants, or assigned at runtime inside of the `actions()` function.  
+> Variable memory storage is not available within a Spell Action due to the underlying delegatecall mechanisms.
 
 The spell itself is deployed as follows:
 
@@ -54,7 +54,7 @@ new DssExec(
 
 Below is an outline of how all variables are accounted for for precision based on name.
 
-**NOTE: `DSSExecLib.sol` has NatSpec comments above every function definition that provides a comprehensive definition of the function, its parameters, and any precision calculations that are made.**
+> [!NOTE] > `DSSExecLib.sol` has NatSpec comments above every function definition that provides a comprehensive definition of the function, its parameters, and any precision calculations that are made.
 
 - `amount`: Integer amount, (e.g., 10m DAI amount == 10000000)
 - `rate`: Rate value expressed as value corresponding to percent from this [list](https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW) (e.g., 4% => 1000000001243680656318820312)
