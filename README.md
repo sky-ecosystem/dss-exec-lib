@@ -213,7 +213,7 @@ CollateralOpts memory XMPL_A = CollateralOpts({
     calc:                  xmpl_calc,
     pip:                   0x9eb923339c24c40Bef2f4AF4961742AA7C23EF3a,
     isLiquidatable:        true,
-    isOSM:                 true,
+    checkWhitelistedOSM:   true,
     whitelistOSM:          true,
     ilkDebtCeiling:        3 * MILLION,
     minVaultAmount:        100,         // 100 Dust
@@ -235,17 +235,17 @@ DssExecLib.setChangelogAddress("MCD_CLIP_XMPL-A", 0x9daCc11dcD0aa13386D295eAeeBB
 DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 ```
 
-- `ilk`:                  Collateral type
-- `gem`:                  Address of collateral token
-- `join`:                 Address of GemJoin contract
-- `clip`:                 Address of Clip contract
-- `calc`:                 Address of Abacus pricing contract
-- `pip`:                  Address of Pip contract
-- `isLiquidatable`:       Boolean indicating whether liquidations are enabled for collateral
-- `isOsm`:                Boolean indicating whether pip address used is an OSM contract
-- `whitelistOsm`:         Boolean indicating whether median is src in OSM.
-- `ilkDebtCeiling`:       Debt ceiling for new collateral
-- `minVaultAmount`:       Minimum DAI vault amount required for new collateral
+- `ilk`: Collateral type
+- `gem`: Address of collateral token
+- `join`: Address of GemJoin contract
+- `clip`: Address of Clip contract
+- `calc`: Address of Abacus pricing contract
+- `pip`: Address of Pip contract
+- `isLiquidatable`: Boolean indicating whether liquidations are enabled for collateral
+- `isOsm`: Boolean indicating whether pip address used is an OSM contract
+- `checkWhitelistedOSM`: Boolean indicating whether to check if OSM is whitelisted by the underlying oracle
+- `ilkDebtCeiling`: Debt ceiling for new collateral
+- `minVaultAmount`: Minimum DAI vault amount required for new collateral
 - `maxLiquidationAmount`: Max DAI amount per vault for liquidation for new collateral
 - `liquidationPenalty`:   Percent liquidation penalty for new collateral [ex. 13.5% == 1350]
 - `ilkStabilityFee`:      Percent stability fee for new collateral       [ex. 4% == 1000000001243680656318820312]
