@@ -37,8 +37,7 @@ The `SpellAction.sol` file must always inherit `DssAction` from `lib/dss-exec-li
 The developer must override the `actions()` function and place all spell actions within. This is called by the `execute()` function in the pause, which is subject to an optional limiter for office hours.
 
 > [!NOTE]
-> All variables within the SpellAction MUST be defined as constants, or assigned at runtime inside of the `actions()` function.  
-> Variable memory storage is not available within a Spell Action due to the underlying delegatecall mechanisms.
+> All variables within spell action MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a spell action due to the underlying `delegatcall` mechanisms.
 
 The spell itself is deployed as follows:
 
@@ -70,35 +69,39 @@ Below is an outline of all functions used in the library.
 ### Core Address Helpers
 
 - `dai()`: Dai ERC20 Contract
+- `usds()`: USDS ERC20 Contract
+- `susds()`: sUSDS ERC4626 Contract
 - `mkr()`: MKR ERC20 Contract
-- `vat()`: MCD Core Accounting
-- `cat()`: MCD Liquidation Agent
-- `dog()`: MCD Liquidation 2.0 Agent
-- `jug()`: MCD Rates Module
-- `pot()`: MCD Savings Rates Module
-- `vow()`: MCD System Stabilizer Module
-- `end()`: MCD Shutdown Coordinator
+- `vat()`: Core Accounting
+- `cat()`: Liquidation Agent
+- `dog()`: Liquidation 2.0 Agent
+- `jug()`: Rates Module
+- `pot()`: Savings Rates Module
+- `vow()`: System Stabilizer Module
+- `end()`: Shutdown Coordinator
 - `reg()`: Ilk Registry
-- `spotter()`: MCD Oracle Liason
-- `flap()`: MCD Surplus Auction Module
-- `flop()`: MCD Debt Auction Module
+- `spotter()`: Oracle Liason
+- `flap()`: Surplus Auction Module
+- `flop()`: Debt Auction Module
 - `osmMom()`: OSM Circuit Breaker
 - `govGuard()`: MKR Authority
 - `flipperMom()`: Flipper Governance Interface
 - `clipperMom()`: Clipper Governance Interface (Liquidations 2.0)
 - `pauseProxy()`: Governance Authority
 - `autoLine()`: Debt Ceiling Auto Adjustment
-- `daiJoin()`: MCD Join adapter for Dai
+- `daiJoin()`: Join adapter for Dai
+- `usdsJoin()`: Join adapter for USDS
 - `flip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 
 ### Changelog Management
 
-- `getChangelogAddress(bytes32 _key)`: Get MCD address from key from MCD on-chain changelog.
-- `setChangelogAddress(bytes32 _key, address _val)`: Set an address in the MCD on-chain changelog.
-- `setChangelogVersion(string memory _version)`: Set version in the MCD on-chain changelog.
-- `setChangelogIPFS(string memory _ipfsHash)`: Set IPFS hash of IPFS changelog in MCD on-chain changelog.
-- `setChangelogSHA256(string memory _SHA256Sum)`: Set SHA256 hash in MCD on-chain changelog.
+- `getChangelogAddress(bytes32 _key)`: Get address from key from on-chain changelog.
+- `removeChangelogAddress(bytes32 _key)`: Remove key from on-chain changelog.
+- `setChangelogAddress(bytes32 _key, address _val)`: Set an address in the on-chain changelog.
+- `setChangelogVersion(string memory _version)`: Set version in the on-chain changelog.
+- `setChangelogIPFS(string memory _ipfsHash)`: Set IPFS hash of IPFS changelog in on-chain changelog.
+- `setChangelogSHA256(string memory _SHA256Sum)`: Set SHA256 hash in on-chain changelog.
 
 ### Authorizations
 
