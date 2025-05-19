@@ -10,7 +10,7 @@ A library for crafting spells in Sky Protocol (formerly MakerDAO) more efficient
 
 ## Requirements
 
-* [Foundry](https://getfoundry.sh/)
+- [Foundry](https://getfoundry.sh/)
 
 ## About
 
@@ -38,7 +38,7 @@ The `SpellAction.sol` file must always inherit `DssAction` from `lib/dss-exec-li
 
 The developer must override the `actions()` function and place all spell actions within. This is called by the `execute()` function in the pause, which is subject to an optional limiter for office hours.
 
-*Note:* All variables within the SpellAction MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a Spell Action due to the underlying delegatecall mechanisms.
+_Note:_ All variables within the SpellAction MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a Spell Action due to the underlying delegatecall mechanisms.
 
 The spell itself is deployed as follows:
 
@@ -59,7 +59,7 @@ Below is an outline of how all variables are accounted for for precision based o
 - `amount`: Integer amount, (e.g., 10m DAI amount == 10000000)
 - `rate`: Rate value expressed as value corresponding to percent from this [list](https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW) (e.g., 4% => 1000000001243680656318820312)
 - `duration`: Time, in seconds.
-- `pct_bps`: Percentage, in basis points (e.g., 5% = 5 * 100 = 500).
+- `pct_bps`: Percentage, in basis points (e.g., 5% = 5 \* 100 = 500).
 - `value`: Decimal value, expressed as 1000x (e.g., $1.025 == 1025)
 
 ## Actions
@@ -67,6 +67,7 @@ Below is an outline of how all variables are accounted for for precision based o
 Below is an outline of all functions used in the library.
 
 ### Core Address Helpers
+
 - `dai()`: Dai ERC20 Contract
 - `mkr()`: MKR ERC20 Contract
 - `vat()`: MCD Core Accounting
@@ -91,6 +92,7 @@ Below is an outline of all functions used in the library.
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 
 ### Changelog Management
+
 - `getChangelogAddress(bytes32 _key)`: Get MCD address from key from MCD on-chain changelog.
 - `setChangelogAddress(bytes32 _key, address _val)`: Set an address in the MCD on-chain changelog.
 - `setChangelogVersion(string memory _version)`: Set version in the MCD on-chain changelog.
@@ -98,29 +100,37 @@ Below is an outline of all functions used in the library.
 - `setChangelogSHA256(string memory _SHA256Sum)`: Set SHA256 hash in MCD on-chain changelog.
 
 ### Authorizations
+
 - `authorize(address _base, address _ward)`: Give an address authorization to perform auth actions on the contract.
 - `deauthorize(address _base, address _ward)`: Revoke contract authorization from an address.
 - `setAuthority(address _base, address _authority)`: Give an address authority to a base contract using authority pattern.
 - `delegateVat(address _usr)`: Delegate vat authority to the specified address.
 - `undelegateVat(address _usr)`: Revoke vat authority to the specified address.
+- `addToWhitelist(address _base, address _bud)`: Adds an address to a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
+- `removeFromWhitelist(address _base, address _bud)`: Removes an address from a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
 
 ### Time Management
+
 - `canCast(uint40 _ts, bool _officeHours) returns (bool)`: Use to determine whether a timestamp is within the office hours window.
 - `nextCastTime(uint40 _eta, uint40 _ts, bool _officeHours) returns (uint256)`: Use to return the timestamp of the first available time after eta that a spell can be cast.
 
 ### Accumulating Rates
+
 - `accumulateDSR()`: Update rate accumulation for the Dai Savings Rate (DSR).
 - `accumulateSSR()`: Update rate accumulation for the Sky Savings Rate (SSR).
 - `accumulateCollateralStabilityFees(bytes32 _ilk)`: Update rate accumulation for the stability fees of a given collateral type.
 
 ### Price Updates
+
 - `updateCollateralPrice(bytes32 _ilk)`: Update price of a given collateral type.
 
 ### System Configuration
+
 - `setContract(address _base, bytes32 _what, address _addr)`: Set a contract in another contract, defining the relationship (ex. set a new Vow contract in the Dog)
 - `setContract(address _base, bytes32 _ilk, bytes32 _what, address _addr)`: Set a contract in another contract, defining the relationship for a given ilk.
 
 ### System Risk Parameters
+
 - `setGlobalDebtCeiling(uint256 _amount)`: Set the global debt ceiling.
 - `increaseGlobalDebtCeiling(uint256 _amount)`: Increase the global debt ceiling.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
@@ -133,13 +143,14 @@ Below is an outline of all functions used in the library.
 - `setMinDebtAuctionBidIncrease(uint256 _pct_bps)`: Set minimum bid increase for debt auctions.
 - `setDebtAuctionBidDuration(uint256 _length)`: Set bid duration for debt auctions.
 - `setDebtAuctionDuration(uint256 _length)`: Set total auction duration for debt auctions.
-- `setDebtAuctionMKRIncreaseRate(uint256 _pct_bps)`: Set the rate of increasing amount of MKR out for auction during debt auctions.  MKR amount is increased by this rate every "tick" (if auction duration has passed and no one has bid on the MKR).
+- `setDebtAuctionMKRIncreaseRate(uint256 _pct_bps)`: Set the rate of increasing amount of MKR out for auction during debt auctions. MKR amount is increased by this rate every "tick" (if auction duration has passed and no one has bid on the MKR).
 - `setMaxTotalDAILiquidationAmount(uint256 _amount)`: Set the maximum total DAI amount that can be out for liquidation in the system at any point.
 - `setEmergencyShutdownProcessingTime(uint256 _length)`: Set the length of time that has to pass during emergency shutdown before collateral can start being claimed by DAI holders.
 - `setGlobalStabilityFee(uint256 _rate)`: Set the global stability fee (not typically used, currently is 0).
 - `setDAIReferenceValue(uint256 _amount) `: Set the value of DAI in the reference asset (e.g. $1 per DAI).
 
 ### Collateral Management
+
 - `setIlkDebtCeiling(bytes32 _ilk, uint256 _amount)`: Set a collateral debt ceiling.
 - `increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Raise the debt ceiling of a particular ilk.
 - `decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Lower the debt ceiling of a particular ilk.
@@ -160,38 +171,43 @@ Below is an outline of all functions used in the library.
 - `setIlkStabilityFee(bytes32 _ilk, uint256 _rate)`: Set the stability fee for a given ilk.
 
 ### Abacus Management
+
 - `initLinearDecrease(address _calc, uint256 _duration)`: Initialize the variables in a LinearDecrease calculator.
 - `initStairstepExponentialDecrease(address _calc, uint256 _duration, uint256 _pct_bps)`: Initialize the variables in a StairstepExponentialDecrease calculator.
 - `initExponentialDecrease(address _calc, uint256 _pct_bps)`: Initialize the variables in an ExponentialDecrease calculator.
 
 ### Oracle Management
-- `addToWhitelist(address _oracle, address _reader)`: Adds an address to a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
-- `removeFromWhitelist(address _oracle, address _reader)`: Removes an address from a whitelist, for contracts which implement the `kiss`/`diss` pattern for 2nd level permissions.
+
 - `allowOSMFreeze(address _osm, bytes32 _ilk)`: Add OSM address to OSM mom, allowing it to be frozen by governance.
 
 ### Governance Security Module
+
 - `setGSMDelay`: Sets the GSM delay for governance actions.
 
 ### Direct Deposit Module
+
 - `setDDMTargetInterestRate(address _ddm, uint256 _pct_bps)`: Set the target rate (`bar`) for a DDM module.
 
 ### Collateral Onboarding
+
 In order to onboard new collateral to the Maker protocol, the following must be done before the spell is prepared:
+
 - Deploy a GemJoin contract
-    - Rely the `MCD_PAUSE_PROXY` address
-    - Deny the deployer address
+  - Rely the `MCD_PAUSE_PROXY` address
+  - Deny the deployer address
 - Deploy a Clip contract
-    - Rely the `MCD_PAUSE_PROXY` address
-    - Deny the deployer address
+  - Rely the `MCD_PAUSE_PROXY` address
+  - Deny the deployer address
 - Deploy an Abacus pricing contract
-    - Initialize values (or use initialization function in DssExecLib)
-    - Rely the `MCD_PAUSE_PROXY` address
-    - Deny the deployer address
+  - Initialize values (or use initialization function in DssExecLib)
+  - Rely the `MCD_PAUSE_PROXY` address
+  - Deny the deployer address
 - Deploy a Pip contract (oracles team-managed)
-    - Rely the `MCD_PAUSE_PROXY` address
-    - Deny the deployer address
+  - Rely the `MCD_PAUSE_PROXY` address
+  - Deny the deployer address
 
 Once these actions are done, add the following code (below is an example) to the `execute()` function in the spell. The `setChangelogAddress` function calls are required to add the collateral to the on-chain changelog. They must follow the following convention:
+
 - GEM: `TOKEN`
 - JOIN: `MCD_JOIN_TOKEN`
 - CLIP: `MCD_CLIP_TOKEN`
@@ -247,14 +263,15 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 - `ilkDebtCeiling`: Debt ceiling for new collateral
 - `minVaultAmount`: Minimum DAI vault amount required for new collateral
 - `maxLiquidationAmount`: Max DAI amount per vault for liquidation for new collateral
-- `liquidationPenalty`:   Percent liquidation penalty for new collateral [ex. 13.5% == 1350]
-- `ilkStabilityFee`:      Percent stability fee for new collateral       [ex. 4% == 1000000001243680656318820312]
-- `startingPriceFactor`:  Percentage to multiply for initial auction price. [ex. 1.3x == 130% == 13000 bps]
-- `auctionDuration`:      Total auction duration before reset for new collateral
-- `permittedDrop`:        Percent an auction can drop before it can be reset.
-- `liquidationRatio`:     Percent liquidation ratio for new collateral   [ex. 150% == 15000]
+- `liquidationPenalty`: Percent liquidation penalty for new collateral [ex. 13.5% == 1350]
+- `ilkStabilityFee`: Percent stability fee for new collateral [ex. 4% == 1000000001243680656318820312]
+- `startingPriceFactor`: Percentage to multiply for initial auction price. [ex. 1.3x == 130% == 13000 bps]
+- `auctionDuration`: Total auction duration before reset for new collateral
+- `permittedDrop`: Percent an auction can drop before it can be reset.
+- `liquidationRatio`: Percent liquidation ratio for new collateral [ex. 150% == 15000]
 
 ### Payments
+
 - `sendPaymentFromSurplusBuffer(address _join, address _target, uint256 _amount)`: Send a payment in either ERC20 USDS or DAI from the surplus buffer.
 
 ### Misc
