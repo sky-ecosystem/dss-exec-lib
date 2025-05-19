@@ -152,12 +152,12 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setDebtAuctionDelay(duration);
     }
 
-    function setDebtAuctionDAIAmount_test(uint256 amount) public {
-        DssExecLib.setDebtAuctionDAIAmount(amount);
+    function setDebtAuctionDebtAmount_test(uint256 amount) public {
+        DssExecLib.setDebtAuctionDebtAmount(amount);
     }
 
-    function setDebtAuctionMKRAmount_test(uint256 amount) public {
-        DssExecLib.setDebtAuctionMKRAmount(amount);
+    function setDebtAuctionGovAmount_test(uint256 amount) public {
+        DssExecLib.setDebtAuctionGovAmount(amount);
     }
 
     function setMinDebtAuctionBidIncrease_test(uint256 pct_bps) public {

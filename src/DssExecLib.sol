@@ -579,16 +579,16 @@ library DssExecLib {
         setValue(vow(), "wait", _duration);
     }
 
-    /// @dev Set the DAI amount for system debt to be covered by each debt auction. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 10m DAI amount == 10000000)
-    function setDebtAuctionDAIAmount(uint256 _amount) public {
+    /// @dev Set the debt amount for system debt to be covered by each debt auction. Amount will be converted to the correct internal precision.
+    /// @param _amount The amount to set (ex. 10m debt amount == 10000000)
+    function setDebtAuctionDebtAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-vow-sump-precision"
         setValue(vow(), "sump", _amount * RAD);
     }
 
-    /// @dev Set the starting MKR amount to be auctioned off to cover system debt in debt auctions. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in MKR (ex. 250 MKR amount == 250)
-    function setDebtAuctionMKRAmount(uint256 _amount) public {
+    /// @dev Set the starting governance token amount to be auctioned off to cover system debt in debt auctions. Amount will be converted to the correct internal precision.
+    /// @param _amount The amount to set in governance tokens (ex. 250 governance token amount == 250)
+    function setDebtAuctionGovAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-vow-dump-precision"
         setValue(vow(), "dump", _amount * WAD);
     }

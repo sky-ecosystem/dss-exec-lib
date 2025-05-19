@@ -91,8 +91,11 @@ Below is an outline of all functions used in the library.
 - `autoLine()`: Debt Ceiling Auto Adjustment
 - `daiJoin()`: Join adapter for Dai
 - `usdsJoin()`: Join adapter for USDS
+- `lerpFab()`: Lerp Factory Contract
+- `pause()`: Pause Contract
 - `flip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
+- `calc(bytes32 _ilk)`: Pricing Function for Liquidation (per ilk)
 
 ### Changelog Management
 
@@ -139,11 +142,13 @@ Below is an outline of all functions used in the library.
 - `increaseGlobalDebtCeiling(uint256 _amount)`: Increase the global debt ceiling.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
+- `setSSR(uint256 _rate, bool _doDrip)`: Set the Sky Savings Rate.
+- `setSurplusAuctionAmount(uint256 _amount)`: Set the amount for system surplus auctions.
 - `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `9_80` bps allows a 2% drop in the reference price.
-- `setSurplusBuffer(uint256 _amount)`: Set the DAI amount for system surplus buffer, must be exceeded before surplus auctions start.
+- `setSurplusBuffer(uint256 _amount)`: Set the amount for system surplus buffer, must be exceeded before surplus auctions start.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
-- `setDebtAuctionDAIAmount(uint256 _amount)`: Set the DAI amount for system debt to be covered by each debt auction.
-- `setDebtAuctionMKRAmount(uint256 _amount)`: Set the starting MKR amount to be auctioned off to cover system debt in debt auctions.
+- `setDebtAuctionDebtAmount(uint256 _amount)`: Set the debt amount for system debt to be covered by each debt auction.
+- `setDebtAuctionGovAmount(uint256 _amount)`: Set the starting governance token amount to be auctioned off to cover system debt in debt auctions.
 - `setMinDebtAuctionBidIncrease(uint256 _pct_bps)`: Set minimum bid increase for debt auctions.
 - `setDebtAuctionBidDuration(uint256 _length)`: Set bid duration for debt auctions.
 - `setDebtAuctionDuration(uint256 _length)`: Set total auction duration for debt auctions.
@@ -218,7 +223,7 @@ Once these actions are done, add the following code (below is an example) to the
 - CALC: `MCD_CLIP_CALC_TOKEN`
 - PIP: `PIP_TOKEN`
 
-```js
+```solidity
 import "src/CollateralOpts.sol";
 
 // Initialize the pricing function with the appropriate initializer
@@ -226,24 +231,23 @@ address xmpl_calc = 0x1f206d7916Fd3B1b5B0Ce53d5Cab11FCebc124DA;
 DssExecLib.initStairstepExponentialDecrease(xmpl_calc, 60, 9900);
 
 CollateralOpts memory XMPL_A = CollateralOpts({
-    ilk:                   "XMPL-A",
-    gem:                   0xCE4F3774620764Ea881a8F8840Cbe0F701372283,
-    join:                  0xa30925910067a2d9eB2a7358c017E6075F660842,
-    clip:                  0x9daCc11dcD0aa13386D295eAeeBBd38130897E6f,
-    calc:                  xmpl_calc,
-    pip:                   0x9eb923339c24c40Bef2f4AF4961742AA7C23EF3a,
-    isLiquidatable:        true,
-    checkWhitelistedOSM:   true,
-    whitelistOSM:          true,
-    ilkDebtCeiling:        3 * MILLION,
-    minVaultAmount:        100,         // 100 Dust
-    maxLiquidationAmount:  50000,       // 50,000 Dai
-    liquidationPenalty:    1300,        // 13% penalty
-    ilkStabilityFee:       1000000000705562181084137268,
-    startingPriceFactor:   13000,       // 1.3x multiplier
-    auctionDuration:       6 hours,
-    permittedDrop:         4000,        // 40% drop before reset
-    liquidationRatio:      15000        // 150% collateralization ratio
+    ilk:                  "XMPL-A",
+    gem:                  0xCE4F3774620764Ea881a8F8840Cbe0F701372283,
+    join:                 0xa30925910067a2d9eB2a7358c017E6075F660842,
+    clip:                 0x9daCc11dcD0aa13386D295eAeeBBd38130897E6f,
+    calc:                 xmpl_calc,
+    pip:                  0x9eb923339c24c40Bef2f4AF4961742AA7C23EF3a,
+    isLiquidatable:       true,
+    checkWhitelistedOSM:  true,
+    ilkDebtCeiling:       3 * MILLION,
+    minVaultAmount:       100,         // 100 Dust
+    maxLiquidationAmount: 50000,       // 50,000 Dai
+    liquidationPenalty:   1300,        // 13% penalty
+    ilkStabilityFee:      1000000000705562181084137268,
+    startingPriceFactor:  13000,       // 1.3x multiplier
+    auctionDuration:      6 hours,
+    permittedDrop:        4000,        // 40% drop before reset
+    liquidationRatio:     15000        // 150% collateralization ratio
 });
 
 DssExecLib.addNewCollateral(XMPL_A);
@@ -262,7 +266,7 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 - `calc`: Address of Abacus pricing contract
 - `pip`: Address of Pip contract
 - `isLiquidatable`: Boolean indicating whether liquidations are enabled for collateral
-- `isOsm`: Boolean indicating whether pip address used is an OSM contract
+- `isOSM`: Boolean indicating whether pip address used is an OSM contract
 - `checkWhitelistedOSM`: Boolean indicating whether to check if OSM is whitelisted by the underlying oracle
 - `ilkDebtCeiling`: Debt ceiling for new collateral
 - `minVaultAmount`: Minimum DAI vault amount required for new collateral

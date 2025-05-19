@@ -668,13 +668,13 @@ contract ActionTest is Test {
         assertEq(vow.wait(), 12 hours);
     }
 
-    function test_setDebtAuctionDAIAmount() public {
-        action.setDebtAuctionDAIAmount_test(100 * THOUSAND);
+    function test_setDebtAuctionDebtAmount() public {
+        action.setDebtAuctionDebtAmount_test(100 * THOUSAND);
         assertEq(vow.sump(), 100 * THOUSAND * RAD);
     }
 
-    function test_setDebtAuctionMKRAmount() public {
-        action.setDebtAuctionMKRAmount_test(100);
+    function test_setDebtAuctionGovAmount() public {
+        action.setDebtAuctionGovAmount_test(100);
         assertEq(vow.dump(), 100 * WAD);
     }
 
