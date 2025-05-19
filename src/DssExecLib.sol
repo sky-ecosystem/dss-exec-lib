@@ -649,10 +649,10 @@ library DssExecLib {
         setValue(jug(), "base", _rate);
     }
 
-    /// @dev Set the value of DAI in the reference asset (e.g. $1 per DAI). Value will be converted to the correct internal precision.
+    /// @dev Set the value of the stablecoin in the reference asset (e.g. $1 per unit). Value will be converted to the correct internal precision.
     /// @dev Equation used for conversion is value * RAY / 1000
     /// @param _value The value to set as integer (x1000) (ex. $1.025 == 1025)
-    function setDAIReferenceValue(uint256 _value) public {
+    function setParity(uint256 _value) public {
         require(_value < WAD); // "LibDssExec/incorrect-par-precision"
         setValue(spotter(), "par", rdiv(_value, 1000));
     }

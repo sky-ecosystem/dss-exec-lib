@@ -734,8 +734,8 @@ contract ActionTest is Test {
         assertEq(jug.base(), rate);
     }
 
-    function test_setDAIReferenceValue() public {
-        action.setDAIReferenceValue_test(1005); // $1.005
+    function test_setParity() public {
+        action.setParity_test(1005); // $1.005
         assertEq(spot.par(), ray(1.005 ether));
     }
 

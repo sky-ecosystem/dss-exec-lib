@@ -155,7 +155,7 @@ Below is an outline of all functions used in the library.
 - `setMaxTotalDebtLiquidationAmount(uint256 _amount)`: Set the maximum total debt amount that can be out for liquidation in the system at any point.
 - `setEmergencyShutdownProcessingTime(uint256 _length)`: Set the length of time that has to pass during emergency shutdown before collateral can start being claimed by DAI holders.
 - `setGlobalStabilityFee(uint256 _rate)`: Set the global stability fee (not typically used, currently is 0).
-- `setDAIReferenceValue(uint256 _amount) `: Set the value of DAI in the reference asset (e.g. $1 per DAI).
+- `setParity(uint256 _amount)`: Set the value of the stablecoin in the reference asset (e.g. $1 per unit).
 
 ### Collateral Management
 

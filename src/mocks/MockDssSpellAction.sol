@@ -188,8 +188,8 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setGlobalStabilityFee(rate);
     }
 
-    function setDAIReferenceValue_test(uint256 value) public {
-        DssExecLib.setDAIReferenceValue(value);
+    function setParity_test(uint256 value) public {
+        DssExecLib.setParity(value);
     }
 
     function setIlkDebtCeiling_test(bytes32 ilk, uint256 amount) public {
