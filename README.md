@@ -152,7 +152,7 @@ Below is an outline of all functions used in the library.
 - `setDebtAuctionBidDuration(uint256 _length)`: Set bid duration for debt auctions.
 - `setDebtAuctionDuration(uint256 _length)`: Set total auction duration for debt auctions.
 - `setDebtAuctionMKRIncreaseRate(uint256 _pct_bps)`: Set the rate of increasing amount of MKR out for auction during debt auctions. MKR amount is increased by this rate every "tick" (if auction duration has passed and no one has bid on the MKR).
-- `setMaxTotalDAILiquidationAmount(uint256 _amount)`: Set the maximum total DAI amount that can be out for liquidation in the system at any point.
+- `setMaxTotalDebtLiquidationAmount(uint256 _amount)`: Set the maximum total debt amount that can be out for liquidation in the system at any point.
 - `setEmergencyShutdownProcessingTime(uint256 _length)`: Set the length of time that has to pass during emergency shutdown before collateral can start being claimed by DAI holders.
 - `setGlobalStabilityFee(uint256 _rate)`: Set the global stability fee (not typically used, currently is 0).
 - `setDAIReferenceValue(uint256 _amount) `: Set the value of DAI in the reference asset (e.g. $1 per DAI).

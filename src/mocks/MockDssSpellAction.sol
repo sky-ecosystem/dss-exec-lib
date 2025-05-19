@@ -176,8 +176,8 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setDebtAuctionMKRIncreaseRate(pct_bps);
     }
 
-    function setMaxTotalDAILiquidationAmount_test(uint256 amount) public {
-        DssExecLib.setMaxTotalDAILiquidationAmount(amount);
+    function setMaxTotalDebtLiquidationAmount_test(uint256 amount) public {
+        DssExecLib.setMaxTotalDebtLiquidationAmount(amount);
     }
 
     function setEmergencyShutdownProcessingTime_test(uint256 duration) public {

@@ -620,9 +620,9 @@ library DssExecLib {
         setValue(flop(), "pad", WAD + wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /// @dev Set the maximum total DAI amount that can be out for liquidation in the system at any point. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set in DAI (ex. 250,000 DAI amount == 250000)
-    function setMaxTotalDAILiquidationAmount(uint256 _amount) public {
+    /// @dev Set the maximum total debt amount that can be out for liquidation in the system at any point. Amount will be converted to the correct internal precision.
+    /// @param _amount The amount to set (ex. 250,000 debt units == 250000)
+    function setMaxTotalDebtLiquidationAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-dog-Hole-precision"
         setValue(dog(), "Hole", _amount * RAD);
     }

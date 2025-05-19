@@ -718,8 +718,8 @@ contract ActionTest is Test {
         action.setDebtAuctionMKRIncreaseRate_test(10000); // Fail on 100%
     }
 
-    function test_setMaxTotalDAILiquidationAmount() public {
-        action.setMaxTotalDAILiquidationAmount_test(50 * MILLION);
+    function test_setMaxTotalDebtLiquidationAmount() public {
+        action.setMaxTotalDebtLiquidationAmount_test(50 * MILLION);
         assertEq(dog.Hole(), 50 * MILLION * RAD); // WAD pct
     }
 
