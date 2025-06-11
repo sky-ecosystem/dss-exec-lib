@@ -524,7 +524,7 @@ contract DssActionTest is Test {
         assertEq(susds.ssr(), 1000000001243680656318820312);
         vm.warp(START_TIME + 1 days);
         action.accumulateSSR_test();
-        uint256 afterChi = pot.chi();
+        uint256 afterChi = susds.chi();
 
         assertGt(afterChi, beforeChi);
     }
