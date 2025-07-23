@@ -37,7 +37,7 @@ The `SpellAction.sol` file must always inherit `DssAction` from `lib/dss-exec-li
 The developer must override the `actions()` function and place all spell actions within. This is called by the `execute()` function in the pause, which is subject to an optional limiter for office hours.
 
 > [!NOTE]
-> All variables within spell action MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a spell action due to the underlying `delegatcall` mechanisms.
+> All variables within spell action MUST be defined as constants, or assigned at runtime inside of the `actions()` function. Variable memory storage is not available within a spell action due to the underlying `delegatecall` mechanisms.
 
 The spell itself is deployed as follows:
 
@@ -54,7 +54,7 @@ new DssExec(
 Below is an outline of how all variables are accounted for for precision based on name.
 
 > [!NOTE]
-> `DSSExecLib.sol` has NatSpec comments above every function definition that provides a comprehensive definition of the function, its parameters, and any precision calculations that are made.
+> `DSSExecLib.sol` has NatSpec comments above every function definition that provide a comprehensive definition of the function, its parameters, and any precision calculations that are made.
 
 - `amount`: Integer amount, (e.g., 10m DAI amount == 10000000)
 - `rate`: Rate value expressed as value corresponding to percent from this [list](https://ipfs.io/ipfs/QmefQMseb3AiTapiAKKexdKHig8wroKuZbmLtPLv4u2YwW) (e.g., 4% => 1000000001243680656318820312)
