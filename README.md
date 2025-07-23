@@ -72,6 +72,7 @@ Below is an outline of all functions used in the library.
 - `usds()`: USDS ERC20 Contract
 - `susds()`: sUSDS ERC4626 Contract
 - `mkr()`: MKR ERC20 Contract
+- `sky()`: SKY ERC20 Contract
 - `vat()`: Core Accounting
 - `dog()`: Liquidation Agent
 - `jug()`: Rates Module

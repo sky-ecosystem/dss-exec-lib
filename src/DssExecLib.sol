@@ -200,7 +200,11 @@ library DssExecLib {
     }
 
     function mkr() public view returns (address) {
-        return getChangelogAddress("MCD_GOV");
+        return getChangelogAddress("MKR");
+    }
+
+    function sky() public view returns (address) {
+        return getChangelogAddress("SKY");
     }
 
     function vat() public view returns (address) {
@@ -255,8 +259,8 @@ library DssExecLib {
         return getChangelogAddress("OSM_MOM");
     }
 
-    function govGuard() public view returns (address) {
-        return getChangelogAddress("GOV_GUARD");
+    function mkrGuard() public view returns (address) {
+        return getChangelogAddress("MKR_GUARD");
     }
 
     function flipperMom() public view returns (address) {
