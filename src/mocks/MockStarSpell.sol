@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
-// CollateralOpts.sol -- Data structure for onboarding collateral
+// MockStarSpell.sol -- Mock Star Spell for testing
 //
-// Copyright (C) 2020-2022 Dai Foundation
+// Copyright (C) 2022-2025 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,26 +19,14 @@
 
 pragma solidity ^0.8.16;
 
-struct CollateralOpts {
-    bytes32 ilk;
-    address gem;
-    address join;
-    address clip;
-    address calc;
-    address pip;
-    bool isLiquidatable;
-    bool isOSM;
-    bool checkWhitelistedOSM;
-    uint256 ilkDebtCeiling;
-    uint256 minVaultAmount;
-    uint256 maxLiquidationAmount;
-    uint256 liquidationPenalty;
-    uint256 ilkStabilityFee;
-    uint256 startingPriceFactor;
-    uint256 breakerTolerance;
-    uint256 auctionDuration;
-    uint256 permittedDrop;
-    uint256 liquidationRatio;
-    uint256 kprFlatReward;
-    uint256 kprPctReward;
+contract MockStarSpell {
+    bool public executed;
+    bool public shouldFail;
+
+    function execute() external {
+        // Check if this spell should fail
+        require(!shouldFail, "MockStarSpell/execution-failed");
+
+        executed = true;
+    }
 }

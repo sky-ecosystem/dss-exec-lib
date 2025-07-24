@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
-// DssTestAction.sol -- Testable Actions
+// MockDssSpellAction.sol -- Mock for testing DssExecLib
 //
-// Copyright (C) 2020-2022 Dai Foundation
+// Copyright (C) 2020-2025 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,25 +19,26 @@
 
 pragma solidity ^0.8.16;
 
-import "../DssAction.sol";
+import {DssExecLib} from "../DssExecLib.sol";
+import {DssAction} from "../DssAction.sol";
+import {CollateralOpts} from "../CollateralOpts.sol";
 
-contract DssTestNoOfficeHoursAction is DssAction {
-    function description() public override pure returns (string memory) {
+contract MockDssSpellActionNoOfficeHours is DssAction {
+    function description() public pure override returns (string memory) {
         return "No Office Hours Action";
     }
 
-    function actions() public override pure {
+    function actions() public pure override {
         require(!officeHours());
     }
 
-    function officeHours() public override pure returns (bool) {
+    function officeHours() public pure override returns (bool) {
         return false;
     }
 }
 
-contract DssTestAction is DssAction {
-
-    function description() external override pure returns (string memory) {
+contract MockDssSpellAction is DssAction {
+    function description() external pure override returns (string memory) {
         return "DssTestAction";
     }
 
@@ -51,9 +52,6 @@ contract DssTestAction is DssAction {
         return DssExecLib.nextCastTime(eta, ts, officeHours);
     }
 
-    /**********************/
-    /*** Authorizations ***/
-    /**********************/
     function authorize_test(address base, address ward) public {
         DssExecLib.authorize(base, ward);
     }
@@ -74,23 +72,24 @@ contract DssTestAction is DssAction {
         DssExecLib.undelegateVat(usr);
     }
 
-    /**************************/
-    /*** Accumulating Rates ***/
-    /**************************/
     function accumulateDSR_test() public {
         DssExecLib.accumulateDSR();
+    }
+
+    function accumulateSSR_test() public {
+        DssExecLib.accumulateSSR();
     }
 
     function accumulateCollateralStabilityFees_test(bytes32 ilk) public {
         DssExecLib.accumulateCollateralStabilityFees(ilk);
     }
 
-    /****************************/
-    /*** Changelog Management ***/
-    /****************************/
-
     function setChangelogAddress_test(bytes32 key, address val) public {
         DssExecLib.setChangelogAddress(key, val);
+    }
+
+    function removeChangelogAddress_test(bytes32 key) public {
+        DssExecLib.removeChangelogAddress(key);
     }
 
     function setChangelogVersion_test(string memory version) public {
@@ -105,16 +104,10 @@ contract DssTestAction is DssAction {
         DssExecLib.setChangelogSHA256(SHA256);
     }
 
-    /*********************/
-    /*** Price Updates ***/
-    /*********************/
     function updateCollateralPrice_test(bytes32 ilk) public {
         DssExecLib.updateCollateralPrice(ilk);
     }
 
-    /****************************/
-    /*** System Configuration ***/
-    /****************************/
     function setContract_test(address base, bytes32 what, address addr) public {
         DssExecLib.setContract(base, what, addr);
     }
@@ -123,9 +116,6 @@ contract DssTestAction is DssAction {
         DssExecLib.setContract(base, ilk, what, addr);
     }
 
-    /******************************/
-    /*** System Risk Parameters ***/
-    /******************************/
     function setGlobalDebtCeiling_test(uint256 amount) public {
         DssExecLib.setGlobalDebtCeiling(amount);
     }
@@ -142,6 +132,10 @@ contract DssTestAction is DssAction {
         DssExecLib.setDSR(rate, true);
     }
 
+    function setSSR_test(uint256 rate) public {
+        DssExecLib.setSSR(rate, true);
+    }
+
     function setSurplusAuctionAmount_test(uint256 amount) public {
         DssExecLib.setSurplusAuctionAmount(amount);
     }
@@ -150,28 +144,20 @@ contract DssTestAction is DssAction {
         DssExecLib.setSurplusBuffer(amount);
     }
 
-    function setMinSurplusAuctionBidIncrease_test(uint256 pct_bps) public {
-        DssExecLib.setMinSurplusAuctionBidIncrease(pct_bps);
-    }
-
-    function setSurplusAuctionBidDuration_test(uint256 duration) public {
-        DssExecLib.setSurplusAuctionBidDuration(duration);
-    }
-
-    function setSurplusAuctionDuration_test(uint256 duration) public {
-        DssExecLib.setSurplusAuctionDuration(duration);
+    function setSurplusAuctionMinPriceThreshold_test(uint256 _pct_bps) public {
+        DssExecLib.setSurplusAuctionMinPriceThreshold(_pct_bps);
     }
 
     function setDebtAuctionDelay_test(uint256 duration) public {
         DssExecLib.setDebtAuctionDelay(duration);
     }
 
-    function setDebtAuctionDAIAmount_test(uint256 amount) public {
-        DssExecLib.setDebtAuctionDAIAmount(amount);
+    function setDebtAuctionDebtAmount_test(uint256 amount) public {
+        DssExecLib.setDebtAuctionDebtAmount(amount);
     }
 
-    function setDebtAuctionMKRAmount_test(uint256 amount) public {
-        DssExecLib.setDebtAuctionMKRAmount(amount);
+    function setDebtAuctionGovAmount_test(uint256 amount) public {
+        DssExecLib.setDebtAuctionGovAmount(amount);
     }
 
     function setMinDebtAuctionBidIncrease_test(uint256 pct_bps) public {
@@ -190,8 +176,8 @@ contract DssTestAction is DssAction {
         DssExecLib.setDebtAuctionMKRIncreaseRate(pct_bps);
     }
 
-    function setMaxTotalDAILiquidationAmount_test(uint256 amount) public {
-        DssExecLib.setMaxTotalDAILiquidationAmount(amount);
+    function setMaxTotalDebtLiquidationAmount_test(uint256 amount) public {
+        DssExecLib.setMaxTotalDebtLiquidationAmount(amount);
     }
 
     function setEmergencyShutdownProcessingTime_test(uint256 duration) public {
@@ -202,13 +188,10 @@ contract DssTestAction is DssAction {
         DssExecLib.setGlobalStabilityFee(rate);
     }
 
-    function setDAIReferenceValue_test(uint256 value) public {
-        DssExecLib.setDAIReferenceValue(value);
+    function setParity_test(uint256 value) public {
+        DssExecLib.setParity(value);
     }
 
-    /*****************************/
-    /*** Collateral Management ***/
-    /*****************************/
     function setIlkDebtCeiling_test(bytes32 ilk, uint256 amount) public {
         DssExecLib.setIlkDebtCeiling(ilk, amount);
     }
@@ -227,6 +210,10 @@ contract DssTestAction is DssAction {
 
     function setIlkAutoLineParameters_test(bytes32 ilk, uint256 amount, uint256 gap, uint256 ttl) public {
         DssExecLib.setIlkAutoLineParameters(ilk, amount, gap, ttl);
+    }
+
+    function setIlkAutoLineParameters_test(bytes32 ilk, uint256 amount, uint256 gap) public {
+        DssExecLib.setIlkAutoLineParameters(ilk, amount, gap);
     }
 
     function setIlkAutoLineDebtCeiling_test(bytes32 ilk, uint256 amount) public {
@@ -293,78 +280,70 @@ contract DssTestAction is DssAction {
         DssExecLib.setExponentialDecrease(calc, pct_bps);
     }
 
-    /*************************/
-    /*** Oracle Management ***/
-    /*************************/
-
-    function whitelistOracleMedians_test(address oracle) public {
-        DssExecLib.whitelistOracleMedians(oracle);
+    function addToWhitelist_test(address osm, address reader) public {
+        DssExecLib.addToWhitelist(osm, reader);
     }
 
-    function addReaderToWhitelistCall_test(address medianizer, address reader) public {
-        DssExecLib.addReaderToWhitelistCall(medianizer, reader);
-    }
-
-    function removeReaderFromWhitelistCall_test(address medianizer, address reader) public {
-        DssExecLib.removeReaderFromWhitelistCall(medianizer, reader);
-    }
-
-    function setMedianWritersQuorum_test(address medianizer, uint256 minQuorum) public {
-        DssExecLib.setMedianWritersQuorum(medianizer, minQuorum);
-    }
-
-    function addReaderToWhitelist_test(address osm, address reader) public {
-        DssExecLib.addReaderToWhitelist(osm, reader);
-    }
-
-    function removeReaderFromWhitelist_test(address osm, address reader) public {
-        DssExecLib.removeReaderFromWhitelist(osm, reader);
+    function removeFromWhitelist_test(address osm, address reader) public {
+        DssExecLib.removeFromWhitelist(osm, reader);
     }
 
     function allowOSMFreeze_test(address osm, bytes32 ilk) public {
         DssExecLib.allowOSMFreeze(osm, ilk);
     }
 
-    /*****************************/
-    /*** Direct Deposit Module ***/
-    /*****************************/
-
-    function setD3MTargetInterestRate_test(address d3m, uint256 pct_bps) public {
-        DssExecLib.setD3MTargetInterestRate(d3m, pct_bps);
+    function setGSMDelay_test(uint256 _delay) public {
+        DssExecLib.setGSMDelay(_delay);
     }
 
-    /*****************************/
-    /*** Collateral Onboarding ***/
-    /*****************************/
+    function setDDMTargetInterestRate_test(address ddm, uint256 pct_bps) public {
+        DssExecLib.setDDMTargetInterestRate(ddm, pct_bps);
+    }
 
-    function addCollateralBase_test(
-        bytes32 ilk, address gem, address join, address clip, address calc, address pip
-    ) public {
+    function addCollateralBase_test(bytes32 ilk, address gem, address join, address clip, address calc, address pip)
+        public
+    {
         DssExecLib.addCollateralBase(ilk, gem, join, clip, calc, pip);
     }
 
-    function addNewCollateral_test(
-        CollateralOpts memory co
-    ) public {
+    function addNewCollateral_test(CollateralOpts memory co) public {
         DssExecLib.addNewCollateral(co);
     }
 
-    /***************/
-    /*** Payment ***/
-    /***************/
-
-    function sendPaymentFromSurplusBuffer_test(address target, uint256 amount) public {
-        DssExecLib.sendPaymentFromSurplusBuffer(target, amount);
+    function sendPaymentFromSurplusBuffer_test(address join, address target, uint256 amount) public {
+        DssExecLib.sendPaymentFromSurplusBuffer(join, target, amount);
     }
 
-    /************/
-    /*** Misc ***/
-    /************/
-    function linearInterpolation_test(bytes32 _name, address _target, bytes32 _what, uint256 _startTime, uint256 _start, uint256 _end, uint256 _duration) public returns (address) {
+    function linearInterpolation_test(
+        bytes32 _name,
+        address _target,
+        bytes32 _what,
+        uint256 _startTime,
+        uint256 _start,
+        uint256 _end,
+        uint256 _duration
+    ) public returns (address) {
         return DssExecLib.linearInterpolation(_name, _target, _what, _startTime, _start, _end, _duration);
     }
-    function linearInterpolation_test(bytes32 _name, address _target, bytes32 _ilk, bytes32 _what, uint256 _startTime, uint256 _start, uint256 _end, uint256 _duration) public returns (address) {
+
+    function linearInterpolation_test(
+        bytes32 _name,
+        address _target,
+        bytes32 _ilk,
+        bytes32 _what,
+        uint256 _startTime,
+        uint256 _start,
+        uint256 _end,
+        uint256 _duration
+    ) public returns (address) {
         return DssExecLib.linearInterpolation(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
     }
 
+    function executeStarSpell_test(address starProxy, address starSpell) public returns (bytes memory) {
+        return DssExecLib.executeStarSpell(starProxy, starSpell);
+    }
+
+    function tryExecuteStarSpell_test(address starProxy, address starSpell) public returns (bool, bytes memory) {
+        return DssExecLib.tryExecuteStarSpell(starProxy, starSpell);
+    }
 }

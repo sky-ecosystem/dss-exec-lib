@@ -19,19 +19,13 @@
 
 pragma solidity ^0.8.16;
 
-import { DssExecLib } from "./DssExecLib.sol";
-import { CollateralOpts } from "./CollateralOpts.sol";
-
-interface OracleLike {
-    function src() external view returns (address);
-}
+import {DssExecLib} from "./DssExecLib.sol";
 
 abstract contract DssAction {
-
     using DssExecLib for *;
 
     // Modifier used to limit execution time when office hours is enabled
-    modifier limited {
+    modifier limited() {
         require(DssExecLib.canCast(uint40(block.timestamp), officeHours()), "Outside office hours");
         _;
     }
