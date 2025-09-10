@@ -263,10 +263,6 @@ library DssExecLib {
         return getChangelogAddress("MKR_GUARD");
     }
 
-    function flipperMom() public view returns (address) {
-        return getChangelogAddress("FLIPPER_MOM");
-    }
-
     function clipperMom() public view returns (address) {
         return getChangelogAddress("CLIPPER_MOM");
     }

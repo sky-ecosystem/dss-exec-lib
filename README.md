@@ -85,7 +85,6 @@ Below is an outline of all functions used in the library.
 - `flop()`: Debt Auction Module
 - `osmMom()`: OSM Circuit Breaker
 - `govGuard()`: MKR Authority
-- `flipperMom()`: Flipper Governance Interface
 - `clipperMom()`: Clipper Governance Interface (Liquidations 2.0)
 - `pauseProxy()`: Governance Authority
 - `autoLine()`: Debt Ceiling Auto Adjustment
