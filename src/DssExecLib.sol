@@ -259,8 +259,8 @@ library DssExecLib {
         return getChangelogAddress("OSM_MOM");
     }
 
-    function mkrGuard() public view returns (address) {
-        return getChangelogAddress("MKR_GUARD");
+    function govGuard() public view returns (address) {
+        return getChangelogAddress("GOV_GUARD");
     }
 
     function clipperMom() public view returns (address) {
