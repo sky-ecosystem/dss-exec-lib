@@ -766,6 +766,11 @@ contract DssActionTest is Test {
         assertEq(uint256(ttl), initialTtl); // ttl should remain unchanged
     }
 
+    function test_RevertSetIlkAutoLineParametersKeepTtl_WhenNotConfigured() public {
+        vm.expectRevert();
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION);
+    }
+
     function test_setIlkAutoLineDebtCeiling() public {
         action.setIlkAutoLineParameters_test("gold", 1, 5 * MILLION, 10000); // gap and ttl must be configured already
         action.setIlkAutoLineDebtCeiling_test("gold", 150 * MILLION); // Setup
