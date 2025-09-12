@@ -112,13 +112,13 @@ contract DssLibSpellAction is
 
         DssExecLib.addNewCollateral(XMPL_A);
 
-        DssExecLib.setIlkDebtCeiling("LINK-A", 10 * MILLION);
-        DssExecLib.setIlkMinVaultAmount("LINK-A", 800);
-        DssExecLib.setIlkLiquidationRatio("LINK-A", 16000);
-        DssExecLib.setIlkLiquidationPenalty("LINK-A", 1400);
-        DssExecLib.setIlkMaxLiquidationAmount("LINK-A", 100000);
-        DssExecLib.setAuctionTimeBeforeReset("LINK-A", 2 hours);
-        DssExecLib.setKeeperIncentivePercent("LINK-A", 2); // 0.02% keeper incentive
+        DssExecLib.setIlkDebtCeiling("ETH-A", 10 * MILLION);
+        DssExecLib.setIlkMinVaultAmount("ETH-A", 800);
+        DssExecLib.setIlkLiquidationRatio("ETH-A", 16000);
+        DssExecLib.setIlkLiquidationPenalty("ETH-A", 1400);
+        DssExecLib.setIlkMaxLiquidationAmount("ETH-A", 100000);
+        DssExecLib.setAuctionTimeBeforeReset("ETH-A", 2 hours);
+        DssExecLib.setKeeperIncentivePercent("ETH-A", 2); // 0.02% keeper incentive
         DssExecLib.setGlobalDebtCeiling(10000 * MILLION);
     }
 }
@@ -214,7 +214,7 @@ contract DssExecTest is Test {
         osmMom = OsmMomAbstract(LOG.getAddress("OSM_MOM"));
         clipMom = ClipperMomAbstract(LOG.getAddress("CLIPPER_MOM"));
         xmpl = GemAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
-        pipXMPL = OsmAbstract(LOG.getAddress("PIP_USDT"));
+        pipXMPL = OsmAbstract(LOG.getAddress("PIP_ETH"));
 
         rates = new MockRates();
 
@@ -237,10 +237,10 @@ contract DssExecTest is Test {
         afterSpell.ilk_count = reg.count() + 1; // Num expected in system
 
         // Test for all collateral based changes here
-        (uint256 _duty,) = jug.ilks("LINK-A");
-        (address _clip,,,) = dog.ilks("LINK-A");
+        (uint256 _duty,) = jug.ilks("ETH-A");
+        (address _clip,,,) = dog.ilks("ETH-A");
         ClipAbstract clip = ClipAbstract(_clip);
-        afterSpell.collaterals["LINK-A"] = CollateralValues({
+        afterSpell.collaterals["ETH-A"] = CollateralValues({
             line: 10 * MILLION, // In whole Dai units
             dust: 800, // In whole Dai units
             pct: _duty, // In basis points
@@ -579,7 +579,7 @@ contract DssExecTest is Test {
         assertTrue(spell.done());
 
         checkSystemValues(afterSpell);
-        checkCollateralValues("LINK-A", afterSpell);
+        checkCollateralValues("ETH-A", afterSpell);
         checkCollateralValues("XMPL-A", afterSpell);
 
         assertTrue(spell.officeHours());
