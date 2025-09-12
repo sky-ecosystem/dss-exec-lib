@@ -96,10 +96,10 @@ Below is an outline of all functions used in the library.
 - `flip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `calc(bytes32 _ilk)`: Pricing Function for Liquidation (per ilk)
-- `getChangelogAddress(bytes32 _key)`: Get address from key from on-chain changelog
 
 ### Changelog Management
 
+- `getChangelogAddress(bytes32 _key)`: Get address from key from on-chain changelog.
 - `removeChangelogAddress(bytes32 _key)`: Remove key from on-chain changelog.
 - `setChangelogAddress(bytes32 _key, address _val)`: Set an address in the on-chain changelog.
 - `setChangelogVersion(string memory _version)`: Set version in the on-chain changelog.
