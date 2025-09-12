@@ -79,6 +79,7 @@ Below is an outline of all functions used in the library.
 - `pot()`: Savings Rates Module
 - `vow()`: System Stabilizer Module
 - `end()`: Shutdown Coordinator
+- `esm()`: Emergency Shutdown Module
 - `reg()`: Ilk Registry
 - `spotter()`: Oracle Liason
 - `flap()`: Surplus Auction Module
@@ -95,10 +96,10 @@ Below is an outline of all functions used in the library.
 - `flip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `calc(bytes32 _ilk)`: Pricing Function for Liquidation (per ilk)
+- `getChangelogAddress(bytes32 _key)`: Get address from key from on-chain changelog
 
 ### Changelog Management
 
-- `getChangelogAddress(bytes32 _key)`: Get address from key from on-chain changelog.
 - `removeChangelogAddress(bytes32 _key)`: Remove key from on-chain changelog.
 - `setChangelogAddress(bytes32 _key, address _val)`: Set an address in the on-chain changelog.
 - `setChangelogVersion(string memory _version)`: Set version in the on-chain changelog.
@@ -134,6 +135,8 @@ Below is an outline of all functions used in the library.
 
 - `setContract(address _base, bytes32 _what, address _addr)`: Set a contract in another contract, defining the relationship (ex. set a new Vow contract in the Dog)
 - `setContract(address _base, bytes32 _ilk, bytes32 _what, address _addr)`: Set a contract in another contract, defining the relationship for a given ilk.
+- `setValue(address _base, bytes32 _what, uint256 _amt)`: Set a value in a contract via a governance authorized File pattern.
+- `setValue(address _base, bytes32 _ilk, bytes32 _what, uint256 _amt)`: Set an ilk-specific value in a contract via a governance authorized File pattern.
 
 ### System Risk Parameters
 
@@ -143,7 +146,7 @@ Below is an outline of all functions used in the library.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
 - `setSSR(uint256 _rate, bool _doDrip)`: Set the Sky Savings Rate.
 - `setSurplusAuctionAmount(uint256 _amount)`: Set the amount for system surplus auctions.
-- `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `9_80` bps allows a 2% drop in the reference price.
+- `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `98_00` bps allows a 2% drop in the reference price.
 - `setSurplusBuffer(uint256 _amount)`: Set the amount for system surplus buffer, must be exceeded before surplus auctions start.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
 - `setDebtAuctionDebtAmount(uint256 _amount)`: Set the debt amount for system debt to be covered by each debt auction.
@@ -181,9 +184,9 @@ Below is an outline of all functions used in the library.
 
 ### Abacus Management
 
-- `initLinearDecrease(address _calc, uint256 _duration)`: Initialize the variables in a LinearDecrease calculator.
-- `initStairstepExponentialDecrease(address _calc, uint256 _duration, uint256 _pct_bps)`: Initialize the variables in a StairstepExponentialDecrease calculator.
-- `initExponentialDecrease(address _calc, uint256 _pct_bps)`: Initialize the variables in an ExponentialDecrease calculator.
+- `setLinearDecrease(address _calc, uint256 _duration)`: Set the variables in a LinearDecrease calculator.
+- `setStairstepExponentialDecrease(address _calc, uint256 _duration, uint256 _pct_bps)`: Set the variables in a StairstepExponentialDecrease calculator.
+- `setExponentialDecrease(address _calc, uint256 _pct_bps)`: Set the variables in an ExponentialDecrease calculator.
 
 ### Oracle Management
 
@@ -226,9 +229,9 @@ Once these actions are done, add the following code (below is an example) to the
 ```solidity
 import "src/CollateralOpts.sol";
 
-// Initialize the pricing function with the appropriate initializer
+// Set the pricing function with the appropriate setter
 address xmpl_calc = 0x1f206d7916Fd3B1b5B0Ce53d5Cab11FCebc124DA;
-DssExecLib.initStairstepExponentialDecrease(xmpl_calc, 60, 9900);
+DssExecLib.setStairstepExponentialDecrease(xmpl_calc, 60, 9900);
 
 CollateralOpts memory XMPL_A = CollateralOpts({
     ilk:                  "XMPL-A",
@@ -245,9 +248,12 @@ CollateralOpts memory XMPL_A = CollateralOpts({
     liquidationPenalty:   1300,        // 13% penalty
     ilkStabilityFee:      1000000000705562181084137268,
     startingPriceFactor:  13000,       // 1.3x multiplier
+    breakerTolerance:     9500,        // 95% price tolerance
     auctionDuration:      6 hours,
     permittedDrop:        4000,        // 40% drop before reset
-    liquidationRatio:     15000        // 150% collateralization ratio
+    liquidationRatio:     15000,       // 150% collateralization ratio
+    kprFlatReward:        300,         // 300 Dai flat reward
+    kprPctReward:         10           // 0.1% percentage reward
 });
 
 DssExecLib.addNewCollateral(XMPL_A);
@@ -274,13 +280,21 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 - `liquidationPenalty`: Percent liquidation penalty for new collateral [ex. 13.5% == 1350]
 - `ilkStabilityFee`: Percent stability fee for new collateral [ex. 4% == 1000000001243680656318820312]
 - `startingPriceFactor`: Percentage to multiply for initial auction price. [ex. 1.3x == 130% == 13000 bps]
+- `breakerTolerance`: Percentage tolerance for liquidation circuit breaker [ex. 95% == 9500 bps]
 - `auctionDuration`: Total auction duration before reset for new collateral
 - `permittedDrop`: Percent an auction can drop before it can be reset.
 - `liquidationRatio`: Percent liquidation ratio for new collateral [ex. 150% == 15000]
+- `kprFlatReward`: Flat DAI reward paid to keepers for liquidation actions [ex. 300 DAI == 300]
+- `kprPctReward`: Percentage of liquidation amount paid to keepers [ex. 0.1% == 10 bps]
 
 ### Payments
 
 - `sendPaymentFromSurplusBuffer(address _join, address _target, uint256 _amount)`: Send a payment in either ERC20 USDS or DAI from the surplus buffer.
+
+### SubDAO/Star Spells
+
+- `executeStarSpell(address _starProxy, address _starSpell)`: Execute a star spell through its star proxy. Returns the return data from the spell execution.
+- `tryExecuteStarSpell(address _starProxy, address _starSpell)`: Tries to execute a star spell through its star proxy using low-level call to avoid reverts in case of error. Returns a boolean indicating success and the return data or error message.
 
 ### Misc
 
