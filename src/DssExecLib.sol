@@ -806,6 +806,7 @@ library DssExecLib {
     }
 
     /// @dev Set a collateral minimum vault amount. Amount will be converted to the correct internal precision.
+    /// @dev Ordering: if initializing an ilk or increasing dust above current hole, call setIlkMaxLiquidationAmount first.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount) public {
@@ -827,10 +828,13 @@ library DssExecLib {
     }
 
     /// @dev Set max amount for liquidation per vault for collateral. Amount will be converted to the correct internal precision.
+    /// @dev Ordering: if decreasing hole below current dust, call setIlkMinVaultAmount first.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-hole-precision"
+        (,,,, uint256 _dust) = DssVat(vat()).ilks(_ilk);
+        require(_amount >= _dust / RAD); // Ensure hole >= ilk.dust
         setValue(dog(), _ilk, "hole", _amount * RAD);
     }
 

@@ -157,7 +157,7 @@ contract DssActionTest is Test {
     address constant UNIV2ORACLE_FAB = 0xc968B955BCA6c2a3c828d699cCaCbFDC02402D89;
 
     function setUp() public {
-        vm.createSelectFork("apr_15_0");
+        vm.createSelectFork("mainnet");
 
         START_TIME = block.timestamp;
 
@@ -803,8 +803,8 @@ contract DssActionTest is Test {
         (,,,, uint256 dust) = vat.ilks("gold");
         assertEq(dust, 100 * RAD);
 
-        action.setIlkMaxLiquidationAmount_test("gold", 0);
         action.setIlkMinVaultAmount_test("gold", 0);
+        action.setIlkMaxLiquidationAmount_test("gold", 0);
         (,,,, dust) = vat.ilks("gold");
         assertEq(dust, 0);
     }
@@ -825,6 +825,13 @@ contract DssActionTest is Test {
         action.setIlkMaxLiquidationAmount_test("gold", 50 * THOUSAND);
         (,, uint256 hole,) = dog.ilks("gold");
         assertEq(hole, 50 * THOUSAND * RAD);
+    }
+
+    function test_setIlkMaxLiquidationAmountLtReverts() public {
+        action.setIlkMaxLiquidationAmount_test("gold", 100);
+        action.setIlkMinVaultAmount_test("gold", 100);
+        vm.expectRevert();
+        action.setIlkMaxLiquidationAmount_test("gold", 99);
     }
 
     function test_setIlkLiquidationRatio() public {
