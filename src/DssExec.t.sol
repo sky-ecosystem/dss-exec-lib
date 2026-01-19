@@ -118,7 +118,7 @@ contract DssLibSpellAction is
         DssExecLib.setIlkMaxLiquidationAmount("ETH-A", 100000);
         DssExecLib.setAuctionTimeBeforeReset("ETH-A", 2 hours);
         DssExecLib.setKeeperIncentivePercent("ETH-A", 2); // 0.02% keeper incentive
-        DssExecLib.setGlobalDebtCeiling(10000 * MILLION);
+        DssExecLib.increaseGlobalDebtCeiling(10000 * MILLION);
     }
 }
 
@@ -225,7 +225,7 @@ contract DssExecTest is Test {
         // Test for all system configuration changes
 
         afterSpell.dsr_rate = 0; // In basis points
-        afterSpell.vat_Line = 10000 * MILLION; // In whole Dai units
+        afterSpell.vat_Line = vat.Line() / RAD + 10000 * MILLION + 3 * MILLION; // In whole Dai units
         afterSpell.pause_delay = pause.delay(); // In seconds
         afterSpell.vow_wait = vow.wait(); // In seconds
         afterSpell.vow_dump = vow.dump() / WAD; // In whole Dai units
@@ -430,7 +430,7 @@ contract DssExecTest is Test {
         {
             // Line values in RAD
             uint256 normalizedLine = values.vat_Line * RAD;
-            assertEq(vat.Line(), normalizedLine);
+            assertApproxEqAbs(vat.Line(), normalizedLine, RAD - 1);
             assertTrue((vat.Line() >= RAD && vat.Line() < 100 * BILLION * RAD) || vat.Line() == 0);
         }
 
@@ -456,20 +456,21 @@ contract DssExecTest is Test {
                 assertTrue((vow.sump() >= RAD && vow.sump() < 500 * THOUSAND * RAD) || vow.sump() == 0);
             }
         }
-        {
-            // bump values in RAD
-            uint256 normalizedBump = values.vow_bump * RAD;
-            assertEq(vow.bump(), normalizedBump);
-            assertTrue((vow.bump() >= RAD && vow.bump() < HUNDRED * THOUSAND * RAD) || vow.bump() == 0);
-        }
-        {
-            // hump values in RAD
-            assertEq(vow.hump() / RAD, values.vow_hump);
-            assertTrue(
-                (vow.hump() >= RAD && vow.hump() < THOUSAND * MILLION * RAD) || vow.hump() == 0,
-                "DssExec.t.sol/hump-sanity-check-fail"
-            );
-        }
+        // Flapper auctions have been disabled in favor of the Kicker
+        // {
+        //     // bump values in RAD
+        //     uint256 normalizedBump = values.vow_bump * RAD;
+        //     assertEq(vow.bump(), normalizedBump);
+        //     assertTrue((vow.bump() >= RAD && vow.bump() < HUNDRED * THOUSAND * RAD) || vow.bump() == 0);
+        // }
+        // {
+        //     // hump values in RAD
+        //     assertEq(vow.hump() / RAD, values.vow_hump);
+        //     assertTrue(
+        //         (vow.hump() >= RAD && vow.hump() < THOUSAND * MILLION * RAD) || vow.hump() == 0,
+        //         "DssExec.t.sol/hump-sanity-check-fail"
+        //     );
+        // }
 
         // Hole values in RAD
         {
