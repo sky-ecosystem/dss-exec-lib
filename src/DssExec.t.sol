@@ -71,9 +71,8 @@ contract DssLibSpellAction is
         // Basic cob setup
         DSTokenAbstract xmpl_gem = DSTokenAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
         ClipAbstract xmpl_clip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                DssExecLib.pauseProxy(), DssExecLib.vat(), DssExecLib.spotter(), DssExecLib.dog(), "XMPL-A"
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(DssExecLib.pauseProxy(), DssExecLib.vat(), DssExecLib.spotter(), DssExecLib.dog(), "XMPL-A")
         );
         GemJoinAbstract xmpl_join = GemJoinAbstract(
             GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), "XMPL-A", address(xmpl_gem))
@@ -338,9 +337,8 @@ contract DssExecTest is Test {
             stdstore.target(address(chief)).sig("live()").checked_write(bytes32(uint256(1)));
         }
         if (chief.hat() != address(spell)) {
-            stdstore.target(address(gov)).sig("balanceOf(address)").with_key(address(this)).checked_write(
-                bytes32(uint256(999999999999 ether))
-            );
+            stdstore.target(address(gov)).sig("balanceOf(address)").with_key(address(this))
+                .checked_write(bytes32(uint256(999999999999 ether)));
             gov.approve(address(chief), type(uint256).max);
             chief.lock(gov.balanceOf(address(this)) - 1 ether);
 
@@ -496,8 +494,8 @@ contract DssExecTest is Test {
             normRate = rates.rates(values.collaterals[ilk].pct);
             assertTrue(
                 diffCalc(
-                    expectedRate(values.collaterals[ilk].pct), yearlyYield(rates.rates(values.collaterals[ilk].pct))
-                ) <= TOLERANCE
+                        expectedRate(values.collaterals[ilk].pct), yearlyYield(rates.rates(values.collaterals[ilk].pct))
+                    ) <= TOLERANCE
             );
         }
 

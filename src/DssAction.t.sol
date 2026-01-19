@@ -348,9 +348,8 @@ contract DssActionTest is Test {
         vat.rely(address(join));
 
         ClipAbstract clip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), name
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), name)
         );
         vat.hope(address(clip));
         clip.rely(address(end));
@@ -972,9 +971,8 @@ contract DssActionTest is Test {
         GemJoinAbstract tokenJoin =
             GemJoinAbstract(GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), ilk, address(token)));
         ClipAbstract tokenClip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), ilk
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), ilk)
         );
         LinearDecreaseAbstract tokenCalc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
@@ -1016,9 +1014,8 @@ contract DssActionTest is Test {
         GemJoinAbstract tokenJoin =
             GemJoinAbstract(GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), ilk, address(token)));
         ClipAbstract tokenClip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), ilk
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), ilk)
         );
         LinearDecreaseAbstract tokenCalc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
