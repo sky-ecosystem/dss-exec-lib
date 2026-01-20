@@ -806,7 +806,6 @@ library DssExecLib {
     }
 
     /// @dev Set a collateral minimum vault amount. Amount will be converted to the correct internal precision.
-    /// @dev Ordering: if initializing an ilk or increasing dust above current hole, call setIlkMaxLiquidationAmount first.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount) public {
@@ -828,7 +827,6 @@ library DssExecLib {
     }
 
     /// @dev Set max amount for liquidation per vault for collateral. Amount will be converted to the correct internal precision.
-    /// @dev Ordering: if decreasing hole below current dust, call setIlkMinVaultAmount first.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
@@ -881,7 +879,7 @@ library DssExecLib {
         setValue(clip(_ilk), "chip", wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /// @dev Set max amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
+    /// @dev Sets the amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 1000 amount == 1000)
     function setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) public {
@@ -1167,8 +1165,8 @@ library DssExecLib {
         uint256 _end,
         uint256 _duration
     ) public returns (address) {
-        address lerp = LerpFactoryLike(lerpFab())
-            .newIlkLerp(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
+        address lerp =
+            LerpFactoryLike(lerpFab()).newIlkLerp(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
         Authorizable(_target).rely(lerp);
         LerpLike(lerp).tick();
         return lerp;
