@@ -884,6 +884,7 @@ library DssExecLib {
     /// @param _amount The amount to set (ex. 1000 amount == 1000)
     function setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-clip-tip-precision"
+        require(_amount * RAD <= type(uint192).max); // "LibDssExec/clip-tip-precision-overflow"
         setValue(clip(_ilk), "tip", _amount * RAD);
     }
 
