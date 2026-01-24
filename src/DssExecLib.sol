@@ -832,7 +832,7 @@ library DssExecLib {
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-hole-precision"
         (,,,, uint256 _dust) = DssVat(vat()).ilks(_ilk);
-        require(_amount >= _dust / RAD); // Ensure hole >= ilk.dust
+        require(_amount * RAD >= _dust); // Ensure hole >= ilk.dust
         setValue(dog(), _ilk, "hole", _amount * RAD);
     }
 
