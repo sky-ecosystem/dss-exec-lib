@@ -83,7 +83,7 @@ contract DssLibSpellAction is
 
         LinearDecreaseAbstract xmpl_calc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
-        DssExecLib.setLinearDecrease(address(xmpl_calc), 1);
+        DssExecLib.setLinearDecrease(address(xmpl_calc), 6 hours);
 
         CollateralOpts memory XMPL_A = CollateralOpts({
             ilk: "XMPL-A",
@@ -213,7 +213,7 @@ contract DssExecTest is Test {
         osmMom = OsmMomAbstract(LOG.getAddress("OSM_MOM"));
         clipMom = ClipperMomAbstract(LOG.getAddress("CLIPPER_MOM"));
         xmpl = GemAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
-        pipXMPL = OsmAbstract(LOG.getAddress("PIP_ETH"));
+        pipXMPL = OsmAbstract(0x7a5918670B0C390aD25f7beE908c1ACc2d314A3C);
 
         rates = new MockRates();
 
@@ -601,6 +601,18 @@ contract DssExecTest is Test {
         clipXMPLA = ClipAbstract(clip);
         joinXMPLA = GemJoinAbstract(reg.join("XMPL-A"));
 
+        // Wiring
+        (address spotPip,) = spot.ilks("XMPL-A");
+        assertEq(spotPip, address(pipXMPL));
+        assertEq(reg.class("XMPL-A"), 1);
+        assertEq(reg.gem("XMPL-A"), address(xmpl));
+        assertEq(reg.pip("XMPL-A"), address(pipXMPL));
+        assertEq(reg.xlip("XMPL-A"), address(clipXMPLA));
+        assertEq(reg.dec("XMPL-A"), uint256(xmpl.decimals()));
+        assertEq(clipXMPLA.vow(), address(vow));
+        assertTrue(clipXMPLA.calc() != address(0));
+        assertEq(LinearDecreaseAbstract(clipXMPLA.calc()).tau(), afterSpell.collaterals["XMPL-A"].tau);
+
         // Authorization
         assertEq(joinXMPLA.wards(pauseProxy), 1);
         assertEq(vat.wards(address(joinXMPLA)), 1);
@@ -611,6 +623,8 @@ contract DssExecTest is Test {
         assertEq(clipXMPLA.wards(address(clipMom)), 1);
         assertEq(pipXMPL.wards(address(osmMom)), 1);
         assertEq(pipXMPL.bud(address(spot)), 1);
+        assertEq(pipXMPL.bud(address(clipXMPLA)), 1);
+        assertEq(pipXMPL.bud(address(clipMom)), 1);
         assertEq(pipXMPL.bud(address(end)), 1);
         assertEq(MedianAbstract(pipXMPL.src()).bud(address(pipXMPL)), 1);
 
