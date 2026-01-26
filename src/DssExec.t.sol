@@ -320,10 +320,6 @@ contract DssExecTest is Test {
         return (10000 + percentValue) * (10 ** 23);
     }
 
-    function diffCalc(uint256 expectedRate_, uint256 yearlyYield_) public pure returns (uint256) {
-        return (expectedRate_ > yearlyYield_) ? expectedRate_ - yearlyYield_ : yearlyYield_ - expectedRate_;
-    }
-
     function ray(uint256 wad) internal pure returns (uint256) {
         return wad * 10 ** 9;
     }
@@ -425,7 +421,7 @@ contract DssExecTest is Test {
         // bc -l <<< 'scale=27; e( l(2.00)/(60 * 60 * 24 * 365) )'
         // 1000000021979553151239153027
         assertTrue(pot.dsr() >= RAY && pot.dsr() < 1000000021979553151239153027);
-        assertTrue(diffCalc(expectedRate(values.dsr_rate), yearlyYield(expectedDSRRate)) <= TOLERANCE);
+        assertApproxEqAbs(expectedRate(values.dsr_rate), yearlyYield(expectedDSRRate), TOLERANCE);
 
         {
             // Line values in RAD
@@ -493,10 +489,10 @@ contract DssExecTest is Test {
             // basis points used
             assertTrue(values.collaterals[ilk].pct < THOUSAND * THOUSAND); // check value lt 1000%
             normRate = rates.rates(values.collaterals[ilk].pct);
-            assertTrue(
-                diffCalc(
-                        expectedRate(values.collaterals[ilk].pct), yearlyYield(rates.rates(values.collaterals[ilk].pct))
-                    ) <= TOLERANCE
+            assertApproxEqAbs(
+                expectedRate(values.collaterals[ilk].pct),
+                yearlyYield(rates.rates(values.collaterals[ilk].pct)),
+                TOLERANCE
             );
         }
 
