@@ -183,7 +183,7 @@ library DssExecLib {
 
     /// @dev RAY division. The final result is rounded to the nearest integer.
     /// Examples:
-    ///     rdiv(1, 2) = 0.5      * WAD = 500000000000000000000000000
+    ///     rdiv(1, 2) = 0.5      * RAY = 500000000000000000000000000
     ///     rdiv(2, 3) = 0.666... * RAY = 666666666666666666666666667
     function rdiv(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = (x * RAY + y / 2) / y;
@@ -191,118 +191,173 @@ library DssExecLib {
 
     /* ----- Core Address Helpers ----- */
 
+    /// @notice Get the DAI token contract address from the changelog
+    /// @return The address of the DAI token contract
     function dai() public view returns (address) {
         return getChangelogAddress("MCD_DAI");
     }
 
+    /// @notice Get the USDS token contract address from the changelog
+    /// @return The address of the USDS token contract
     function usds() public view returns (address) {
         return getChangelogAddress("USDS");
     }
 
+    /// @notice Get the MKR token contract address from the changelog
+    /// @return The address of the MKR token contract
     function mkr() public view returns (address) {
         return getChangelogAddress("MKR");
     }
 
+    /// @notice Get the SKY token contract address from the changelog
+    /// @return The address of the SKY token contract
     function sky() public view returns (address) {
         return getChangelogAddress("SKY");
     }
 
+    /// @notice Get the VAT (accounting core) contract address from the changelog
+    /// @return The address of the VAT contract
     function vat() public view returns (address) {
         return getChangelogAddress("MCD_VAT");
     }
 
+    /// @notice Get the DOG (liquidation module) contract address from the changelog
+    /// @return The address of the DOG contract
     function dog() public view returns (address) {
         return getChangelogAddress("MCD_DOG");
     }
 
+    /// @notice Get the JUG (stability fee collector) contract address from the changelog
+    /// @return The address of the JUG contract
     function jug() public view returns (address) {
         return getChangelogAddress("MCD_JUG");
     }
 
+    /// @notice Get the POT (DAI Savings Rate) contract address from the changelog
+    /// @return The address of the POT contract
     function pot() public view returns (address) {
         return getChangelogAddress("MCD_POT");
     }
 
+    /// @notice Get the SUSDS (SKY Savings Rate) contract address from the changelog
+    /// @return The address of the SUSDS contract
     function susds() public view returns (address) {
         return getChangelogAddress("SUSDS");
     }
 
+    /// @notice Get the VOW (system surplus and debt manager) contract address from the changelog
+    /// @return The address of the VOW contract
     function vow() public view returns (address) {
         return getChangelogAddress("MCD_VOW");
     }
 
+    /// @notice Get the END (emergency shutdown) contract address from the changelog
+    /// @return The address of the END contract
     function end() public view returns (address) {
         return getChangelogAddress("MCD_END");
     }
 
+    /// @notice Get the ESM (emergency shutdown module) contract address from the changelog
+    /// @return The address of the ESM contract
     function esm() public view returns (address) {
         return getChangelogAddress("MCD_ESM");
     }
 
+    /// @notice Get the ILK_REGISTRY (collateral registry) contract address from the changelog
+    /// @return The address of the ILK_REGISTRY contract
     function reg() public view returns (address) {
         return getChangelogAddress("ILK_REGISTRY");
     }
 
+    /// @notice Get the SPOTTER (price feed interface) contract address from the changelog
+    /// @return The address of the SPOTTER contract
     function spotter() public view returns (address) {
         return getChangelogAddress("MCD_SPOT");
     }
 
+    /// @notice Get the FLAP (surplus auction) contract address from the changelog
+    /// @return The address of the FLAP contract
     function flap() public view returns (address) {
         return getChangelogAddress("MCD_FLAP");
     }
 
+    /// @notice Get the FLOP (debt auction) contract address from the changelog
+    /// @return The address of the FLOP contract
     function flop() public view returns (address) {
         return getChangelogAddress("MCD_FLOP");
     }
 
+    /// @notice Get the OSM_MOM (oracle security module mom) contract address from the changelog
+    /// @return The address of the OSM_MOM contract
     function osmMom() public view returns (address) {
         return getChangelogAddress("OSM_MOM");
     }
 
-    function mkrGuard() public view returns (address) {
-        return getChangelogAddress("MKR_GUARD");
+    /// @notice Get the GOV_GUARD (governance guard) contract address from the changelog
+    /// @return The address of the GOV_GUARD contract
+    function govGuard() public view returns (address) {
+        return getChangelogAddress("GOV_GUARD");
     }
 
-    function flipperMom() public view returns (address) {
-        return getChangelogAddress("FLIPPER_MOM");
-    }
-
+    /// @notice Get the CLIPPER_MOM (liquidation circuit breaker) contract address from the changelog
+    /// @return The address of the CLIPPER_MOM contract
     function clipperMom() public view returns (address) {
         return getChangelogAddress("CLIPPER_MOM");
     }
 
+    /// @notice Get the PAUSE_PROXY (governance proxy) contract address from the changelog
+    /// @return The address of the PAUSE_PROXY contract
     function pauseProxy() public view returns (address) {
         return getChangelogAddress("MCD_PAUSE_PROXY");
     }
 
+    /// @notice Get the IAM_AUTO_LINE (auto debt ceiling adjuster) contract address from the changelog
+    /// @return The address of the IAM_AUTO_LINE contract
     function autoLine() public view returns (address) {
         return getChangelogAddress("MCD_IAM_AUTO_LINE");
     }
 
+    /// @notice Get the DAI_JOIN (DAI token adapter) contract address from the changelog
+    /// @return The address of the DAI_JOIN contract
     function daiJoin() public view returns (address) {
         return getChangelogAddress("MCD_JOIN_DAI");
     }
 
+    /// @notice Get the USDS_JOIN (USDS token adapter) contract address from the changelog
+    /// @return The address of the USDS_JOIN contract
     function usdsJoin() public view returns (address) {
         return getChangelogAddress("USDS_JOIN");
     }
 
+    /// @notice Get the LERP_FAB (linear interpolation factory) contract address from the changelog
+    /// @return The address of the LERP_FAB contract
     function lerpFab() public view returns (address) {
         return getChangelogAddress("LERP_FAB");
     }
 
+    /// @notice Get the PAUSE (governance delay) contract address from the changelog
+    /// @return The address of the PAUSE contract
     function pause() public view returns (address) {
         return getChangelogAddress("MCD_PAUSE");
     }
 
+    /// @notice Get the collateral liquidation contract address for a given ilk
+    /// @param _ilk The collateral type identifier
+    /// @return _clip The address of the liquidation contract for the given ilk
     function clip(bytes32 _ilk) public view returns (address _clip) {
         _clip = RegistryLike(reg()).xlip(_ilk);
     }
 
+    /// @notice Get the collateral auction contract address for a given ilk (legacy)
+    /// @param _ilk The collateral type identifier
+    /// @return _flip The address of the auction contract for the given ilk
     function flip(bytes32 _ilk) public view returns (address _flip) {
         _flip = RegistryLike(reg()).xlip(_ilk);
     }
 
+    /// @notice Get the pricing calculator contract address for a given ilk
+    /// @param _ilk The collateral type identifier
+    /// @return _calc The address of the pricing calculator contract for the given ilk
     function calc(bytes32 _ilk) public view returns (address _calc) {
         _calc = ClipLike(clip(_ilk)).calc();
     }
@@ -378,9 +433,9 @@ library DssExecLib {
         Kissable(_target).diss(_usr);
     }
 
-    /// @dev Give an address authorization to perform auth actions on the contract.
-    /// @param _base The address of the contract with a `setAuthority` pattern
-    /// @param _authority Address to be authorized
+    /// @dev Set the authority contract that manages access control for the target contract.
+    /// @param _base The address of the contract where the authority will be set
+    /// @param _authority Address of the authority contract that will manage privileged access (e.g., Chief managing who can call the Pause contract)
     function setAuthority(address _base, address _authority) public {
         Authorizable(_base).setAuthority(_authority);
     }
@@ -493,7 +548,7 @@ library DssExecLib {
 
     /// @dev Set a value in a contract, via a governance authorized File pattern.
     /// @param _base The address of the contract where the new contract address will be filed
-    /// @param _what Name of tag for the value (e.x. "Line")
+    /// @param _what Name of tag for the value (e.g. "Line")
     /// @param _amt The value to set or update
     function setValue(address _base, bytes32 _what, uint256 _amt) public {
         Fileable(_base).file(_what, _amt);
@@ -502,7 +557,7 @@ library DssExecLib {
     /// @dev Set an ilk-specific value in a contract, via a governance authorized File pattern.
     /// @param _base The address of the contract where the new value will be filed
     /// @param _ilk Collateral type
-    /// @param _what Name of tag for the value (e.x. "Line")
+    /// @param _what Name of tag for the value (e.g. "Line")
     /// @param _amt The value to set or update
     function setValue(address _base, bytes32 _ilk, bytes32 _what, uint256 _amt) public {
         Fileable(_base).file(_ilk, _what, _amt);
@@ -695,7 +750,7 @@ library DssExecLib {
     }
 
     /// @dev Set a RWA collateral debt ceiling by specifying its new oracle price.
-    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _ilk The ilk to update (ex. bytes32("RWA001-A"))
     /// @param _ceiling The new debt ceiling in natural units (e.g. set 10m as 10_000_000)
     /// @param _price The new oracle price in natural units
     /// @dev note: currently only DAI is supported in RWA vaults.
@@ -721,14 +776,16 @@ library DssExecLib {
     }
 
     /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line. Keeps the ttl unchanged.
+    ///      Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
     function setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap) public {
-        address _autoLine = autoLine();
-        (,, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
         require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
         require(_gap < WAD); // "LibDssExec/incorrect-auto-line-gap-precision"
+        address _autoLine = autoLine();
+        (,, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
+        require(ttl != 0); // "LibDssExec/auto-line-not-configured"
         IAMLike(_autoLine).setIlk(_ilk, _amount * RAD, _gap * RAD, uint256(ttl));
     }
 
@@ -774,6 +831,8 @@ library DssExecLib {
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-hole-precision"
+        (,,,, uint256 _dust) = DssVat(vat()).ilks(_ilk);
+        require(_amount * RAD >= _dust); // Ensure hole >= ilk.dust
         setValue(dog(), _ilk, "hole", _amount * RAD);
     }
 
@@ -820,11 +879,12 @@ library DssExecLib {
         setValue(clip(_ilk), "chip", wdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
-    /// @dev Set max amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
+    /// @dev Sets the amount for flat rate keeper incentive. Amount will be converted to the correct internal precision.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 1000 amount == 1000)
     function setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-clip-tip-precision"
+        require(_amount * RAD <= type(uint192).max); // "LibDssExec/clip-tip-precision-overflow"
         setValue(clip(_ilk), "tip", _amount * RAD);
     }
 
@@ -922,7 +982,10 @@ library DssExecLib {
 
     /* ----- Collateral Onboarding ----- */
 
-    /// @dev Performs basic functions and sanity checks to add a new collateral type to the Sky Protocol
+    /// @dev Performs basic collateral setup with core contract integrations and authorizations.
+    /// @dev This function handles the fundamental integration of a new collateral type into the core Sky Protocol
+    ///      contracts (VAT, DOG, JUG, etc.) without setting risk parameters. Use this when you need basic setup
+    ///      without full parameter configuration, or as a building block for more complex onboarding.
     /// @param _ilk      Collateral type key code [Ex. "ETH-A"]
     /// @param _gem      Address of token contract
     /// @param _join     Address of join adapter
@@ -978,7 +1041,10 @@ library DssExecLib {
         RegistryLike(reg()).add(_join);
     }
 
-    // Complete collateral onboarding logic.
+    /// @dev Complete collateral onboarding with all necessary configurations and authorizations.
+    /// @dev This function performs comprehensive collateral setup including debt ceilings, liquidation parameters,
+    ///      stability fees, and oracle configurations. Use this for complete collateral onboarding.
+    /// @param co Struct containing all collateral configuration options and parameters
     function addNewCollateral(CollateralOpts memory co) public {
         // Add the collateral to the system.
         addCollateralBase(co.ilk, co.gem, co.join, co.clip, co.calc, co.pip);
@@ -1064,6 +1130,7 @@ library DssExecLib {
     /// @param _start The start value for the target parameter
     /// @param _end The end value for the target parameter
     /// @param _duration The duration of the interpolation
+    /// @return The address of the created lerp contract
     function linearInterpolation(
         bytes32 _name,
         address _target,
@@ -1088,6 +1155,7 @@ library DssExecLib {
     /// @param _start The start value for the target parameter
     /// @param _end The end value for the target parameter
     /// @param _duration The duration of the interpolation
+    /// @return The address of the created lerp contract
     function linearInterpolation(
         bytes32 _name,
         address _target,
@@ -1098,8 +1166,8 @@ library DssExecLib {
         uint256 _end,
         uint256 _duration
     ) public returns (address) {
-        address lerp =
-            LerpFactoryLike(lerpFab()).newIlkLerp(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
+        address lerp = LerpFactoryLike(lerpFab())
+            .newIlkLerp(_name, _target, _ilk, _what, _startTime, _start, _end, _duration);
         Authorizable(_target).rely(lerp);
         LerpLike(lerp).tick();
         return lerp;
@@ -1107,7 +1175,7 @@ library DssExecLib {
 
     /* ----- SubDAO/Star Spells ----- */
 
-    /// @dev Execute a start spell through its star proxy.
+    /// @dev Execute a star spell through its star proxy.
     /// @param _starProxy The proxy to execute the spell through.
     /// @param _starSpell The spell to execute.
     /// @return The return data from the spell execution.

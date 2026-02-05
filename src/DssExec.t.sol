@@ -71,9 +71,8 @@ contract DssLibSpellAction is
         // Basic cob setup
         DSTokenAbstract xmpl_gem = DSTokenAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
         ClipAbstract xmpl_clip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                DssExecLib.pauseProxy(), DssExecLib.vat(), DssExecLib.spotter(), DssExecLib.dog(), "XMPL-A"
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(DssExecLib.pauseProxy(), DssExecLib.vat(), DssExecLib.spotter(), DssExecLib.dog(), "XMPL-A")
         );
         GemJoinAbstract xmpl_join = GemJoinAbstract(
             GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), "XMPL-A", address(xmpl_gem))
@@ -84,7 +83,7 @@ contract DssLibSpellAction is
 
         LinearDecreaseAbstract xmpl_calc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
-        DssExecLib.setLinearDecrease(address(xmpl_calc), 1);
+        DssExecLib.setLinearDecrease(address(xmpl_calc), 6 hours);
 
         CollateralOpts memory XMPL_A = CollateralOpts({
             ilk: "XMPL-A",
@@ -112,14 +111,14 @@ contract DssLibSpellAction is
 
         DssExecLib.addNewCollateral(XMPL_A);
 
-        DssExecLib.setIlkDebtCeiling("LINK-A", 10 * MILLION);
-        DssExecLib.setIlkMinVaultAmount("LINK-A", 800);
-        DssExecLib.setIlkLiquidationRatio("LINK-A", 16000);
-        DssExecLib.setIlkLiquidationPenalty("LINK-A", 1400);
-        DssExecLib.setIlkMaxLiquidationAmount("LINK-A", 100000);
-        DssExecLib.setAuctionTimeBeforeReset("LINK-A", 2 hours);
-        DssExecLib.setKeeperIncentivePercent("LINK-A", 2); // 0.02% keeper incentive
-        DssExecLib.setGlobalDebtCeiling(10000 * MILLION);
+        DssExecLib.setIlkDebtCeiling("ETH-A", 10 * MILLION);
+        DssExecLib.setIlkMinVaultAmount("ETH-A", 800);
+        DssExecLib.setIlkLiquidationRatio("ETH-A", 16000);
+        DssExecLib.setIlkLiquidationPenalty("ETH-A", 1400);
+        DssExecLib.setIlkMaxLiquidationAmount("ETH-A", 100000);
+        DssExecLib.setAuctionTimeBeforeReset("ETH-A", 2 hours);
+        DssExecLib.setKeeperIncentivePercent("ETH-A", 2); // 0.02% keeper incentive
+        DssExecLib.increaseGlobalDebtCeiling(10000 * MILLION);
     }
 }
 
@@ -214,7 +213,7 @@ contract DssExecTest is Test {
         osmMom = OsmMomAbstract(LOG.getAddress("OSM_MOM"));
         clipMom = ClipperMomAbstract(LOG.getAddress("CLIPPER_MOM"));
         xmpl = GemAbstract(0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
-        pipXMPL = OsmAbstract(LOG.getAddress("PIP_USDT"));
+        pipXMPL = OsmAbstract(0x7a5918670B0C390aD25f7beE908c1ACc2d314A3C);
 
         rates = new MockRates();
 
@@ -226,7 +225,7 @@ contract DssExecTest is Test {
         // Test for all system configuration changes
 
         afterSpell.dsr_rate = 0; // In basis points
-        afterSpell.vat_Line = 10000 * MILLION; // In whole Dai units
+        afterSpell.vat_Line = vat.Line() / RAD + 10000 * MILLION + 3 * MILLION; // In whole Dai units
         afterSpell.pause_delay = pause.delay(); // In seconds
         afterSpell.vow_wait = vow.wait(); // In seconds
         afterSpell.vow_dump = vow.dump() / WAD; // In whole Dai units
@@ -237,10 +236,10 @@ contract DssExecTest is Test {
         afterSpell.ilk_count = reg.count() + 1; // Num expected in system
 
         // Test for all collateral based changes here
-        (uint256 _duty,) = jug.ilks("LINK-A");
-        (address _clip,,,) = dog.ilks("LINK-A");
+        (uint256 _duty,) = jug.ilks("ETH-A");
+        (address _clip,,,) = dog.ilks("ETH-A");
         ClipAbstract clip = ClipAbstract(_clip);
-        afterSpell.collaterals["LINK-A"] = CollateralValues({
+        afterSpell.collaterals["ETH-A"] = CollateralValues({
             line: 10 * MILLION, // In whole Dai units
             dust: 800, // In whole Dai units
             pct: _duty, // In basis points
@@ -321,10 +320,6 @@ contract DssExecTest is Test {
         return (10000 + percentValue) * (10 ** 23);
     }
 
-    function diffCalc(uint256 expectedRate_, uint256 yearlyYield_) public pure returns (uint256) {
-        return (expectedRate_ > yearlyYield_) ? expectedRate_ - yearlyYield_ : yearlyYield_ - expectedRate_;
-    }
-
     function ray(uint256 wad) internal pure returns (uint256) {
         return wad * 10 ** 9;
     }
@@ -338,9 +333,8 @@ contract DssExecTest is Test {
             stdstore.target(address(chief)).sig("live()").checked_write(bytes32(uint256(1)));
         }
         if (chief.hat() != address(spell)) {
-            stdstore.target(address(gov)).sig("balanceOf(address)").with_key(address(this)).checked_write(
-                bytes32(uint256(999999999999 ether))
-            );
+            stdstore.target(address(gov)).sig("balanceOf(address)").with_key(address(this))
+                .checked_write(bytes32(uint256(999999999999 ether)));
             gov.approve(address(chief), type(uint256).max);
             chief.lock(gov.balanceOf(address(this)) - 1 ether);
 
@@ -427,12 +421,12 @@ contract DssExecTest is Test {
         // bc -l <<< 'scale=27; e( l(2.00)/(60 * 60 * 24 * 365) )'
         // 1000000021979553151239153027
         assertTrue(pot.dsr() >= RAY && pot.dsr() < 1000000021979553151239153027);
-        assertTrue(diffCalc(expectedRate(values.dsr_rate), yearlyYield(expectedDSRRate)) <= TOLERANCE);
+        assertApproxEqAbs(expectedRate(values.dsr_rate), yearlyYield(expectedDSRRate), TOLERANCE);
 
         {
             // Line values in RAD
             uint256 normalizedLine = values.vat_Line * RAD;
-            assertEq(vat.Line(), normalizedLine);
+            assertApproxEqAbs(vat.Line(), normalizedLine, RAD - 1);
             assertTrue((vat.Line() >= RAD && vat.Line() < 100 * BILLION * RAD) || vat.Line() == 0);
         }
 
@@ -458,20 +452,21 @@ contract DssExecTest is Test {
                 assertTrue((vow.sump() >= RAD && vow.sump() < 500 * THOUSAND * RAD) || vow.sump() == 0);
             }
         }
-        {
-            // bump values in RAD
-            uint256 normalizedBump = values.vow_bump * RAD;
-            assertEq(vow.bump(), normalizedBump);
-            assertTrue((vow.bump() >= RAD && vow.bump() < HUNDRED * THOUSAND * RAD) || vow.bump() == 0);
-        }
-        {
-            // hump values in RAD
-            assertEq(vow.hump() / RAD, values.vow_hump);
-            assertTrue(
-                (vow.hump() >= RAD && vow.hump() < THOUSAND * MILLION * RAD) || vow.hump() == 0,
-                "DssExec.t.sol/hump-sanity-check-fail"
-            );
-        }
+        // Flapper auctions have been disabled in favor of the Kicker
+        // {
+        //     // bump values in RAD
+        //     uint256 normalizedBump = values.vow_bump * RAD;
+        //     assertEq(vow.bump(), normalizedBump);
+        //     assertTrue((vow.bump() >= RAD && vow.bump() < HUNDRED * THOUSAND * RAD) || vow.bump() == 0);
+        // }
+        // {
+        //     // hump values in RAD
+        //     assertEq(vow.hump() / RAD, values.vow_hump);
+        //     assertTrue(
+        //         (vow.hump() >= RAD && vow.hump() < THOUSAND * MILLION * RAD) || vow.hump() == 0,
+        //         "DssExec.t.sol/hump-sanity-check-fail"
+        //     );
+        // }
 
         // Hole values in RAD
         {
@@ -494,10 +489,10 @@ contract DssExecTest is Test {
             // basis points used
             assertTrue(values.collaterals[ilk].pct < THOUSAND * THOUSAND); // check value lt 1000%
             normRate = rates.rates(values.collaterals[ilk].pct);
-            assertTrue(
-                diffCalc(
-                    expectedRate(values.collaterals[ilk].pct), yearlyYield(rates.rates(values.collaterals[ilk].pct))
-                ) <= TOLERANCE
+            assertApproxEqAbs(
+                expectedRate(values.collaterals[ilk].pct),
+                yearlyYield(rates.rates(values.collaterals[ilk].pct)),
+                TOLERANCE
             );
         }
 
@@ -579,7 +574,7 @@ contract DssExecTest is Test {
         assertTrue(spell.done());
 
         checkSystemValues(afterSpell);
-        checkCollateralValues("LINK-A", afterSpell);
+        checkCollateralValues("ETH-A", afterSpell);
         checkCollateralValues("XMPL-A", afterSpell);
 
         assertTrue(spell.officeHours());
@@ -602,6 +597,18 @@ contract DssExecTest is Test {
         clipXMPLA = ClipAbstract(clip);
         joinXMPLA = GemJoinAbstract(reg.join("XMPL-A"));
 
+        // Wiring
+        (address spotPip,) = spot.ilks("XMPL-A");
+        assertEq(spotPip, address(pipXMPL));
+        assertEq(reg.class("XMPL-A"), 1);
+        assertEq(reg.gem("XMPL-A"), address(xmpl));
+        assertEq(reg.pip("XMPL-A"), address(pipXMPL));
+        assertEq(reg.xlip("XMPL-A"), address(clipXMPLA));
+        assertEq(reg.dec("XMPL-A"), uint256(xmpl.decimals()));
+        assertEq(clipXMPLA.vow(), address(vow));
+        assertTrue(clipXMPLA.calc() != address(0));
+        assertEq(LinearDecreaseAbstract(clipXMPLA.calc()).tau(), afterSpell.collaterals["XMPL-A"].tau);
+
         // Authorization
         assertEq(joinXMPLA.wards(pauseProxy), 1);
         assertEq(vat.wards(address(joinXMPLA)), 1);
@@ -612,6 +619,8 @@ contract DssExecTest is Test {
         assertEq(clipXMPLA.wards(address(clipMom)), 1);
         assertEq(pipXMPL.wards(address(osmMom)), 1);
         assertEq(pipXMPL.bud(address(spot)), 1);
+        assertEq(pipXMPL.bud(address(clipXMPLA)), 1);
+        assertEq(pipXMPL.bud(address(clipMom)), 1);
         assertEq(pipXMPL.bud(address(end)), 1);
         assertEq(MedianAbstract(pipXMPL.src()).bud(address(pipXMPL)), 1);
 

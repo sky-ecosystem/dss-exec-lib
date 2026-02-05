@@ -157,7 +157,7 @@ contract DssActionTest is Test {
     address constant UNIV2ORACLE_FAB = 0xc968B955BCA6c2a3c828d699cCaCbFDC02402D89;
 
     function setUp() public {
-        vm.createSelectFork("apr_15_0");
+        vm.createSelectFork("mainnet");
 
         START_TIME = block.timestamp;
 
@@ -348,9 +348,8 @@ contract DssActionTest is Test {
         vat.rely(address(join));
 
         ClipAbstract clip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), name
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), name)
         );
         vat.hope(address(clip));
         clip.rely(address(end));
@@ -766,6 +765,11 @@ contract DssActionTest is Test {
         assertEq(uint256(ttl), initialTtl); // ttl should remain unchanged
     }
 
+    function test_RevertSetIlkAutoLineParametersKeepTtl_WhenNotConfigured() public {
+        vm.expectRevert();
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION);
+    }
+
     function test_setIlkAutoLineDebtCeiling() public {
         action.setIlkAutoLineParameters_test("gold", 1, 5 * MILLION, 10000); // gap and ttl must be configured already
         action.setIlkAutoLineDebtCeiling_test("gold", 150 * MILLION); // Setup
@@ -798,8 +802,8 @@ contract DssActionTest is Test {
         (,,,, uint256 dust) = vat.ilks("gold");
         assertEq(dust, 100 * RAD);
 
-        action.setIlkMaxLiquidationAmount_test("gold", 0);
         action.setIlkMinVaultAmount_test("gold", 0);
+        action.setIlkMaxLiquidationAmount_test("gold", 0);
         (,,,, dust) = vat.ilks("gold");
         assertEq(dust, 0);
     }
@@ -820,6 +824,13 @@ contract DssActionTest is Test {
         action.setIlkMaxLiquidationAmount_test("gold", 50 * THOUSAND);
         (,, uint256 hole,) = dog.ilks("gold");
         assertEq(hole, 50 * THOUSAND * RAD);
+    }
+
+    function test_setIlkMaxLiquidationAmountLtReverts() public {
+        action.setIlkMaxLiquidationAmount_test("gold", 100);
+        action.setIlkMinVaultAmount_test("gold", 100);
+        vm.expectRevert();
+        action.setIlkMaxLiquidationAmount_test("gold", 99);
     }
 
     function test_setIlkLiquidationRatio() public {
@@ -960,9 +971,8 @@ contract DssActionTest is Test {
         GemJoinAbstract tokenJoin =
             GemJoinAbstract(GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), ilk, address(token)));
         ClipAbstract tokenClip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), ilk
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), ilk)
         );
         LinearDecreaseAbstract tokenCalc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
@@ -1004,9 +1014,8 @@ contract DssActionTest is Test {
         GemJoinAbstract tokenJoin =
             GemJoinAbstract(GemJoinFabLike(LOG.getAddress("JOIN_FAB")).newGemJoin(address(this), ilk, address(token)));
         ClipAbstract tokenClip = ClipAbstract(
-            ClipFabLike(LOG.getAddress("CLIP_FAB")).newClip(
-                address(this), address(vat), address(spot), address(dog), ilk
-            )
+            ClipFabLike(LOG.getAddress("CLIP_FAB"))
+                .newClip(address(this), address(vat), address(spot), address(dog), ilk)
         );
         LinearDecreaseAbstract tokenCalc =
             LinearDecreaseAbstract(CalcFabLike(LOG.getAddress("CALC_FAB")).newLinearDecrease(address(this)));
