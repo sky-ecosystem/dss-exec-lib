@@ -154,6 +154,11 @@ interface ProxyLike {
     function exec(address target, bytes calldata args) external payable returns (bytes memory out);
 }
 
+interface StarGuardLike {
+    function plot(address addr_, bytes32 tag_) external;
+    function drop() external;
+}
+
 /// @title DssExecLib - Sky Protocol's Executive Spellcrafting Library
 /// @notice This library provides a suite of functions for managing the Sky Protocol.
 /// @dev Includes functions for collateral management, system configuration, governance, and more.
@@ -1196,5 +1201,19 @@ library DssExecLib {
             _starProxy.call(abi.encodeCall(ProxyLike.exec, (_starSpell, abi.encodeWithSignature("execute()"))));
 
         return (success, result);
+    }
+
+    /// @dev Whitelist a star spell on its star guard so it can be executed permissionlessly.
+    /// @param _starGuard The star guard contract that gates the star spell.
+    /// @param _starSpell The address of the star spell to whitelist.
+    /// @param _starSpellTag The expected codehash of the star spell.
+    function plotStarSpell(address _starGuard, address _starSpell, bytes32 _starSpellTag) public {
+        StarGuardLike(_starGuard).plot(_starSpell, _starSpellTag);
+    }
+
+    /// @dev Remove the currently whitelisted star spell from a star guard.
+    /// @param _starGuard The star guard contract that gates the star spell.
+    function dropStarSpell(address _starGuard) public {
+        StarGuardLike(_starGuard).drop();
     }
 }

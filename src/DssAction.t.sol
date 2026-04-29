@@ -28,6 +28,7 @@ import {MockToken} from "./mocks/MockToken.sol";
 import {MockValue} from "./mocks/MockValue.sol";
 import {MockOracle} from "./mocks/MockOracle.sol";
 import {MockOsm} from "./mocks/MockOsm.sol";
+import {MockStarGuard} from "./mocks/MockStarGuard.sol";
 import {MockStarProxy} from "./mocks/MockStarProxy.sol";
 import {MockStarSpell} from "./mocks/MockStarSpell.sol";
 
@@ -1327,5 +1328,60 @@ contract DssActionTest is Test {
 
         // Verify the spell was not executed
         assertFalse(proxy.executed(), "Spell should not have been executed when configured to fail");
+    }
+
+    function test_plotStarSpell_success() public {
+        MockStarGuard guard = new MockStarGuard();
+        address starSpell = address(0xBEEF);
+        bytes32 starSpellTag = keccak256("some-bytecode");
+
+        action.plotStarSpell_test(address(guard), starSpell, starSpellTag);
+
+        assertEq(guard.plottedAddr(), starSpell, "StarGuard should have recorded the plotted spell");
+        assertEq(guard.plottedTag(), starSpellTag, "StarGuard should have recorded the plotted tag");
+    }
+
+    function test_plotStarSpell_overwritesPreviousPlot() public {
+        MockStarGuard guard = new MockStarGuard();
+        address firstSpell = address(0xBEEF);
+        bytes32 firstTag = keccak256("first-bytecode");
+        address secondSpell = address(0xCAFE);
+        bytes32 secondTag = keccak256("second-bytecode");
+
+        action.plotStarSpell_test(address(guard), firstSpell, firstTag);
+        action.plotStarSpell_test(address(guard), secondSpell, secondTag);
+
+        assertEq(guard.plottedAddr(), secondSpell, "StarGuard should overwrite the plotted spell");
+        assertEq(guard.plottedTag(), secondTag, "StarGuard should overwrite the plotted tag");
+    }
+
+    function test_plotStarSpell_failure() public {
+        MockStarGuard guard = new MockStarGuard();
+        guard.setShouldFail(true);
+
+        vm.expectRevert("MockStarGuard/plot-failed");
+        action.plotStarSpell_test(address(guard), address(0xBEEF), bytes32(uint256(1)));
+    }
+
+    function test_dropStarSpell_success() public {
+        MockStarGuard guard = new MockStarGuard();
+        address starSpell = address(0xBEEF);
+        bytes32 starSpellTag = keccak256("some-bytecode");
+
+        action.plotStarSpell_test(address(guard), starSpell, starSpellTag);
+        assertEq(guard.plottedAddr(), starSpell, "Precondition: spell should be plotted");
+
+        action.dropStarSpell_test(address(guard));
+
+        assertEq(guard.plottedAddr(), address(0), "StarGuard should have cleared the plotted spell");
+        assertEq(guard.plottedTag(), bytes32(0), "StarGuard should have cleared the plotted tag");
+    }
+
+    function test_dropStarSpell_failure() public {
+        MockStarGuard guard = new MockStarGuard();
+        guard.setShouldFail(true);
+
+        vm.expectRevert("MockStarGuard/drop-failed");
+        action.dropStarSpell_test(address(guard));
     }
 }

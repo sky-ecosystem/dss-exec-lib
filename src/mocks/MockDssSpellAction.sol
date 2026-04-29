@@ -346,4 +346,12 @@ contract MockDssSpellAction is DssAction {
     function tryExecuteStarSpell_test(address starProxy, address starSpell) public returns (bool, bytes memory) {
         return DssExecLib.tryExecuteStarSpell(starProxy, starSpell);
     }
+
+    function plotStarSpell_test(address starGuard, address starSpell, bytes32 starSpellTag) public {
+        DssExecLib.plotStarSpell(starGuard, starSpell, starSpellTag);
+    }
+
+    function dropStarSpell_test(address starGuard) public {
+        DssExecLib.dropStarSpell(starGuard);
+    }
 }
