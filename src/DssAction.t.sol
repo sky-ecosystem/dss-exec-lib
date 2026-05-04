@@ -1331,56 +1331,74 @@ contract DssActionTest is Test {
     }
 
     function test_plotStarSpell_success() public {
+        // Setup mock contract and spell parameters
         MockStarGuard guard = new MockStarGuard();
         address starSpell = address(0xBEEF);
         bytes32 starSpellTag = keccak256("some-bytecode");
 
+        // Plot the spell on the guard
         action.plotStarSpell_test(address(guard), starSpell, starSpellTag);
 
+        // Verify the guard recorded the correct spell address and tag
         assertEq(guard.plottedAddr(), starSpell, "StarGuard should have recorded the plotted spell");
         assertEq(guard.plottedTag(), starSpellTag, "StarGuard should have recorded the plotted tag");
     }
 
     function test_plotStarSpell_overwritesPreviousPlot() public {
+        // Setup mock contract and two distinct spell parameters
         MockStarGuard guard = new MockStarGuard();
         address firstSpell = address(0xBEEF);
         bytes32 firstTag = keccak256("first-bytecode");
         address secondSpell = address(0xCAFE);
         bytes32 secondTag = keccak256("second-bytecode");
 
+        // Plot the first spell, then plot the second spell on top of it
         action.plotStarSpell_test(address(guard), firstSpell, firstTag);
         action.plotStarSpell_test(address(guard), secondSpell, secondTag);
 
+        // Verify the guard now reflects the second spell, overwriting the first
         assertEq(guard.plottedAddr(), secondSpell, "StarGuard should overwrite the plotted spell");
         assertEq(guard.plottedTag(), secondTag, "StarGuard should overwrite the plotted tag");
     }
 
     function test_plotStarSpell_failure() public {
+        // Setup mock contract
         MockStarGuard guard = new MockStarGuard();
+
+        // Configure the guard to fail
         guard.setShouldFail(true);
 
+        // This should revert
         vm.expectRevert("MockStarGuard/plot-failed");
         action.plotStarSpell_test(address(guard), address(0xBEEF), bytes32(uint256(1)));
     }
 
     function test_dropStarSpell_success() public {
+        // Setup mock contract and spell parameters
         MockStarGuard guard = new MockStarGuard();
         address starSpell = address(0xBEEF);
         bytes32 starSpellTag = keccak256("some-bytecode");
 
+        // Plot a spell so we have something to drop
         action.plotStarSpell_test(address(guard), starSpell, starSpellTag);
         assertEq(guard.plottedAddr(), starSpell, "Precondition: spell should be plotted");
 
+        // Drop the plotted spell
         action.dropStarSpell_test(address(guard));
 
+        // Verify the guard cleared its recorded spell address and tag
         assertEq(guard.plottedAddr(), address(0), "StarGuard should have cleared the plotted spell");
         assertEq(guard.plottedTag(), bytes32(0), "StarGuard should have cleared the plotted tag");
     }
 
     function test_dropStarSpell_failure() public {
+        // Setup mock contract
         MockStarGuard guard = new MockStarGuard();
+
+        // Configure the guard to fail
         guard.setShouldFail(true);
 
+        // This should revert
         vm.expectRevert("MockStarGuard/drop-failed");
         action.dropStarSpell_test(address(guard));
     }
