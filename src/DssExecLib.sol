@@ -1203,7 +1203,7 @@ library DssExecLib {
         return (success, result);
     }
 
-    /// @dev Whitelist a star spell on its star guard so it can be executed permissionlessly.
+    /// @dev Whitelist a star spell in the corresponding star guard to enable permissionless execution.
     /// @param _starGuard The star guard contract that gates the star spell.
     /// @param _starSpell The address of the star spell to whitelist.
     /// @param _starSpellTag The expected codehash of the star spell.
