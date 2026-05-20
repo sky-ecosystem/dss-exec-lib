@@ -295,6 +295,8 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 
 - `executeStarSpell(address _starProxy, address _starSpell)`: Execute a star spell through its star proxy. Returns the return data from the spell execution.
 - `tryExecuteStarSpell(address _starProxy, address _starSpell)`: Tries to execute a star spell through its star proxy using low-level call to avoid reverts in case of error. Returns a boolean indicating success and the return data or error message.
+- `plotStarSpell(address _starGuard, address _starSpell, bytes32 _starSpellTag)`: Whitelist a star spell in its star guard so it can be executed permissionlessly. `_starSpellTag` is the expected codehash of the star spell.
+- `dropStarSpell(address _starGuard)`: Remove the currently whitelisted star spell from the star guard.
 
 ### Misc
 
