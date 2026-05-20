@@ -163,6 +163,7 @@ Below is an outline of all functions used in the library.
 ### Collateral Management
 
 - `setIlkDebtCeiling(bytes32 _ilk, uint256 _amount)`: Set a collateral debt ceiling.
+- `setIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Set a collateral debt ceiling and optionally adjust the global line by the delta.
 - `increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Raise the debt ceiling of a particular ilk.
 - `decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Lower the debt ceiling of a particular ilk.
 - `setRWAIlkDebtCeiling(bytes32 _ilk, uint256 _ceiling, uint256 _price)`: Set the debt ceiling for a RWA collateral. This requires also a new oracle price.

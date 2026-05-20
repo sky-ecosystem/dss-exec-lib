@@ -196,6 +196,10 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setIlkDebtCeiling(ilk, amount);
     }
 
+    function setIlkDebtCeiling_global_test(bytes32 ilk, uint256 amount) public {
+        DssExecLib.setIlkDebtCeiling(ilk, amount, true);
+    }
+
     function increaseIlkDebtCeiling_test(bytes32 ilk, uint256 amount) public {
         DssExecLib.increaseIlkDebtCeiling(ilk, amount, true);
     }

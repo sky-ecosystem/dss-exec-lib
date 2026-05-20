@@ -689,6 +689,32 @@ contract DssActionTest is Test {
         assertEq(line, 100 * MILLION * RAD);
     }
 
+    function test_setIlkDebtCeilingUpdatesGlobalLine() public {
+        uint256 globalLine = vat.Line();
+        (,,, uint256 goldLineBefore,) = vat.ilks("gold");
+
+        action.setIlkDebtCeiling_global_test("gold", 100 * MILLION);
+        (,,, uint256 line,) = vat.ilks("gold");
+        assertEq(line, 100 * MILLION * RAD);
+        assertEq(vat.Line(), globalLine + 100 * MILLION * RAD - goldLineBefore);
+
+        uint256 globalAfterFirst = vat.Line();
+        action.setIlkDebtCeiling_global_test("gold", 40 * MILLION);
+        (,,, line,) = vat.ilks("gold");
+        assertEq(line, 40 * MILLION * RAD);
+        assertEq(vat.Line(), globalAfterFirst - (100 * MILLION - 40 * MILLION) * RAD);
+    }
+
+    function test_setIlkDebtCeilingToZeroUpdatesGlobalLine() public {
+        action.setIlkDebtCeiling_test("gold", 100 * MILLION);
+        uint256 globalLine = vat.Line();
+
+        action.setIlkDebtCeiling_global_test("gold", 0);
+        (,,, uint256 line,) = vat.ilks("gold");
+        assertEq(line, 0);
+        assertEq(vat.Line(), globalLine - 100 * MILLION * RAD);
+    }
+
     function test_increaseIlkDebtCeiling() public {
         action.setGlobalDebtCeiling_test(100 * MILLION);
         action.setIlkDebtCeiling_test("gold", 100 * MILLION); // Setup
