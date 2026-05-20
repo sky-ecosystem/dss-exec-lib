@@ -726,8 +726,28 @@ library DssExecLib {
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The amount to set (ex. 10m amount == 10000000)
     function setIlkDebtCeiling(bytes32 _ilk, uint256 _amount) public {
+        setIlkDebtCeiling(_ilk, _amount, false);
+    }
+
+    /// @dev Set a collateral debt ceiling. Amount will be converted to the correct internal precision.
+    /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
+    /// @param _amount The amount to set (ex. 10m amount == 10000000)
+    /// @param _global If true, adjusts the global debt ceiling by the delta between the new and previous ilk line
+    function setIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global) public {
         require(_amount < WAD); // "LibDssExec/incorrect-ilk-line-precision"
-        setValue(vat(), _ilk, "line", _amount * RAD);
+        address _vat = vat();
+        if (_global) {
+            (,,, uint256 oldLine,) = DssVat(_vat).ilks(_ilk);
+            uint256 newLine = _amount * RAD;
+            setValue(_vat, _ilk, "line", newLine);
+            if (newLine > oldLine) {
+                increaseGlobalDebtCeiling((newLine - oldLine) / RAD);
+            } else if (newLine < oldLine) {
+                decreaseGlobalDebtCeiling((oldLine - newLine) / RAD);
+            }
+        } else {
+            setValue(_vat, _ilk, "line", _amount * RAD);
+        }
     }
 
     /// @dev Increase a collateral debt ceiling. Amount will be converted to the correct internal precision.
@@ -1083,18 +1103,16 @@ library DssExecLib {
             allowOSMFreeze(co.pip, co.ilk);
         }
 
-        // Increase the global debt ceiling by the ilk ceiling
-        increaseGlobalDebtCeiling(co.ilkDebtCeiling);
-        // Set the ilk debt ceiling
-        setIlkDebtCeiling(co.ilk, co.ilkDebtCeiling);
+        // Set the ilk debt ceiling and keep the global line in sync
+        setIlkDebtCeiling(co.ilk, co.ilkDebtCeiling, true);
         // Set the hole size
         setIlkMaxLiquidationAmount(co.ilk, co.maxLiquidationAmount);
         // Set the ilk dust
         setIlkMinVaultAmount(co.ilk, co.minVaultAmount);
         // Set the ilk liquidation penalty
         setIlkLiquidationPenalty(co.ilk, co.liquidationPenalty);
-        // Set the ilk stability fee
-        setIlkStabilityFee(co.ilk, co.ilkStabilityFee, true);
+        // Set the ilk stability fee (no drip: ilk was just initialized in addCollateralBase)
+        setIlkStabilityFee(co.ilk, co.ilkStabilityFee, false);
         // Set the auction starting price multiplier
         setStartingPriceMultiplicativeFactor(co.ilk, co.startingPriceFactor);
         // Set the amount of time before an auction resets.
