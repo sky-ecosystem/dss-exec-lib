@@ -166,10 +166,10 @@ Below is an outline of all functions used in the library.
 - `increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Raise the debt ceiling of a particular ilk.
 - `decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Lower the debt ceiling of a particular ilk.
 - `setRWAIlkDebtCeiling(bytes32 _ilk, uint256 _ceiling, uint256 _price)`: Set the debt ceiling for a RWA collateral. This requires also a new oracle price.
-- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl)`: Configure the parameters for the Debt Ceiling auto line module and immediately execute the updated configuration.
-- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap)`: Configure the amount and gap parameters while keeping the existing TTL value, then immediately execute the updated configuration.
-- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Adjust the maximum debt ceiling while keeping the existing gap and TTL values, then immediately execute the updated configuration.
-- `removeIlkFromAutoLine(bytes32 _ilk)`: Remove the management of an ilk by the debt ceiling auto line module.
+- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl)`: Configure the Debt Ceiling auto line parameters, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
+- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap)`: Configure the amount and gap while keeping the existing TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
+- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Configure the maximum debt ceiling while keeping the existing gap and TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
+- `removeIlkFromAutoLine(bytes32 _ilk)`: Remove the AutoLine configuration for an ilk without updating the live Vat debt ceilings.
 - `setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount)`: Set a collateral minimum vault amount.
 - `setIlkLiquidationPenalty(bytes32 _ilk, uint256 _pct_bps)`: Set a collateral liquidation penalty.
 - `setIlkMaxLiquidationAmount(bytes32 _ilk, uint256 _amount)`: Set max DAI amount for liquidation per vault for a collateral type.
@@ -181,8 +181,6 @@ Below is an outline of all functions used in the library.
 - `setKeeperIncentiveFlatRate(bytes32 _ilk, uint256 _amount) `: Set a flat amount of Dai that will be paid to a keeper for kicking an auction.
 - `setLiquidationBreakerPriceTolerance(address _clip, uint256 _pct_bps)`: Set the tolerance for the liquidation circuit-breaker in the clipper IAM.
 - `setIlkStabilityFee(bytes32 _ilk, uint256 _rate)`: Set the stability fee for a given ilk.
-
-The three AutoLine setters above call `DssAutoLine.exec` immediately after updating the configuration. Execution uses the rate stored in the Vat and retains AutoLine's existing valid no-op behavior. If execution reverts, the complete helper call is rolled back. Workflows that require separate configuration and execution should call `DssAutoLine` directly. `removeIlkFromAutoLine` remains configuration-only.
 
 ### Abacus Management
 

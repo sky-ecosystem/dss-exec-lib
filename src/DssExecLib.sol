@@ -770,7 +770,8 @@ library DssExecLib {
         updateCollateralPrice(_ilk);
     }
 
-    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine
+    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
+    ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
@@ -783,7 +784,8 @@ library DssExecLib {
         IAMLike(_autoLine).exec(_ilk);
     }
 
-    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine.
+    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
+    ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
     ///      Keeps the ttl unchanged. Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
@@ -798,7 +800,8 @@ library DssExecLib {
         IAMLike(_autoLine).exec(_ilk);
     }
 
-    /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine.
+    /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
+    ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
     ///      Keeps the gap and ttl unchanged. Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
