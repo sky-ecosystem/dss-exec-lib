@@ -118,6 +118,7 @@ interface IAMLike {
     function ilks(bytes32) external view returns (uint256, uint256, uint48, uint48, uint48);
     function setIlk(bytes32, uint256, uint256, uint256) external;
     function remIlk(bytes32) external;
+    function exec(bytes32) external returns (uint256);
 }
 
 interface LerpFactoryLike {
@@ -769,7 +770,7 @@ library DssExecLib {
         updateCollateralPrice(_ilk);
     }
 
-    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line
+    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
@@ -777,11 +778,13 @@ library DssExecLib {
     function setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl) public {
         require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
         require(_gap < WAD); // "LibDssExec/incorrect-auto-line-gap-precision"
-        IAMLike(autoLine()).setIlk(_ilk, _amount * RAD, _gap * RAD, _ttl);
+        address _autoLine = autoLine();
+        IAMLike(_autoLine).setIlk(_ilk, _amount * RAD, _gap * RAD, _ttl);
+        IAMLike(_autoLine).exec(_ilk);
     }
 
-    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line. Keeps the ttl unchanged.
-    ///      Requires the auto-line to be already configured for the ilk.
+    /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine.
+    ///      Keeps the ttl unchanged. Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
@@ -792,9 +795,11 @@ library DssExecLib {
         (,, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
         require(ttl != 0); // "LibDssExec/auto-line-not-configured"
         IAMLike(_autoLine).setIlk(_ilk, _amount * RAD, _gap * RAD, uint256(ttl));
+        IAMLike(_autoLine).exec(_ilk);
     }
 
-    /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line without updating the time values
+    /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and immediately execute AutoLine.
+    ///      Keeps the gap and ttl unchanged. Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     function setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount) public {
@@ -802,6 +807,7 @@ library DssExecLib {
         (, uint256 gap, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
         require(gap != 0 && ttl != 0); // "LibDssExec/auto-line-not-configured"
         IAMLike(_autoLine).setIlk(_ilk, _amount * RAD, uint256(gap), uint256(ttl));
+        IAMLike(_autoLine).exec(_ilk);
     }
 
     /// @dev Remove an ilk in the "MCD_IAM_AUTO_LINE" auto-line
