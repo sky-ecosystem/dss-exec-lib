@@ -738,56 +738,144 @@ contract DssActionTest is Test {
     }
 
     function test_setIlkAutoLineParameters() public {
-        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Setup
+        (,,, uint256 initialIlkLine,) = vat.ilks("gold");
+        uint256 initialGlobalLine = vat.Line();
 
-        (,,, uint256 line,) = vat.ilks("gold");
-        assertEq(line, 1000 * RAD); // does not change line
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Increase, gap-bound
 
-        autoLine.exec("gold");
-        (,,, line,) = vat.ilks("gold");
-        assertEq(line, 5 * MILLION * RAD); // Change to match the gap
+        (uint256 maxLine, uint256 gap, uint48 ttl, uint48 last, uint48 lastInc) = autoLine.ilks("gold");
+        assertEq(maxLine, 150 * MILLION * RAD);
+        assertEq(gap, 5 * MILLION * RAD);
+        assertEq(uint256(ttl), 10000);
+        assertEq(uint256(last), block.number); // Records execution block
+        assertEq(uint256(lastInc), block.timestamp); // Records increase timestamp
+
+        (,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 5 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also increased
+
+        action.setIlkAutoLineParameters_test("gold", 2 * MILLION, 1 * MILLION, 10000); // Decrease, gap-bound
+
+        (maxLine, gap, ttl, last, lastInc) = autoLine.ilks("gold");
+        assertEq(maxLine, 2 * MILLION * RAD);
+        assertEq(gap, 1 * MILLION * RAD);
+        assertEq(uint256(ttl), 10000);
+        assertEq(uint256(last), block.number); // Records execution block
+        assertEq(uint256(lastInc), 0); // Decreases do not update lastInc
+
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 1 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also decreased
+
+        action.setIlkAutoLineParameters_test("gold", 2 * MILLION, 1 * MILLION, 10000); // Unchanged target
+
+        (maxLine, gap, ttl, last, lastInc) = autoLine.ilks("gold");
+        assertEq(maxLine, 2 * MILLION * RAD);
+        assertEq(gap, 1 * MILLION * RAD);
+        assertEq(uint256(ttl), 10000);
+        assertEq(uint256(last), 0); // Reset by setIlk before exec no-op
+        assertEq(uint256(lastInc), 0); // Reset by setIlk before exec no-op
+
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 1 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // unchanged
     }
 
     function test_setIlkAutoLineParametersKeepTtl() public {
-        // First set up with initial values including ttl
-        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000);
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Setup
 
-        // Get the initial ttl value
         (,, uint48 initialTtl,,) = autoLine.ilks("gold");
         assertEq(uint256(initialTtl), 10000);
+        (,,, uint256 initialIlkLine,) = vat.ilks("gold");
+        uint256 initialGlobalLine = vat.Line();
 
-        // Now use the overloaded function that should keep the ttl unchanged
-        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION);
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION); // Increase, keep ttl
 
-        // Verify line and gap were updated but ttl remains the same
-        (uint256 line, uint256 gap, uint48 ttl,,) = autoLine.ilks("gold");
-        assertEq(line, 200 * MILLION * RAD);
+        (uint256 maxLine, uint256 gap, uint48 ttl,,) = autoLine.ilks("gold");
+        assertEq(maxLine, 200 * MILLION * RAD);
         assertEq(gap, 10 * MILLION * RAD);
-        assertEq(uint256(ttl), initialTtl); // ttl should remain unchanged
+        assertEq(uint256(ttl), initialTtl); // ttl unchanged
+
+        (,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 10 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also increased
     }
 
-    function test_RevertSetIlkAutoLineParametersKeepTtl_WhenNotConfigured() public {
+    function test_revert_setIlkAutoLineParametersKeepTtl_WhenNotConfigured() public {
         vm.expectRevert();
-        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION);
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION); // Fail if not configured
     }
 
     function test_setIlkAutoLineDebtCeiling() public {
-        action.setIlkAutoLineParameters_test("gold", 1, 5 * MILLION, 10000); // gap and ttl must be configured already
-        action.setIlkAutoLineDebtCeiling_test("gold", 150 * MILLION); // Setup
+        action.setIlkAutoLineParameters_test("gold", 2 * MILLION, 5 * MILLION, 10000); // Setup, maxLine-bound
 
-        (,,, uint256 line,) = vat.ilks("gold");
-        assertEq(line, 1000 * RAD); // does not change line
+        (,,, uint256 initialIlkLine,) = vat.ilks("gold");
+        uint256 initialGlobalLine = vat.Line();
 
-        autoLine.exec("gold");
-        (,,, line,) = vat.ilks("gold");
-        assertEq(line, 5 * MILLION * RAD); // Change to match the gap
+        action.setIlkAutoLineDebtCeiling_test("gold", 4 * MILLION); // Increase
+
+        (uint256 maxLine, uint256 gap, uint48 ttl,,) = autoLine.ilks("gold");
+        assertEq(maxLine, 4 * MILLION * RAD);
+        assertEq(gap, 5 * MILLION * RAD); // unchanged
+        assertEq(uint256(ttl), 10000); // unchanged
+
+        (,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 4 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also increased
+
+        action.setIlkAutoLineDebtCeiling_test("gold", 3 * MILLION); // Decrease
+
+        (maxLine, gap, ttl,,) = autoLine.ilks("gold");
+        assertEq(maxLine, 3 * MILLION * RAD);
+        assertEq(gap, 5 * MILLION * RAD); // unchanged
+        assertEq(uint256(ttl), 10000); // unchanged
+
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 3 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also decreased
+    }
+
+    function test_revert_setIlkAutoLineParameters_WhenAutoLineIsNotAuthorizedOnVat() public {
+        (uint256 initialMaxLine, uint256 initialGap, uint48 initialTtl, uint48 initialLast, uint48 initialLastInc) =
+            autoLine.ilks("gold");
+        (,,, uint256 initialIlkLine,) = vat.ilks("gold");
+        uint256 initialGlobalLine = vat.Line();
+
+        vat.deny(address(autoLine)); // Remove AutoLine authorization
+
+        vm.expectRevert("Vat/not-authorized");
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Fail on exec
+
+        (uint256 maxLine, uint256 gap, uint48 ttl, uint48 last, uint48 lastInc) = autoLine.ilks("gold");
+        assertEq(maxLine, initialMaxLine); // setIlk rolled back
+        assertEq(gap, initialGap);
+        assertEq(uint256(ttl), uint256(initialTtl));
+        assertEq(uint256(last), uint256(initialLast));
+        assertEq(uint256(lastInc), uint256(initialLastInc));
+
+        (,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, initialIlkLine);
+        assertEq(vat.Line(), initialGlobalLine); // live ceilings unchanged
     }
 
     function test_setRemoveIlkFromAutoLine() public {
-        action.setIlkAutoLineParameters_test("gold", 100 * MILLION, 5 * MILLION, 10000); // gap and ttl must be configured already
-        action.removeIlkFromAutoLine_test("gold");
+        action.setIlkAutoLineParameters_test("gold", 100 * MILLION, 5 * MILLION, 10000); // Setup
 
-        assertEq(autoLine.exec("gold"), 1000 * RAD);
+        (,,, uint256 initialIlkLine,) = vat.ilks("gold");
+        uint256 initialGlobalLine = vat.Line();
+
+        action.removeIlkFromAutoLine_test("gold"); // Remove configuration only
+
+        (uint256 maxLine, uint256 gap, uint48 ttl, uint48 last, uint48 lastInc) = autoLine.ilks("gold");
+        assertEq(maxLine, 0); // AutoLine configuration removed
+        assertEq(gap, 0);
+        assertEq(uint256(ttl), 0);
+        assertEq(uint256(last), 0);
+        assertEq(uint256(lastInc), 0);
+
+        (,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, initialIlkLine);
+        assertEq(vat.Line(), initialGlobalLine); // live ceilings unchanged
     }
 
     function test_setIlkMinVaultAmountLt() public {
