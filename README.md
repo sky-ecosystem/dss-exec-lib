@@ -83,9 +83,9 @@ Below is an outline of all functions used in the library.
 - `reg()`: Ilk Registry
 - `spotter()`: Oracle Liason
 - `flap()`: Surplus Auction Module
+- `kicker()`: Surplus Processing Trigger
 - `flop()`: Debt Auction Module
 - `osmMom()`: OSM Circuit Breaker
-- `govGuard()`: SKY Authority
 - `clipperMom()`: Clipper Governance Interface (Liquidations 2.0)
 - `pauseProxy()`: Governance Authority
 - `autoLine()`: Debt Ceiling Auto Adjustment
@@ -93,7 +93,6 @@ Below is an outline of all functions used in the library.
 - `usdsJoin()`: Join adapter for USDS
 - `lerpFab()`: Lerp Factory Contract
 - `pause()`: Pause Contract
-- `flip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `clip(bytes32 _ilk)`: Collateral Auction Module (per ilk)
 - `calc(bytes32 _ilk)`: Pricing Function for Liquidation (per ilk)
 
@@ -145,9 +144,9 @@ Below is an outline of all functions used in the library.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
 - `setSSR(uint256 _rate, bool _doDrip)`: Set the Sky Savings Rate.
-- `setSurplusAuctionAmount(uint256 _amount)`: Set the amount for system surplus auctions.
+- `setKickerAuctionAmount(uint256 _amount)`: Set the fixed Kicker surplus-processing lot in whole USDS units, converted to RAD.
+- `setKickerSurplusBuffer(int256 _amount)`: Set the signed Kicker surplus-processing threshold in whole USDS units, converted to RAD. A negative value lowers the execution threshold.
 - `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `98_00` bps allows a 2% drop in the reference price.
-- `setSurplusBuffer(uint256 _amount)`: Set the amount for system surplus buffer, must be exceeded before surplus auctions start.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
 - `setDebtAuctionDebtAmount(uint256 _amount)`: Set the debt amount for system debt to be covered by each debt auction.
 - `setDebtAuctionGovAmount(uint256 _amount)`: Set the starting governance token amount to be auctioned off to cover system debt in debt auctions.
@@ -195,10 +194,6 @@ Below is an outline of all functions used in the library.
 ### Governance Security Module
 
 - `setGSMDelay`: Sets the GSM delay for governance actions.
-
-### Direct Deposit Module
-
-- `setDDMTargetInterestRate(address _ddm, uint256 _pct_bps)`: Set the target rate (`bar`) for a DDM module.
 
 ### Collateral Onboarding
 

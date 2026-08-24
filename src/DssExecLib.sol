@@ -37,6 +37,7 @@ interface Kissable {
 interface Fileable {
     function file(bytes32, address) external;
     function file(bytes32, uint256) external;
+    function file(bytes32, int256) external;
     function file(bytes32, bytes32, uint256) external;
     function file(bytes32, bytes32, address) external;
 }
@@ -286,6 +287,12 @@ library DssExecLib {
         return getChangelogAddress("MCD_FLAP");
     }
 
+    /// @notice Get the KICK (surplus processing trigger) contract address from the changelog
+    /// @return The address of the KICK contract
+    function kicker() public view returns (address) {
+        return getChangelogAddress("MCD_KICK");
+    }
+
     /// @notice Get the FLOP (debt auction) contract address from the changelog
     /// @return The address of the FLOP contract
     function flop() public view returns (address) {
@@ -296,12 +303,6 @@ library DssExecLib {
     /// @return The address of the OSM_MOM contract
     function osmMom() public view returns (address) {
         return getChangelogAddress("OSM_MOM");
-    }
-
-    /// @notice Get the GOV_GUARD (governance guard) contract address from the changelog
-    /// @return The address of the GOV_GUARD contract
-    function govGuard() public view returns (address) {
-        return getChangelogAddress("GOV_GUARD");
     }
 
     /// @notice Get the CLIPPER_MOM (liquidation circuit breaker) contract address from the changelog
@@ -351,13 +352,6 @@ library DssExecLib {
     /// @return _clip The address of the liquidation contract for the given ilk
     function clip(bytes32 _ilk) public view returns (address _clip) {
         _clip = RegistryLike(reg()).xlip(_ilk);
-    }
-
-    /// @notice Get the collateral auction contract address for a given ilk (legacy)
-    /// @param _ilk The collateral type identifier
-    /// @return _flip The address of the auction contract for the given ilk
-    function flip(bytes32 _ilk) public view returns (address _flip) {
-        _flip = RegistryLike(reg()).xlip(_ilk);
     }
 
     /// @notice Get the pricing calculator contract address for a given ilk
@@ -611,18 +605,18 @@ library DssExecLib {
         setValue(susds(), "ssr", _rate);
     }
 
-    /// @dev Set the amount for system surplus auctions. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set (ex. 10m amount == 10000000)
-    function setSurplusAuctionAmount(uint256 _amount) public {
-        require(_amount < WAD); // "LibDssExec/incorrect-vow-bump-precision"
-        setValue(vow(), "bump", _amount * RAD);
+    /// @dev Set the fixed surplus-processing lot for Kicker. Amount will be converted to RAD.
+    /// @param _amount The amount in whole USDS units (ex. 10m amount == 10000000)
+    function setKickerAuctionAmount(uint256 _amount) public {
+        require(_amount < WAD); // "LibDssExec/incorrect-kick-kbump-precision"
+        Fileable(kicker()).file("kbump", _amount * RAD);
     }
 
-    /// @dev Set the amount for system surplus buffer, must be exceeded before surplus auctions start. Amount will be converted to the correct internal precision.
-    /// @param _amount The amount to set (ex. 10m amount == 10000000)
-    function setSurplusBuffer(uint256 _amount) public {
-        require(_amount < WAD); // "LibDssExec/incorrect-vow-hump-precision"
-        setValue(vow(), "hump", _amount * RAD);
+    /// @dev Set the signed surplus-processing threshold for Kicker. Amount will be converted to RAD.
+    /// @param _amount The threshold in whole USDS units. A negative value lowers the execution threshold.
+    function setKickerSurplusBuffer(int256 _amount) public {
+        require(-int256(WAD) < _amount && _amount < int256(WAD)); // "LibDssExec/incorrect-kick-khump-precision"
+        Fileable(kicker()).file("khump", _amount * int256(RAD));
     }
 
     /// @dev Set the minimum price threshold for surplus auctions. Amount will be converted to the correct internal precision.
@@ -972,17 +966,6 @@ library DssExecLib {
     function setGSMDelay(uint256 _delay) public {
         require(_delay >= 12 hours); // DssExecLib/delay-too-low
         PauseLike(pause()).setDelay(_delay);
-    }
-
-    /* ----- Direct Deposit Module ----- */
-
-    /// @dev Sets the target rate threshold for a direct deposit module (ddm)
-    /// @dev Aave: Targets the variable borrow rate
-    /// @param _ddm The address of the DDM contract
-    /// @param _pct_bps Target rate in basis points. (ex. 4% == 400)
-    function setDDMTargetInterestRate(address _ddm, uint256 _pct_bps) public {
-        require(_pct_bps < BPS_ONE_HUNDRED_PCT); // DssExecLib/bar-too-high
-        setValue(_ddm, "bar", rdiv(_pct_bps, BPS_ONE_HUNDRED_PCT));
     }
 
     /* ----- Collateral Onboarding ----- */
