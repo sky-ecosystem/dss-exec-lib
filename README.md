@@ -83,7 +83,7 @@ Below is an outline of all functions used in the library.
 - `reg()`: Ilk Registry
 - `spotter()`: Oracle Liason
 - `flap()`: Surplus Auction Module
-- `kicker()`: Surplus Processing Trigger
+- `kicker()`: Kicker surplus-processing trigger
 - `flop()`: Debt Auction Module
 - `osmMom()`: OSM Circuit Breaker
 - `clipperMom()`: Clipper Governance Interface (Liquidations 2.0)
@@ -144,8 +144,8 @@ Below is an outline of all functions used in the library.
 - `decreaseGlobalDebtCeiling(uint256 _amount)`: Decrease the global debt ceiling.
 - `setDSR(uint256 _rate, bool _doDrip)`: Set the Dai Savings Rate.
 - `setSSR(uint256 _rate, bool _doDrip)`: Set the Sky Savings Rate.
-- `setKickerAuctionAmount(uint256 _amount)`: Set the fixed Kicker surplus-processing lot in whole USDS units, converted to RAD.
-- `setKickerSurplusBuffer(int256 _amount)`: Set the signed Kicker surplus-processing threshold in whole USDS units, converted to RAD. A negative value lowers the execution threshold.
+- `setKickerAuctionAmount(uint256 _amount)`: Set `Kicker.kbump`, its fixed lot size, from whole USDS units converted to RAD.
+- `setKickerSurplusBuffer(int256 _amount)`: Set `Kicker.khump`, its signed flap threshold, from whole USDS units converted to RAD. A negative value lowers the net surplus required for `Kicker.flap()`.
 - `setSurplusAuctionMinPriceThreshold(uint256 _pct_bps)`: Set the relative multiplier of the reference price to insist in the swap. For example, `98_00` bps allows a 2% drop in the reference price.
 - `setDebtAuctionDelay(uint256 _length)`: Set the number of seconds that pass before system debt is auctioned for MKR tokens.
 - `setDebtAuctionDebtAmount(uint256 _amount)`: Set the debt amount for system debt to be covered by each debt auction.

@@ -287,8 +287,8 @@ library DssExecLib {
         return getChangelogAddress("MCD_FLAP");
     }
 
-    /// @notice Get the KICK (surplus processing trigger) contract address from the changelog
-    /// @return The address of the KICK contract
+    /// @notice Get the Kicker (MCD_KICK) contract address from the changelog
+    /// @return The address of the Kicker contract
     function kicker() public view returns (address) {
         return getChangelogAddress("MCD_KICK");
     }
@@ -605,15 +605,15 @@ library DssExecLib {
         setValue(susds(), "ssr", _rate);
     }
 
-    /// @dev Set the fixed surplus-processing lot for Kicker. Amount will be converted to RAD.
-    /// @param _amount The amount in whole USDS units (ex. 10m amount == 10000000)
+    /// @dev Set Kicker.kbump, the fixed lot size used by Kicker.flap(). The amount is provided in whole USDS units and converted to RAD.
+    /// @param _amount The fixed lot size in whole USDS units (ex. 10m USDS == 10000000)
     function setKickerAuctionAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-kick-kbump-precision"
         Fileable(kicker()).file("kbump", _amount * RAD);
     }
 
-    /// @dev Set the signed surplus-processing threshold for Kicker. Amount will be converted to RAD.
-    /// @param _amount The threshold in whole USDS units. A negative value lowers the execution threshold.
+    /// @dev Set Kicker.khump, the signed flap threshold. The amount is provided in whole USDS units and converted to RAD while preserving its sign.
+    /// @param _amount The signed flap threshold in whole USDS units. A negative value lowers the net surplus required for Kicker.flap().
     function setKickerSurplusBuffer(int256 _amount) public {
         require(-int256(WAD) < _amount && _amount < int256(WAD)); // "LibDssExec/incorrect-kick-khump-precision"
         Fileable(kicker()).file("khump", _amount * int256(RAD));
