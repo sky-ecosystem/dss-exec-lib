@@ -76,9 +76,9 @@ interface Univ2OracleFactoryLike {
     function build(address, address, bytes32, address, address) external returns (address oracle);
 }
 
-interface DDMLike {
-    function bar() external view returns (uint256);
-    function rely(address) external;
+interface KickerLike {
+    function kbump() external view returns (uint256);
+    function khump() external view returns (int256);
 }
 
 interface FlapUniV2Like {
@@ -122,6 +122,7 @@ contract DssActionTest is Test {
     UsdsJoinLike usdsJoin;
     SpotAbstract spot;
     FlapUniV2Like flap;
+    KickerLike kicker;
     FlopAbstract flop;
     DSTokenAbstract gov;
     DSTokenAbstract mkr;
@@ -176,6 +177,7 @@ contract DssActionTest is Test {
         usdsToken = UsdsLike(LOG.getAddress("USDS"));
         spot = SpotAbstract(LOG.getAddress("MCD_SPOT"));
         flap = FlapUniV2Like(LOG.getAddress("MCD_FLAP"));
+        kicker = KickerLike(LOG.getAddress("MCD_KICK"));
         flop = FlopAbstract(LOG.getAddress("MCD_FLOP"));
         gov = DSTokenAbstract(LOG.getAddress("MCD_GOV"));
         mkr = DSTokenAbstract(LOG.getAddress("MKR"));
@@ -201,6 +203,7 @@ contract DssActionTest is Test {
         vm.label(address(usdsJoin), "USDS_JOIN");
         vm.label(address(spot), "SPOT");
         vm.label(address(flap), "FLAP");
+        vm.label(address(kicker), "KICKER");
         vm.label(address(flop), "FLOP");
         vm.label(address(gov), "GOV");
         vm.label(address(mkr), "MKR");
@@ -228,6 +231,7 @@ contract DssActionTest is Test {
         giveAuth(address(jug), address(this));
         giveAuth(address(jug), address(action));
         giveAuth(address(flap), address(action));
+        giveAuth(address(kicker), address(action));
         giveAuth(address(flop), address(action));
         giveAuth(address(daiJoin), address(action));
         giveAuth(address(LOG), address(action));
@@ -592,14 +596,84 @@ contract DssActionTest is Test {
         assertEq(pot.dsr(), rate);
     }
 
-    function test_setSurplusAuctionAmount() public {
-        action.setSurplusAuctionAmount_test(100 * THOUSAND);
-        assertEq(vow.bump(), 100 * THOUSAND * RAD);
+    function test_kicker() public view {
+        assertEq(action.kicker_test(), address(kicker));
+        assertGt(address(kicker).code.length, 0);
     }
 
-    function test_setSurplusBuffer() public {
-        action.setSurplusBuffer_test(1 * MILLION);
-        assertEq(vow.hump(), 1 * MILLION * RAD);
+    function test_setKickerAuctionAmount() public {
+        uint256 amount = 7_000;
+        uint256 initialKbump = kicker.kbump();
+        int256 initialKhump = kicker.khump();
+
+        assertNotEq(initialKbump, amount * RAD, "Precondition: target kbump must differ");
+
+        action.setKickerAuctionAmount_test(amount);
+
+        assertEq(kicker.kbump(), amount * RAD);
+        assertEq(kicker.khump(), initialKhump); // unchanged
+    }
+
+    function test_setKickerAuctionAmountPrecisionBoundary() public {
+        action.setKickerAuctionAmount_test(WAD - 1);
+        assertEq(kicker.kbump(), (WAD - 1) * RAD);
+    }
+
+    function test_setKickerAuctionAmountReverts() public {
+        uint256 initialKbump = kicker.kbump();
+
+        vm.expectRevert();
+        action.setKickerAuctionAmount_test(WAD);
+
+        assertEq(kicker.kbump(), initialKbump);
+    }
+
+    function test_setKickerSurplusBufferNegative() public {
+        int256 amount = -100 * int256(MILLION);
+        uint256 initialKbump = kicker.kbump();
+        int256 initialKhump = kicker.khump();
+
+        assertNotEq(initialKhump, amount * int256(RAD), "Precondition: target khump must differ");
+
+        action.setKickerSurplusBuffer_test(amount);
+
+        assertEq(kicker.khump(), amount * int256(RAD));
+        assertEq(kicker.kbump(), initialKbump); // unchanged
+    }
+
+    function test_setKickerSurplusBufferZero() public {
+        action.setKickerSurplusBuffer_test(0);
+        assertEq(kicker.khump(), 0);
+    }
+
+    function test_setKickerSurplusBufferPositive() public {
+        int256 amount = 100 * int256(MILLION);
+
+        action.setKickerSurplusBuffer_test(amount);
+        assertEq(kicker.khump(), amount * int256(RAD));
+    }
+
+    function test_setKickerSurplusBufferBounds() public {
+        int256 lowerBound = -int256(WAD) + 1;
+        int256 upperBound = int256(WAD) - 1;
+
+        action.setKickerSurplusBuffer_test(lowerBound);
+        assertEq(kicker.khump(), lowerBound * int256(RAD));
+
+        action.setKickerSurplusBuffer_test(upperBound);
+        assertEq(kicker.khump(), upperBound * int256(RAD));
+    }
+
+    function test_setKickerSurplusBufferReverts() public {
+        int256 initialKhump = kicker.khump();
+
+        vm.expectRevert();
+        action.setKickerSurplusBuffer_test(-int256(WAD));
+        assertEq(kicker.khump(), initialKhump);
+
+        vm.expectRevert();
+        action.setKickerSurplusBuffer_test(int256(WAD));
+        assertEq(kicker.khump(), initialKhump);
     }
 
     function test_setSurplusAuctionMinPriceThreshold() public {
@@ -948,20 +1022,6 @@ contract DssActionTest is Test {
         // Reverts if the value is lower than 12 hours
         vm.expectRevert();
         pauseProxy.exec(address(action), abi.encodeCall(action.setGSMDelay_test, 8 hours));
-    }
-
-    function test_setDDMTargetInterestRate() public {
-        DDMLike ddm = DDMLike(LOG.getAddress("DIRECT_AAVEV2_DAI_PLAN"));
-        giveAuth(address(ddm), address(action));
-
-        action.setDDMTargetInterestRate_test(address(ddm), 500); // set to 5%
-        assertEq(ddm.bar(), 5 * RAY / 100);
-
-        action.setDDMTargetInterestRate_test(address(ddm), 0); // set to 0%
-        assertEq(ddm.bar(), 0);
-
-        action.setDDMTargetInterestRate_test(address(ddm), 1000); // set to 10%
-        assertEq(ddm.bar(), 10 * RAY / 100);
     }
 
     function test_collateralOnboardingBase() public {
