@@ -614,7 +614,7 @@ contract DssActionTest is Test {
         assertEq(kicker.khump(), initialKhump); // unchanged
     }
 
-    function test_setKickerAuctionAmountMax() public {
+    function test_setKickerAuctionAmountPrecisionBoundary() public {
         action.setKickerAuctionAmount_test(WAD - 1);
         assertEq(kicker.kbump(), (WAD - 1) * RAD);
     }

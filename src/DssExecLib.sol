@@ -606,6 +606,7 @@ library DssExecLib {
     }
 
     /// @dev Set Kicker.kbump, the fixed lot size used by Kicker.flap(). The amount is provided in whole USDS units and converted to RAD.
+    /// @dev The WAD bound only validates input precision and RAD conversion; callers must ensure kbump * burn does not overflow in Splitter.kick().
     /// @param _amount The fixed lot size in whole USDS units (ex. 10m USDS == 10000000)
     function setKickerAuctionAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-kick-kbump-precision"
