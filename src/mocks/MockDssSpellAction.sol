@@ -136,12 +136,16 @@ contract MockDssSpellAction is DssAction {
         DssExecLib.setSSR(rate, true);
     }
 
-    function setSurplusAuctionAmount_test(uint256 amount) public {
-        DssExecLib.setSurplusAuctionAmount(amount);
+    function kicker_test() public view returns (address) {
+        return DssExecLib.kicker();
     }
 
-    function setSurplusBuffer_test(uint256 amount) public {
-        DssExecLib.setSurplusBuffer(amount);
+    function setKickerAuctionAmount_test(uint256 amount) public {
+        DssExecLib.setKickerAuctionAmount(amount);
+    }
+
+    function setKickerSurplusBuffer_test(int256 amount) public {
+        DssExecLib.setKickerSurplusBuffer(amount);
     }
 
     function setSurplusAuctionMinPriceThreshold_test(uint256 _pct_bps) public {
@@ -294,10 +298,6 @@ contract MockDssSpellAction is DssAction {
 
     function setGSMDelay_test(uint256 _delay) public {
         DssExecLib.setGSMDelay(_delay);
-    }
-
-    function setDDMTargetInterestRate_test(address ddm, uint256 pct_bps) public {
-        DssExecLib.setDDMTargetInterestRate(ddm, pct_bps);
     }
 
     function addCollateralBase_test(bytes32 ilk, address gem, address join, address clip, address calc, address pip)
