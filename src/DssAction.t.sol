@@ -596,9 +596,12 @@ contract DssActionTest is Test {
         assertEq(pot.dsr(), rate);
     }
 
-    function test_kicker() public view {
-        assertEq(action.kicker_test(), address(kicker));
+    function test_kicker() public {
         assertGt(address(kicker).code.length, 0);
+
+        action.setChangelogAddress_test("MCD_KICK", address(this));
+
+        assertEq(action.kicker_test(), address(this));
     }
 
     function test_setKickerAuctionAmount() public {
@@ -907,6 +910,22 @@ contract DssActionTest is Test {
         (,,, ilkLine,) = vat.ilks("gold");
         assertEq(ilkLine, 3 * MILLION * RAD);
         assertEq(vat.Line(), initialGlobalLine + ilkLine - initialIlkLine); // also decreased
+    }
+
+    function test_setIlkAutoLineDebtCeilingPrecisionBoundary() public {
+        action.setIlkAutoLineParameters_test("gold", 2 * MILLION, 5 * MILLION, 10000); // Setup
+
+        action.setIlkAutoLineDebtCeiling_test("gold", WAD - 1);
+
+        (uint256 maxLine,,,,) = autoLine.ilks("gold");
+        assertEq(maxLine, (WAD - 1) * RAD);
+    }
+
+    function test_setIlkAutoLineDebtCeilingReverts() public {
+        action.setIlkAutoLineParameters_test("gold", 2 * MILLION, 5 * MILLION, 10000); // Setup
+
+        vm.expectRevert();
+        action.setIlkAutoLineDebtCeiling_test("gold", WAD); // Fail on precision
     }
 
     function test_revert_setIlkAutoLineParameters_WhenAutoLineIsNotAuthorizedOnVat() public {
