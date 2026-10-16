@@ -167,7 +167,7 @@ Below is an outline of all functions used in the library.
 - `setRWAIlkDebtCeiling(bytes32 _ilk, uint256 _ceiling, uint256 _price)`: Set the debt ceiling for a RWA collateral. This requires also a new oracle price.
 - `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl)`: Configure the Debt Ceiling auto line parameters, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
 - `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap)`: Configure the amount and gap while keeping the existing TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
-- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Configure the maximum debt ceiling while keeping the existing gap and TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
+- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Configure the maximum debt ceiling while keeping the existing gap and TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change. The amount is in whole units and must be less than `WAD` (`10^18`).
 - `removeIlkFromAutoLine(bytes32 _ilk)`: Remove the AutoLine configuration for an ilk without updating the live Vat debt ceilings.
 - `setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount)`: Set a collateral minimum vault amount.
 - `setIlkLiquidationPenalty(bytes32 _ilk, uint256 _pct_bps)`: Set a collateral liquidation penalty.

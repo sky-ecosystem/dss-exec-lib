@@ -288,8 +288,8 @@ library DssExecLib {
         return getChangelogAddress("MCD_FLAP");
     }
 
-    /// @notice Get the Kicker (MCD_KICK) contract address from the changelog
-    /// @return The address of the Kicker contract
+    /// @notice Get the KICKER (surplus-processing trigger) contract address from the changelog
+    /// @return The address of the KICKER contract
     function kicker() public view returns (address) {
         return getChangelogAddress("MCD_KICK");
     }
@@ -611,7 +611,7 @@ library DssExecLib {
     /// @param _amount The fixed lot size in whole USDS units (ex. 10m USDS == 10000000)
     function setKickerAuctionAmount(uint256 _amount) public {
         require(_amount < WAD); // "LibDssExec/incorrect-kick-kbump-precision"
-        Fileable(kicker()).file("kbump", _amount * RAD);
+        setValue(kicker(), "kbump", _amount * RAD);
     }
 
     /// @dev Set Kicker.khump, the signed flap threshold. The amount is provided in whole USDS units and converted to RAD while preserving its sign.
@@ -799,8 +799,9 @@ library DssExecLib {
     ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
     ///      Keeps the gap and ttl unchanged. Requires the auto-line to be already configured for the ilk.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
-    /// @param _amount The Maximum value (ex. 100m amount == 100000000)
+    /// @param _amount The maximum debt ceiling in whole units, less than WAD (ex. 100m amount == 100000000)
     function setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount) public {
+        require(_amount < WAD); // "LibDssExec/incorrect-auto-line-amount-precision"
         address _autoLine = autoLine();
         (, uint256 gap, uint48 ttl,,) = IAMLike(_autoLine).ilks(_ilk);
         require(gap != 0 && ttl != 0); // "LibDssExec/auto-line-not-configured"
