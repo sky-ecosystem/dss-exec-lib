@@ -971,6 +971,56 @@ contract DssActionTest is Test {
         assertEq(vat.Line(), initialGlobalLine); // live ceilings unchanged
     }
 
+    function test_setIlkAutoLineParametersThenGlobalDebtCeiling() public {
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Setup
+        action.setGlobalDebtCeiling_test(100 * MILLION);
+
+        (uint256 art,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(art, 0);
+        assertEq(ilkLine, 5 * MILLION * RAD);
+        assertEq(vat.Line(), 100 * MILLION * RAD);
+
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 10 * MILLION); // Increase, keep ttl
+
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 10 * MILLION * RAD);
+        assertEq(vat.Line(), 105 * MILLION * RAD); // also increased
+
+        action.increaseGlobalDebtCeiling_test(3 * MILLION);
+        assertEq(vat.Line(), 108 * MILLION * RAD);
+        action.decreaseGlobalDebtCeiling_test(1 * MILLION);
+        assertEq(vat.Line(), 107 * MILLION * RAD);
+        action.setGlobalDebtCeiling_test(200 * MILLION);
+        assertEq(vat.Line(), 200 * MILLION * RAD);
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 10 * MILLION * RAD); // unchanged
+    }
+
+    function test_setIlkAutoLineParametersNoChangeThenGlobalDebtCeiling() public {
+        action.setIlkAutoLineParameters_test("gold", 150 * MILLION, 5 * MILLION, 10000); // Setup
+        action.setGlobalDebtCeiling_test(100 * MILLION);
+
+        (uint256 art,,, uint256 ilkLine,) = vat.ilks("gold");
+        assertEq(art, 0);
+        assertEq(ilkLine, 5 * MILLION * RAD);
+        assertEq(vat.Line(), 100 * MILLION * RAD);
+
+        action.setIlkAutoLineParameters_test("gold", 200 * MILLION, 5 * MILLION); // New maximum, unchanged target
+
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 5 * MILLION * RAD); // unchanged
+        assertEq(vat.Line(), 100 * MILLION * RAD); // unchanged
+
+        action.increaseGlobalDebtCeiling_test(3 * MILLION);
+        assertEq(vat.Line(), 103 * MILLION * RAD);
+        action.decreaseGlobalDebtCeiling_test(1 * MILLION);
+        assertEq(vat.Line(), 102 * MILLION * RAD);
+        action.setGlobalDebtCeiling_test(200 * MILLION);
+        assertEq(vat.Line(), 200 * MILLION * RAD);
+        (,,, ilkLine,) = vat.ilks("gold");
+        assertEq(ilkLine, 5 * MILLION * RAD); // unchanged
+    }
+
     function test_setIlkMinVaultAmountLt() public {
         action.setIlkMaxLiquidationAmount_test("gold", 100);
         action.setIlkMinVaultAmount_test("gold", 1);
@@ -1316,6 +1366,46 @@ contract DssActionTest is Test {
 
     function test_addNewCollateralCase6() public {
         _checkCollateralOnboarding(false, false, false); // Liquidations: OFF, PIP != OSM, osmSrc != oracle
+    }
+
+    function test_addNewCollateralThenAutoLine() public {
+        uint256 initialGlobalLine = vat.Line();
+        _checkCollateralOnboarding(false, false, false); // Setup
+
+        (uint256 art,,, uint256 ilkLine,) = vat.ilks("silver");
+        assertEq(art, 0);
+        assertEq(ilkLine, 100 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + 100 * MILLION * RAD);
+
+        action.setIlkAutoLineParameters_test("silver", 150 * MILLION, 5 * MILLION, 10000); // Decrease, gap-bound
+
+        (uint256 maxLine, uint256 gap, uint48 ttl,,) = autoLine.ilks("silver");
+        assertEq(maxLine, 150 * MILLION * RAD);
+        assertEq(gap, 5 * MILLION * RAD);
+        assertEq(uint256(ttl), 10000);
+        (,,, ilkLine,) = vat.ilks("silver");
+        assertEq(ilkLine, 5 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + 5 * MILLION * RAD); // also decreased
+    }
+
+    function test_addNewCollateralThenAutoLineNoChange() public {
+        uint256 initialGlobalLine = vat.Line();
+        _checkCollateralOnboarding(false, false, false); // Setup
+
+        (uint256 art,,, uint256 ilkLine,) = vat.ilks("silver");
+        assertEq(art, 0);
+        assertEq(ilkLine, 100 * MILLION * RAD);
+        assertEq(vat.Line(), initialGlobalLine + 100 * MILLION * RAD);
+
+        action.setIlkAutoLineParameters_test("silver", 150 * MILLION, 100 * MILLION, 10000); // Unchanged target
+
+        (uint256 maxLine, uint256 gap, uint48 ttl,,) = autoLine.ilks("silver");
+        assertEq(maxLine, 150 * MILLION * RAD);
+        assertEq(gap, 100 * MILLION * RAD);
+        assertEq(uint256(ttl), 10000);
+        (,,, ilkLine,) = vat.ilks("silver");
+        assertEq(ilkLine, 100 * MILLION * RAD); // unchanged
+        assertEq(vat.Line(), initialGlobalLine + 100 * MILLION * RAD); // unchanged
     }
 
     function test_officeHoursCanOverrideInAction() public {

@@ -165,9 +165,9 @@ Below is an outline of all functions used in the library.
 - `increaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Raise the debt ceiling of a particular ilk.
 - `decreaseIlkDebtCeiling(bytes32 _ilk, uint256 _amount, bool _global)`: Lower the debt ceiling of a particular ilk.
 - `setRWAIlkDebtCeiling(bytes32 _ilk, uint256 _ceiling, uint256 _price)`: Set the debt ceiling for a RWA collateral. This requires also a new oracle price.
-- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl)`: Configure the Debt Ceiling auto line parameters, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
-- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap)`: Configure the amount and gap while keeping the existing TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change.
-- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Configure the maximum debt ceiling while keeping the existing gap and TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change. The amount is in whole units and must be less than `WAD` (`10^18`).
+- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap, uint256 _ttl)`: Configure the Debt Ceiling auto line parameters, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change. Otherwise, both ceilings remain unchanged.
+- `setIlkAutoLineParameters(bytes32 _ilk, uint256 _amount, uint256 _gap)`: Configure the amount and gap while keeping the existing TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change. Otherwise, both ceilings remain unchanged.
+- `setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount)`: Configure the maximum debt ceiling while keeping the existing gap and TTL, then call `DssAutoLine.exec(ilk)` to update the live Vat debt ceilings when AutoLine permits a change. Otherwise, both ceilings remain unchanged. The amount is in whole units and must be less than `WAD` (`10^18`).
 - `removeIlkFromAutoLine(bytes32 _ilk)`: Remove the AutoLine configuration for an ilk without updating the live Vat debt ceilings.
 - `setIlkMinVaultAmount(bytes32 _ilk, uint256 _amount)`: Set a collateral minimum vault amount.
 - `setIlkLiquidationPenalty(bytes32 _ilk, uint256 _pct_bps)`: Set a collateral liquidation penalty.
@@ -213,7 +213,9 @@ In order to onboard new collateral to the Maker protocol, the following must be 
   - Rely the `MCD_PAUSE_PROXY` address
   - Deny the deployer address
 
-Once these actions are done, add the following code (below is an example) to the `execute()` function in the spell. The `setChangelogAddress` function calls are required to add the collateral to the on-chain changelog. They must follow the following convention:
+Once these actions are done, add the following code (below is an example) to the `execute()` function in the spell. This example onboards a collateral type that uses AutoLine. If the collateral uses AutoLine, call `addNewCollateral` before configuring AutoLine for that ilk: onboarding sets the initial ilk debt ceiling and increases `Vat.Line`, so reversing the order can count an AutoLine increase twice. Subsequent debt-ceiling changes must account for the resulting ceilings.
+
+The `setChangelogAddress` function calls are required to add the collateral to the on-chain changelog. They must follow the following convention:
 
 - GEM: `TOKEN`
 - JOIN: `MCD_JOIN_TOKEN`
@@ -252,6 +254,9 @@ CollateralOpts memory XMPL_A = CollateralOpts({
 });
 
 DssExecLib.addNewCollateral(XMPL_A);
+
+// If the collateral uses AutoLine, configure it after onboarding.
+DssExecLib.setIlkAutoLineParameters("XMPL-A", 10 * MILLION, 3 * MILLION, 24 hours);
 
 DssExecLib.setChangelogAddress("XMPL",          0xCE4F3774620764Ea881a8F8840Cbe0F701372283);
 DssExecLib.setChangelogAddress("PIP_XMPL",      0x9eb923339c24c40Bef2f4AF4961742AA7C23EF3a);

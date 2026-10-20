@@ -767,6 +767,9 @@ library DssExecLib {
 
     /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
     ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
+    ///      Otherwise, both ceilings remain unchanged.
+    ///      If onboarding the ilk in the same spell, call addNewCollateral before this function.
+    ///      Subsequent debt-ceiling changes must account for the resulting ceilings.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
@@ -781,7 +784,10 @@ library DssExecLib {
 
     /// @dev Set the parameters for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
     ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
+    ///      Otherwise, both ceilings remain unchanged.
     ///      Keeps the ttl unchanged. Requires the auto-line to be already configured for the ilk.
+    ///      If onboarding the ilk in the same spell, call addNewCollateral before this function.
+    ///      Subsequent debt-ceiling changes must account for the resulting ceilings.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The Maximum value (ex. 100m amount == 100000000)
     /// @param _gap The amount per step (ex. 5m gap == 5000000)
@@ -797,7 +803,10 @@ library DssExecLib {
 
     /// @dev Set the debt ceiling for an ilk in the "MCD_IAM_AUTO_LINE" auto-line and call exec.
     ///      exec updates the live Vat debt ceilings when AutoLine permits a change.
+    ///      Otherwise, both ceilings remain unchanged.
     ///      Keeps the gap and ttl unchanged. Requires the auto-line to be already configured for the ilk.
+    ///      If onboarding the ilk in the same spell, call addNewCollateral before this function.
+    ///      Subsequent debt-ceiling changes must account for the resulting ceilings.
     /// @param _ilk The ilk to update (ex. bytes32("ETH-A"))
     /// @param _amount The maximum debt ceiling in whole units, less than WAD (ex. 100m amount == 100000000)
     function setIlkAutoLineDebtCeiling(bytes32 _ilk, uint256 _amount) public {
@@ -1043,6 +1052,8 @@ library DssExecLib {
     /// @dev Complete collateral onboarding with all necessary configurations and authorizations.
     /// @dev This function performs comprehensive collateral setup including debt ceilings, liquidation parameters,
     ///      stability fees, and oracle configurations. Use this for complete collateral onboarding.
+    /// @dev Sets the initial ilk ceiling and increases Vat.Line by co.ilkDebtCeiling * RAD.
+    ///      If the ilk uses AutoLine, configure it after this function to avoid counting an AutoLine increase twice.
     /// @param co Struct containing all collateral configuration options and parameters
     function addNewCollateral(CollateralOpts memory co) public {
         // Add the collateral to the system.
