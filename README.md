@@ -310,3 +310,16 @@ DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XMPL-A", xmpl_calc);
 $ forge update
 $ ETH_RPC_URL=<node_url> forge test
 ```
+
+## Audits
+
+Audit reports are hosted on the auditors' public portfolio pages:
+
+| Auditor | Report | Date |
+| --- | --- | --- |
+| ChainSecurity | [Sky DSS Exec Lib](https://www.chainsecurity.com/security-audit/sky-dss-exec-lib/) | 2026-10-23 |
+| Cantina | [Sky: DSSEXECLIB v0.1.1](https://cantina.xyz/portfolio/d70cef8c-5e64-43f8-b100-6f8d68b7dc5c) | 2026-10-10 |
+| Cantina | [Sky: DSS Exec Lib](https://cantina.xyz/portfolio/b3a5f441-60bf-4437-a878-a83e9ef86510) | 2026-07-13 |
+| Cantina | [Sky: dss-exec-lib](https://cantina.xyz/portfolio/c0aae84c-079b-452f-90fa-2e35168289ad) | 2025-11-28 |
+
+ChainSecurity reports are cumulative: each portfolio page hosts the latest version of the report, which covers all previously reviewed versions.
